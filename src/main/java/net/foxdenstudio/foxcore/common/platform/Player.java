@@ -1,4 +1,5 @@
 package net.foxdenstudio.foxcore.common.platform;
 
-public interface Player {
+public interface Player extends User {
+
 }
