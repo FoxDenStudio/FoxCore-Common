@@ -1,4 +1,4 @@
-#FoxCore Common
+# FoxCore-Common (A rewrite)
 I'm rewriting my plugins, basically, and this repo is now the starting point of that.
 
 This time, i'm doing everything the right way, as best as I can, by trying to write more abstract and durable code,
