@@ -28,7 +28,7 @@ public class FoxPath {
     }
 
     public static FoxPath fromString(String input){
-
+        return null;
     }
 
     public boolean isRoot() {

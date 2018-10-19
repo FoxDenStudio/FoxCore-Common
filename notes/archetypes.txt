@@ -1,0 +1,16 @@
+Archetypes primarily hold commands and attributes that will apply to all objects that inherit from that archetype
+
+Should
+------------
+be configured once and remain constant
+contain commands and attributes for objects that inherit from them
+    they might have default property values for their attributes
+    they also might have commands or more elaborate configuration of their own, that affects the inheriting objects.
+archetypes should be instantiated before foxobjects
+foxobjects should be able to include more than one archetype.
+    generally objects will include only one, but will inherit archetypes from parent classes.
+
+
+Should Not
+------------
+be modifiable through runtime commands

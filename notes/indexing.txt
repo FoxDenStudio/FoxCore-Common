@@ -1,0 +1,15 @@
+I want there to be a distinct index for each type
+    - like region, handler, component
+
+However i also want objects to link to other objects, especially to objects of different types.
+
+I also want it to be possible to have certain local objects that are not expressly in the main index
+    - for example, i want it to be possible for local components to exist in a handler so that
+        they are only loaded if the handler is loaded.
+
+I think that all objects should always be loaded by the loader of their type,
+    and that loaders should report any local objects to the correct loader to be loaded, in a recursive manner.
+
+As a result, even if objects appear to be stored within each other in a file system loader,
+    a database loader would still keep them separate, and instead of a "local index", keyed by object references
+    and the respective internal link path.
