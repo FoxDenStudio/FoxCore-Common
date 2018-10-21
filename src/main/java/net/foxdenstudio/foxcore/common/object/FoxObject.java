@@ -19,6 +19,10 @@ public interface FoxObject {
 
     <P extends FoxProperty<?, A>, A extends FoxAttribute<P>> P getProperty(A attribute);
 
+    <P extends FoxProperty<?, A>, A extends FoxAttribute<P>> P getOrCreateProperty(A attribute);
+
+    boolean hasAttribute(FoxAttribute<?> attribute);
+
     LinkResult link(FoxObject object, @Nullable FoxPath path);
 
 }

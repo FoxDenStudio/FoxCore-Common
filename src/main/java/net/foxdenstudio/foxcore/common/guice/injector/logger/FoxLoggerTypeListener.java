@@ -3,7 +3,7 @@ package net.foxdenstudio.foxcore.common.guice.injector.logger;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
-import net.foxdenstudio.foxcore.common.annotation.guice.InjectFoxLogger;
+import net.foxdenstudio.foxcore.common.annotation.guice.FoxLogger;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
@@ -15,7 +15,7 @@ public class FoxLoggerTypeListener implements TypeListener {
         while (clazz != null) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.getType() == Logger.class &&
-                        field.isAnnotationPresent(InjectFoxLogger.class)) {
+                        field.isAnnotationPresent(FoxLogger.class)) {
                     encounter.register(new FoxLoggerMembersInjector<>(field, clazz));
                 }
             }

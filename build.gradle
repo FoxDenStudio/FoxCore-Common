@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlinVersion = '1.2.51'
+    ext.kotlinVersion = '1.2.71'
     repositories {
         jcenter()
         maven {
@@ -33,6 +33,7 @@ dependencies {
     compile 'com.google.code.findbugs:jsr305:3.0.1'
     compile 'com.google.inject:guice:4.1.0'
     compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
+    compile 'com.google.inject.extensions:guice-multibindings:4.1.0'
 
     // Java 8 high performance cache (+ wrapper for Guava)
     compile 'com.github.ben-manes.caffeine:caffeine:2.5.4'
@@ -47,10 +48,10 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
-configurations.each {
+/*configurations.each {
     println it.name
     it.getFiles().each {
         println it.getName()
     }
     println()
-}
+}*/

@@ -1,7 +1,7 @@
 package net.foxdenstudio.foxcore.common.guice.injector.logger;
 
 import com.google.inject.MembersInjector;
-import net.foxdenstudio.foxcore.common.annotation.guice.InjectFoxLogger;
+import net.foxdenstudio.foxcore.common.annotation.guice.FoxLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +14,7 @@ public class FoxLoggerMembersInjector<T> implements MembersInjector<T> {
     FoxLoggerMembersInjector(Field field, Class<?> clazz) {
         this.field = field;
         String loggername = "fox";
-        InjectFoxLogger annotation = field.getAnnotation(InjectFoxLogger.class);
+        FoxLogger annotation = field.getAnnotation(FoxLogger.class);
         String value = annotation.value();
         if(!value.isEmpty()){
             loggername += "." + value;

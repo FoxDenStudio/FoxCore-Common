@@ -1,6 +1,6 @@
 package net.foxdenstudio.foxcore.common;
 
-import net.foxdenstudio.foxcore.common.annotation.guice.InjectFoxLogger;
+import net.foxdenstudio.foxcore.common.annotation.guice.FoxLogger;
 import net.foxdenstudio.foxcore.common.command.CommandEcho;
 import net.foxdenstudio.foxcore.common.command.FoxCommandManager;
 import net.foxdenstudio.foxcore.common.platform.command.source.ConsoleSource;
@@ -15,7 +15,7 @@ public class FoxCore {
     private final FoxCommandManager commandManager;
     private final ConsoleSource consoleSource;
 
-    @InjectFoxLogger("wolf")
+    @FoxLogger("wolf")
     Logger logger;
 
     @Inject

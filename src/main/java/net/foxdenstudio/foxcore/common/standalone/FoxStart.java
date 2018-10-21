@@ -5,8 +5,6 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import net.foxdenstudio.foxcore.common.FoxCore;
-import net.foxdenstudio.foxcore.common.command.FoxCommandManager;
-import net.foxdenstudio.foxcore.common.guice.module.FoxCoreModule;
 import net.foxdenstudio.foxcore.common.standalone.guice.module.FoxCoreStandaloneModule;
 
 import java.util.ArrayList;
@@ -18,7 +16,7 @@ public class FoxStart {
     private final FoxCore foxCore;
 
     @Inject
-    public FoxStart(FoxCore foxCore, FoxCommandManager commandManager) {
+    public FoxStart(FoxCore foxCore) {
         this.foxCore = foxCore;
     }
 
