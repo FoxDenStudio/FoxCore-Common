@@ -13,3 +13,7 @@ I think that all objects should always be loaded by the loader of their type,
 As a result, even if objects appear to be stored within each other in a file system loader,
     a database loader would still keep them separate, and instead of a "local index", keyed by object references
     and the respective internal link path.
+
+
+--------------
+
