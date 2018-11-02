@@ -2,7 +2,7 @@ package net.foxdenstudio.foxcore.api.object;
 
 import net.foxdenstudio.foxcore.api.archetype.FoxArchetype;
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
-import net.foxdenstudio.foxcore.api.path.FoxLinkPath;
+import net.foxdenstudio.foxcore.api.path.components.FoxLinkPath;
 import net.foxdenstudio.foxcore.api.property.FoxProperty;
 import net.foxdenstudio.foxcore.api.object.link.LinkResult;
 

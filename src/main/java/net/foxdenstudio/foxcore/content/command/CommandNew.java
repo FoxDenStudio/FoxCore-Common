@@ -5,7 +5,7 @@ import net.foxdenstudio.foxcore.api.command.FoxStandardCommand;
 import net.foxdenstudio.foxcore.api.command.result.CommandResult;
 import net.foxdenstudio.foxcore.api.command.result.ResultFactory;
 import net.foxdenstudio.foxcore.platform.command.CommandSource;
-import net.foxdenstudio.foxcore.api.text.TextFactory;
+import net.foxdenstudio.foxcore.platform.fox.text.TextFactory;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;

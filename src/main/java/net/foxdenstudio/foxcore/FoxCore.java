@@ -1,6 +1,8 @@
 package net.foxdenstudio.foxcore;
 
+import net.foxdenstudio.foxcore.api.annotation.command.FoxMainDispatcher;
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
+import net.foxdenstudio.foxcore.api.command.FoxCommandDispatcher;
 import net.foxdenstudio.foxcore.content.command.CommandEcho;
 import net.foxdenstudio.foxcore.api.command.FoxCommandManager;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
@@ -13,17 +15,22 @@ import javax.inject.Singleton;
 public class FoxCore {
 
     private final FoxCommandManager commandManager;
+    private final FoxCommandDispatcher mainCommandDispatcher;
     private final ConsoleSource consoleSource;
 
     @FoxLogger("wolf")
-    Logger logger;
+    private Logger logger;
 
     @Inject
-    CommandEcho commandEcho;
+    private CommandEcho commandEcho;
 
     @Inject
-    public FoxCore(FoxCommandManager commandManager, ConsoleSource consoleSource) {
+    public FoxCore(
+            FoxCommandManager commandManager,
+            @FoxMainDispatcher FoxCommandDispatcher mainCommandDispatcher,
+            ConsoleSource consoleSource) {
         this.commandManager = commandManager;
+        this.mainCommandDispatcher = mainCommandDispatcher;
         this.consoleSource = consoleSource;
     }
 
@@ -32,7 +39,8 @@ public class FoxCore {
     }
 
     public void registerCommands(){
-        this.commandManager.registerCommand(commandEcho, "echo");
+        this.commandManager.registerCommand(this.mainCommandDispatcher, "fox");
+        this.mainCommandDispatcher.registerCommand(commandEcho, "echo");
     }
 
     public FoxCommandManager getCommandManager() {

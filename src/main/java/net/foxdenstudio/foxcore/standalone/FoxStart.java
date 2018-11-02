@@ -1,12 +1,12 @@
 package net.foxdenstudio.foxcore.standalone;
 
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import net.foxdenstudio.foxcore.FoxCore;
 import net.foxdenstudio.foxcore.standalone.guice.module.FoxCoreStandaloneModule;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -29,6 +29,7 @@ public class FoxStart {
         while (scanner.hasNext()) {
             String line = scanner.nextLine();
             if (line.equalsIgnoreCase("exit")) break;
+            if (line.isEmpty()) continue;
             foxCore.getCommandManager().process(foxCore.getConsoleSource(), line);
         }
     }

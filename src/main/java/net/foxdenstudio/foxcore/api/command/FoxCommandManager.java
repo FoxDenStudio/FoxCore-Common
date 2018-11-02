@@ -1,6 +1,5 @@
 package net.foxdenstudio.foxcore.api.command;
 
-public interface FoxCommandManager extends FoxDispatcher {
+public interface FoxCommandManager extends FoxCommandDispatcher {
 
-    boolean registerCommand(FoxStandardCommand command, String name);
 }
