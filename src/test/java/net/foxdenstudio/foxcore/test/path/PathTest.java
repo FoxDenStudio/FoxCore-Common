@@ -55,6 +55,16 @@ public class PathTest {
         assertTrue("isEmpty()", path.isEmpty());
         assertEquals("numElements()", 0, path.numElements());
 
+        path = pathFactory.getPath("/");
+        assertEquals("toString()", "", path.toString());
+        assertTrue("isEmpty()", path.isEmpty());
+        assertEquals("numElements()", 0, path.numElements());
+
+        path = pathFactory.getPath("//");
+        assertEquals("toString()", "", path.toString());
+        assertTrue("isEmpty()", path.isEmpty());
+        assertEquals("numElements()", 0, path.numElements());
+
         path = pathFactory.getPath("awoo");
         assertEquals("toString()", "awoo", path.toString());
         assertFalse("isEmpty()", path.isEmpty());
@@ -76,6 +86,16 @@ public class PathTest {
         FoxLinkPath path;
 
         path = pathFactory.getPath("");
+        assertEquals("toString()", "", path.toString());
+        assertTrue("isEmpty()", path.isEmpty());
+        assertEquals("numElements()", 0, path.numElements());
+
+        path = pathFactory.getPath("/");
+        assertEquals("toString()", "", path.toString());
+        assertTrue("isEmpty()", path.isEmpty());
+        assertEquals("numElements()", 0, path.numElements());
+
+        path = pathFactory.getPath("//");
         assertEquals("toString()", "", path.toString());
         assertTrue("isEmpty()", path.isEmpty());
         assertEquals("numElements()", 0, path.numElements());
@@ -156,7 +176,7 @@ public class PathTest {
                 1 , path.getIndexPath().getNamespacePath().numElements());
         assertEquals("object numElements()", 2 , path.getObjectPath().numElements());
         assertEquals("object getElement(0)", "a", path.getObjectPath().getElement(0));
-        assertEquals("object getElement(1)", "fox", path.getObjectPath().getElement(0));
+        assertEquals("object getElement(1)", "fox", path.getObjectPath().getElement(1));
         assertFalse("links isEmpty()", path.getLinkPaths().isEmpty());
         assertEquals("links size()", 2, path.getLinkPaths().size());
         assertFalse("links[0] isEmpty()", path.getLinkPaths().get(0).isEmpty());

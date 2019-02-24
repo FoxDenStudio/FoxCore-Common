@@ -84,7 +84,7 @@ public class FoxFullPathImpl implements FoxFullPath {
         builder.append(objectPath.toString());
 
         for(FoxLinkPath path : this.linkPaths){
-            builder.append("/").append(path.toString());
+            builder.append(":").append(path.toString());
         }
 
         return builder.toString();

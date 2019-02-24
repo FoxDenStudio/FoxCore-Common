@@ -13,8 +13,7 @@ import javax.inject.Inject;
 public class CommandNew extends FoxCommandBase implements FoxStandardCommand {
 
     @Inject
-    public CommandNew(TextFactory textFactory, ResultFactory resultFactory) {
-        super(textFactory, resultFactory);
+    public CommandNew() {
     }
 
     @Override

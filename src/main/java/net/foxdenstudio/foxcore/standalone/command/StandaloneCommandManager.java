@@ -10,7 +10,6 @@ import javax.inject.Inject;
 public class StandaloneCommandManager extends CommandDispatcherImpl implements FoxCommandManager {
 
     @Inject
-    private StandaloneCommandManager(TextFactory textFactory, ResultFactory resultFactory) {
-        super(textFactory, resultFactory);
+    private StandaloneCommandManager() {
     }
 }

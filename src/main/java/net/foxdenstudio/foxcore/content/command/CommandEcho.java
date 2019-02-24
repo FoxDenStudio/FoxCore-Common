@@ -13,8 +13,7 @@ import javax.inject.Inject;
 public class CommandEcho extends FoxCommandBase implements FoxStandardCommand {
 
     @Inject
-    public CommandEcho(TextFactory textFactory, ResultFactory resultFactory) {
-        super(textFactory, resultFactory);
+    public CommandEcho() {
     }
 
     @Override

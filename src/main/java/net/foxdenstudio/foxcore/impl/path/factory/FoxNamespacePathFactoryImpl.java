@@ -26,6 +26,8 @@ public class FoxNamespacePathFactoryImpl extends FoxPathFactoryBaseImpl implemen
 
         String[] parts = input.split("/+");
 
+        if(parts.length == 0) return FoxHierarchicalPathImpl.root();
+
         if(parts[0].isEmpty()) {
             parts = Arrays.copyOfRange(parts, 1, parts.length);
         }

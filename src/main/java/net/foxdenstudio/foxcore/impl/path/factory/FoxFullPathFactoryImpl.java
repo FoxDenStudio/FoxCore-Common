@@ -3,13 +3,18 @@ package net.foxdenstudio.foxcore.impl.path.factory;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.path.components.FoxFullPath;
 import net.foxdenstudio.foxcore.api.path.components.FoxIndexPath;
+import net.foxdenstudio.foxcore.api.path.components.FoxLinkPath;
+import net.foxdenstudio.foxcore.api.path.components.FoxObjectPath;
 import net.foxdenstudio.foxcore.api.path.factory.FoxFullPathFactory;
 import net.foxdenstudio.foxcore.api.path.factory.FoxIndexPathFactory;
 import net.foxdenstudio.foxcore.api.path.factory.FoxLinkPathFactory;
 import net.foxdenstudio.foxcore.api.path.factory.FoxObjectPathFactory;
+import net.foxdenstudio.foxcore.impl.path.FoxFullPathImpl;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Singleton
@@ -32,26 +37,32 @@ public class FoxFullPathFactoryImpl extends FoxPathFactoryBaseImpl implements Fo
 
     @Override
     public FoxFullPath getPath(String input) throws FoxCommandException {
-        String indexPathString = "";
+        FoxIndexPath indexPath;
 
         if(input.startsWith("@")){
             input = input.substring(1);
             String[] parts = input.split(":+", 2);
 
+            indexPath = this.indexPathFactory.getPath(parts[0]);
+
             if(parts.length < 2 || parts[1].isEmpty())
                 throw this.exceptionFactory.newFoxCommandException("Must include object path!");
 
-            indexPathString = parts[0];
             input = parts[1];
+        } else {
+            indexPath = this.indexPathFactory.getPath("");
         }
 
         String[] parts = input.split(":+");
-        String objectPathString = parts[0];
+        FoxObjectPath objectPath = this.objectPathFactory.getPath(parts[0]);
 
+        List<FoxLinkPath> linkPaths = new ArrayList<>();
 
+        for (int i = 1; i < parts.length; i++) {
+            linkPaths.add(this.linkPathFactory.getPath(parts[i]));
+        }
 
-
-        return null;
+        return FoxFullPathImpl.of(indexPath, objectPath, linkPaths);
     }
 
 }

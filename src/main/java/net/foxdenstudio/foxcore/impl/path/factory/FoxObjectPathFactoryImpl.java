@@ -26,6 +26,9 @@ public class FoxObjectPathFactoryImpl extends FoxPathFactoryBaseImpl implements 
 
         String[] parts = input.split("/+");
 
+        if (parts.length == 0)
+            throw this.exceptionFactory.newFoxCommandException("Object path may not be zero length!");
+
         if (parts[0].isEmpty()) {
             parts = Arrays.copyOfRange(parts, 1, parts.length);
         }
