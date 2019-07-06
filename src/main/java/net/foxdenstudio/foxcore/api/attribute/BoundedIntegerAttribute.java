@@ -1,15 +1,15 @@
 package net.foxdenstudio.foxcore.api.attribute;
 
-import net.foxdenstudio.foxcore.api.property.FoxProperty;
+import net.foxdenstudio.foxcore.api.attribute.value.BoundedIntegerAttrValue;
 
 import javax.inject.Provider;
 
-public abstract class BoundedIntegerAttribute<P extends FoxProperty<Integer, ? extends BoundedIntegerAttribute<P>>> extends BaseAttribute<P> {
+public abstract class BoundedIntegerAttribute<V extends BoundedIntegerAttrValue<? extends BoundedIntegerAttribute<V>>> extends IntegerAttribute<V> {
 
     final int upperBound, lowerBound;
 
-    protected BoundedIntegerAttribute(Provider<P> propertyProvider, String serializedName, int upperBound, int lowerBound) {
-        super(propertyProvider, serializedName);
+    protected BoundedIntegerAttribute(Provider<V> attrValueProvider, String serializedName, int upperBound, int lowerBound) {
+        super(attrValueProvider, serializedName);
         this.upperBound = upperBound;
         this.lowerBound = lowerBound;
     }

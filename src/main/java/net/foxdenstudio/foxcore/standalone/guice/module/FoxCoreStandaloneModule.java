@@ -1,7 +1,7 @@
 package net.foxdenstudio.foxcore.standalone.guice.module;
 
 import com.google.inject.AbstractModule;
-import net.foxdenstudio.foxcore.api.command.FoxCommandManager;
+import net.foxdenstudio.foxcore.api.command.standard.FoxCommandManager;
 import net.foxdenstudio.foxcore.guice.module.FoxCoreModule;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
 import net.foxdenstudio.foxcore.standalone.command.StandaloneCommandManager;

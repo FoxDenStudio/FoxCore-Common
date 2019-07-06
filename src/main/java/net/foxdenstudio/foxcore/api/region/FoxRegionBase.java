@@ -1,4 +1,6 @@
 package net.foxdenstudio.foxcore.api.region;
 
-public abstract class FoxRegionBase implements FoxRegion {
+import net.foxdenstudio.foxcore.api.object.FoxObjectBase;
+
+public abstract class FoxRegionBase extends FoxObjectBase implements FoxRegion {
 }

@@ -11,7 +11,7 @@ public abstract class FoxCommandBase implements FoxCommand {
     protected TextFactory textFactory;
 
     @Inject
-    protected  ResultFactory resultFactory;
+    protected ResultFactory resultFactory;
 
     @Inject
     public FoxCommandBase() {

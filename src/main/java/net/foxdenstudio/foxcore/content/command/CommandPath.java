@@ -1,10 +1,8 @@
 package net.foxdenstudio.foxcore.content.command;
 
-import net.foxdenstudio.foxcore.api.command.FoxCommandBase;
-import net.foxdenstudio.foxcore.api.command.FoxStandardCommand;
-import net.foxdenstudio.foxcore.api.command.result.CommandResult;
+import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommandBase;
+import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
-import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.path.components.*;
 import net.foxdenstudio.foxcore.api.path.factory.FoxFullPathFactory;
 import net.foxdenstudio.foxcore.platform.command.CommandSource;
@@ -14,7 +12,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.util.List;
 
-public class CommandPath extends FoxCommandBase implements FoxStandardCommand {
+public class CommandPath extends FoxStandardCommandBase {
 
     private final FoxFullPathFactory fullPathFactory;
 
@@ -24,7 +22,7 @@ public class CommandPath extends FoxCommandBase implements FoxStandardCommand {
     }
 
     @Override
-    public CommandResult process(@Nonnull CommandSource source, @Nonnull String arguments) throws FoxCommandException {
+    public FoxCommandResult process(@Nonnull CommandSource source, @Nonnull String arguments) throws FoxCommandException {
         FoxFullPath fullPath = this.fullPathFactory.getPath(arguments);
         FoxIndexPath indexPath = fullPath.getIndexPath();
         String indexType = indexPath.getIndexType();

@@ -1,6 +1,6 @@
 package net.foxdenstudio.foxcore.api.attribute;
 
-import net.foxdenstudio.foxcore.api.property.FoxProperty;
+import net.foxdenstudio.foxcore.api.attribute.value.FoxAttrValue;
 
 import javax.inject.Provider;
 
@@ -9,11 +9,13 @@ import javax.inject.Provider;
  * Interface for singleton attribute classes that are used to define properties.
  * Implementors should be Guice injectable singletons for consistency.
  *
- * @param <P> The corresponding property class.
+ * Splish splash smash cronch, dive zoom rudder-butt.
+ *
+ * @param <V> The corresponding AttrValue class.
  */
-public interface FoxAttribute<P extends FoxProperty> {
+public interface FoxAttribute<V extends FoxAttrValue<?, ? extends FoxAttribute<V>>> {
 
-    Provider<P> getProvider();
+    Provider<V> getValueProvider();
 
     String getSerializedName();
 

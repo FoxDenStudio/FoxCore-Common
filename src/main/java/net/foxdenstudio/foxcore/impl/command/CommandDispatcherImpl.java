@@ -2,9 +2,10 @@ package net.foxdenstudio.foxcore.impl.command;
 
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
 import net.foxdenstudio.foxcore.api.command.FoxCommandBase;
-import net.foxdenstudio.foxcore.api.command.FoxCommandDispatcher;
-import net.foxdenstudio.foxcore.api.command.FoxStandardCommand;
-import net.foxdenstudio.foxcore.api.command.result.CommandResult;
+import net.foxdenstudio.foxcore.api.command.standard.FoxCommandDispatcher;
+import net.foxdenstudio.foxcore.api.command.standard.FoxCommandMapping;
+import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommand;
+import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.platform.command.CommandSource;
 import org.slf4j.Logger;
@@ -13,6 +14,8 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public class CommandDispatcherImpl extends FoxCommandBase implements FoxCommandDispatcher {
 
@@ -26,17 +29,20 @@ public class CommandDispatcherImpl extends FoxCommandBase implements FoxCommandD
     }
 
     @Override
-    public boolean registerCommand(Object plugin, FoxStandardCommand command, String name) {
-        if (commandMap.containsKey(name.toLowerCase())) {
-            return false;
+    public Optional<FoxCommandMapping> registerCommand(Object plugin, FoxStandardCommand command, String primaryAlias, String... secondaryAliases) {
+
+
+        /*if (commandMap.containsKey(name.toLowerCase())) {
+            return Optional.empty();
         } else {
             commandMap.put(name.toLowerCase(), command);
             return true;
-        }
+        }*/
+        return Optional.empty();
     }
 
     @Override
-    public CommandResult process(@Nonnull CommandSource source, @Nonnull String arguments) {
+    public FoxCommandResult process(@Nonnull CommandSource source, @Nonnull String arguments) {
         String[] parts = arguments.split("\\s+", 2);
         String command = parts[0];
         FoxStandardCommand foxCommand = commandMap.get(command.toLowerCase());
@@ -52,5 +58,25 @@ public class CommandDispatcherImpl extends FoxCommandBase implements FoxCommandD
             source.sendMessage(this.textFactory.getText("Error executing commmand: " + e.getMessage()));
         }
         return resultFactory.empty();
+    }
+
+    public static class CommandMappingImpl implements FoxCommandMapping{
+
+
+
+        @Override
+        public String getPrimaryAlias() {
+            return null;
+        }
+
+        @Override
+        public Set<String> getAllAliases() {
+            return null;
+        }
+
+        @Override
+        public FoxStandardCommand getCallable() {
+            return null;
+        }
     }
 }

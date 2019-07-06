@@ -2,8 +2,8 @@ package net.foxdenstudio.foxcore;
 
 import net.foxdenstudio.foxcore.api.annotation.command.FoxMainDispatcher;
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
-import net.foxdenstudio.foxcore.api.command.FoxCommandDispatcher;
-import net.foxdenstudio.foxcore.api.command.FoxCommandManager;
+import net.foxdenstudio.foxcore.api.command.standard.FoxCommandDispatcher;
+import net.foxdenstudio.foxcore.api.command.standard.FoxCommandManager;
 import net.foxdenstudio.foxcore.content.command.CommandEcho;
 import net.foxdenstudio.foxcore.content.command.CommandPath;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Objects;
 
 @Singleton
 public class FoxCore {

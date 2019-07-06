@@ -1,15 +1,15 @@
-package net.foxdenstudio.foxcore.api.property;
+package net.foxdenstudio.foxcore.api.attribute.value;
 
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
 
 import javax.annotation.Nonnull;
 
-public abstract class BaseProperty<T, A extends FoxAttribute<? extends FoxProperty<T, A>>> implements FoxProperty<T, A> {
+public abstract class BaseAttrValue<T, A extends FoxAttribute<? extends FoxAttrValue<T, A>>> implements FoxAttrValue<T, A> {
 
-    protected A attribute;
+    transient protected A attribute;
     protected T value;
 
-    protected BaseProperty(A attribute, T initialValue) {
+    protected BaseAttrValue(A attribute, T initialValue) {
         this.attribute = attribute;
         this.value = initialValue;
     }

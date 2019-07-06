@@ -1,10 +1,10 @@
-package net.foxdenstudio.foxcore.api.property;
+package net.foxdenstudio.foxcore.api.attribute.value;
 
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
 
 import javax.annotation.Nonnull;
 
-public interface FoxProperty<T, A extends FoxAttribute<? extends FoxProperty<T, A>>> {
+public interface FoxAttrValue<T, A extends FoxAttribute<? extends FoxAttrValue<T, A>>> {
 
     T get();
 
