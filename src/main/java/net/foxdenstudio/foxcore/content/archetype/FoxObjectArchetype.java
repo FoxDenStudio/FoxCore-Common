@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 public class FoxObjectArchetype extends BaseArchetype {
 
     @Inject
-    public FoxObjectArchetype(ArchetypeDisplayNameAttribute archetypeDisplayNameAttribute) {
+    private FoxObjectArchetype(ArchetypeDisplayNameAttribute archetypeDisplayNameAttribute) {
         super("object", "Object", archetypeDisplayNameAttribute);
         this.writeDefaultName(archetypeDisplayNameAttribute);
     }

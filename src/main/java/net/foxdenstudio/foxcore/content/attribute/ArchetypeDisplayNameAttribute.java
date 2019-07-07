@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 public class ArchetypeDisplayNameAttribute extends StringAttribute<ArchetypeDisplayNameAttrValue> {
 
     @Inject
-    public ArchetypeDisplayNameAttribute(Provider<ArchetypeDisplayNameAttrValue> attrValueProvider) {
+    private ArchetypeDisplayNameAttribute(Provider<ArchetypeDisplayNameAttrValue> attrValueProvider) {
         super(attrValueProvider, "archetype-display-name");
     }
 }

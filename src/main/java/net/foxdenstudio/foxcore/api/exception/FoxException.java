@@ -15,22 +15,22 @@ public class FoxException extends Exception {
     protected TextFactory textFactory;
 
     @Inject
-    public FoxException() {
+    protected FoxException() {
         super();
     }
 
     @AssistedInject
-    public FoxException(@Assisted String message) {
+    protected FoxException(@Assisted String message) {
         super(message);
     }
 
     @AssistedInject
-    public FoxException(@Assisted String message, @Assisted Throwable cause) {
+    protected FoxException(@Assisted String message, @Assisted Throwable cause) {
         super(message, cause);
     }
 
     @AssistedInject
-    public FoxException(@Assisted Throwable cause) {
+    protected FoxException(@Assisted Throwable cause) {
         super(cause);
     }
 

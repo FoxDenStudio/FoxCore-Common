@@ -11,6 +11,7 @@ import net.foxdenstudio.foxcore.api.path.factory.FoxLinkPathFactory;
 import net.foxdenstudio.foxcore.api.path.factory.FoxObjectPathFactory;
 import net.foxdenstudio.foxcore.impl.path.FoxFullPathImpl;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
@@ -65,4 +66,9 @@ public class FoxFullPathFactoryImpl extends FoxPathFactoryBaseImpl implements Fo
         return FoxFullPathImpl.of(indexPath, objectPath, linkPaths);
     }
 
+    @Nonnull
+    @Override
+    public FoxFullPath getPath(@Nonnull FoxIndexPath indexPath, @Nonnull FoxObjectPath objectPath) {
+        return FoxFullPathImpl.of(indexPath, objectPath);
+    }
 }

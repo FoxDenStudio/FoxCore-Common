@@ -17,7 +17,7 @@ public class CommandPath extends FoxStandardCommandBase {
     private final FoxFullPathFactory fullPathFactory;
 
     @Inject
-    public CommandPath(FoxFullPathFactory fullPathFactory) {
+    private CommandPath(FoxFullPathFactory fullPathFactory) {
         this.fullPathFactory = fullPathFactory;
     }
 

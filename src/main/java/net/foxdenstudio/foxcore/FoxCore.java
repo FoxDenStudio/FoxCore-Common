@@ -5,6 +5,7 @@ import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
 import net.foxdenstudio.foxcore.api.command.standard.FoxCommandDispatcher;
 import net.foxdenstudio.foxcore.api.command.standard.FoxCommandManager;
 import net.foxdenstudio.foxcore.content.command.CommandEcho;
+import net.foxdenstudio.foxcore.content.command.CommandList;
 import net.foxdenstudio.foxcore.content.command.CommandPath;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
 import org.slf4j.Logger;
@@ -29,6 +30,9 @@ public class FoxCore {
     private CommandPath commandPath;
 
     @Inject
+    private CommandList commandList;
+
+    @Inject
     public FoxCore(
             FoxCommandManager commandManager,
             @FoxMainDispatcher FoxCommandDispatcher mainCommandDispatcher,
@@ -46,6 +50,7 @@ public class FoxCore {
         this.commandManager.registerCommand(this, this.mainCommandDispatcher, "fox");
         this.mainCommandDispatcher.registerCommand(this, commandEcho, "echo");
         this.mainCommandDispatcher.registerCommand(this, commandPath, "path");
+        this.mainCommandDispatcher.registerCommand(this, commandList, "list");
     }
 
     public FoxCommandManager getCommandManager() {

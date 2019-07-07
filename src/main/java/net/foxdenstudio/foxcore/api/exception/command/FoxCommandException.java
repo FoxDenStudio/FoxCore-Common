@@ -9,22 +9,22 @@ import javax.inject.Inject;
 public class FoxCommandException extends FoxException {
 
     @Inject
-    public FoxCommandException() {
+    protected FoxCommandException() {
         super();
     }
 
     @AssistedInject
-    public FoxCommandException(@Assisted String message) {
+    protected FoxCommandException(@Assisted String message) {
         super(message);
     }
 
     @AssistedInject
-    public FoxCommandException(@Assisted String message, @Assisted Throwable cause) {
+    protected FoxCommandException(@Assisted String message, @Assisted Throwable cause) {
         super(message, cause);
     }
 
     @AssistedInject
-    public FoxCommandException(@Assisted Throwable cause) {
+    protected FoxCommandException(@Assisted Throwable cause) {
         super(cause);
     }
 }

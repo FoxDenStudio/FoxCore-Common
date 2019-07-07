@@ -9,7 +9,7 @@ import javax.inject.Inject;
 public class RegionArchetype extends BaseArchetype {
 
     @Inject
-    public RegionArchetype(FoxObjectArchetype foxObjectArchetype,
+    private RegionArchetype(FoxObjectArchetype foxObjectArchetype,
                            ArchetypeDisplayNameAttribute archetypeDisplayNameAttribute,
                            EnabledAttribute enabledAttribute) {
         super("region", "Region", foxObjectArchetype, archetypeDisplayNameAttribute, enabledAttribute);

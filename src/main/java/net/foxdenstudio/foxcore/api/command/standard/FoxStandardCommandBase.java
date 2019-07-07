@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 public abstract class FoxStandardCommandBase extends FoxCommandBase implements FoxStandardCommand {
 
-    @Inject
-    public FoxStandardCommandBase() {
+    protected FoxStandardCommandBase() {
     }
+
 }

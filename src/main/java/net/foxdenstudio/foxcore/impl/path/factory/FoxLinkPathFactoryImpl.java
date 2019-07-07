@@ -24,17 +24,17 @@ public class FoxLinkPathFactoryImpl extends FoxPathFactoryBaseImpl implements Fo
     @SuppressWarnings("Duplicates")
     @Override
     public FoxLinkPath getPath(@Nonnull String input) throws FoxCommandException {
-        if (input.isEmpty()) return FoxHierarchicalPathImpl.root();
+        if (input.isEmpty()) return this.getEmptyPath();
 
         String[] parts = input.split("/+");
 
-        if(parts.length == 0) return FoxHierarchicalPathImpl.root();
+        if(parts.length == 0) return this.getEmptyPath();
 
         if(parts[0].isEmpty()) {
             parts = Arrays.copyOfRange(parts, 1, parts.length);
         }
 
-        if(parts.length == 0) return FoxHierarchicalPathImpl.root();
+        if(parts.length == 0) return this.getEmptyPath();
 
         for(String part : parts){
             if(!nameChecker.isClean(part)){
@@ -43,5 +43,11 @@ public class FoxLinkPathFactoryImpl extends FoxPathFactoryBaseImpl implements Fo
         }
 
         return FoxHierarchicalPathImpl.of(parts);
+    }
+
+    @Nonnull
+    @Override
+    public FoxLinkPath getEmptyPath() {
+        return FoxHierarchicalPathImpl.root();
     }
 }

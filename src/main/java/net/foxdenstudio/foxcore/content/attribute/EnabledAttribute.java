@@ -13,7 +13,7 @@ public class EnabledAttribute extends BooleanAttribute<EnabledAttrValue> {
     private static final String NAME = "enabled";
 
     @Inject
-    public EnabledAttribute(Provider<EnabledAttrValue> attrValueProvider){
+    private EnabledAttribute(Provider<EnabledAttrValue> attrValueProvider){
         super(attrValueProvider, NAME);
     }
 }

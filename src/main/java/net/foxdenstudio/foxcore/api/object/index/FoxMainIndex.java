@@ -1,6 +1,7 @@
 package net.foxdenstudio.foxcore.api.object.index;
 
 import net.foxdenstudio.foxcore.api.object.FoxObject;
+import net.foxdenstudio.foxcore.api.path.components.FoxIndexPath;
 import net.foxdenstudio.foxcore.api.path.components.FoxNamespacePath;
 import net.foxdenstudio.foxcore.api.path.components.FoxObjectPath;
 
@@ -11,7 +12,7 @@ public interface FoxMainIndex extends Namespace {
 
     Optional<FoxObjectIndex> getObjectIndex(String type);
 
-    Map<String, FoxObjectIndex> getIndicies();
+    Map<String, FoxObjectIndex> getIndices();
 
     FoxObjectIndex getDefaultObjectIndex();
 
@@ -20,10 +21,14 @@ public interface FoxMainIndex extends Namespace {
         return this.getDefaultObjectIndex().getObject(path);
     }
 
+    /**
+     * Returns the default path of the main index.
+     * Equivalent to getting the path of the default object index.
+     *
+     * @return default index path
+     */
     @Override
-    default FoxNamespacePath getNamespacePath() {
-        return null;
+    default FoxIndexPath getPath() {
+        return this.getDefaultObjectIndex().getPath();
     }
-
-
 }

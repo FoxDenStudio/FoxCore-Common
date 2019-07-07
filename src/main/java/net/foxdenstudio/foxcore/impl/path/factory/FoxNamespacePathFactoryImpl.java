@@ -22,17 +22,17 @@ public class FoxNamespacePathFactoryImpl extends FoxPathFactoryBaseImpl implemen
     @SuppressWarnings("Duplicates")
     @Override
     public FoxNamespacePath getPath(@Nonnull String input) throws FoxCommandException {
-        if (input.isEmpty()) return FoxHierarchicalPathImpl.root();
+        if (input.isEmpty()) return this.getEmptyPath();
 
         String[] parts = input.split("/+");
 
-        if(parts.length == 0) return FoxHierarchicalPathImpl.root();
+        if(parts.length == 0) return this.getEmptyPath();
 
         if(parts[0].isEmpty()) {
             parts = Arrays.copyOfRange(parts, 1, parts.length);
         }
 
-        if(parts.length == 0) return FoxHierarchicalPathImpl.root();
+        if(parts.length == 0) return this.getEmptyPath();
 
         for(String part : parts){
             if(!nameChecker.isClean(part)){
@@ -41,5 +41,11 @@ public class FoxNamespacePathFactoryImpl extends FoxPathFactoryBaseImpl implemen
         }
 
         return FoxHierarchicalPathImpl.of(parts);
+    }
+
+    @Nonnull
+    @Override
+    public FoxNamespacePath getEmptyPath() {
+        return FoxHierarchicalPathImpl.root();
     }
 }

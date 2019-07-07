@@ -3,7 +3,6 @@ package net.foxdenstudio.foxcore.api.archetype;
 import com.google.common.collect.ImmutableList;
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
 import net.foxdenstudio.foxcore.api.attribute.holder.AttributeContainer;
-import net.foxdenstudio.foxcore.api.attribute.holder.AttributeHolder;
 import net.foxdenstudio.foxcore.api.attribute.holder.DelegateAttributeHolder;
 import net.foxdenstudio.foxcore.content.attribute.ArchetypeDisplayNameAttribute;
 import net.foxdenstudio.foxcore.content.attribute.value.ArchetypeDisplayNameAttrValue;
@@ -61,7 +60,7 @@ public abstract class BaseArchetype implements FoxArchetype, DelegateAttributeHo
     @Nonnull
     @Override
     public Set<FoxArchetype> getAllParentArchetypes() {
-        if(this.allParents == null){
+        if (this.allParents == null) {
             this.allParents = FoxArchetype.super.getAllParentArchetypes();
         }
         return this.allParents;
@@ -70,7 +69,7 @@ public abstract class BaseArchetype implements FoxArchetype, DelegateAttributeHo
     @Nonnull
     @Override
     public Set<FoxArchetype> getAllArchetypes() {
-        if(this.allArchetypes == null){
+        if (this.allArchetypes == null) {
             this.allArchetypes = FoxArchetype.super.getAllArchetypes();
         }
         return this.allArchetypes;
@@ -81,7 +80,7 @@ public abstract class BaseArchetype implements FoxArchetype, DelegateAttributeHo
         return attributeContainer;
     }
 
-    protected void writeDefaultName(ArchetypeDisplayNameAttribute archetypeDisplayNameAttribute){
+    protected void writeDefaultName(ArchetypeDisplayNameAttribute archetypeDisplayNameAttribute) {
         ArchetypeDisplayNameAttrValue value = archetypeDisplayNameAttribute.getValueProvider().get();
         value.set(this.getName());
         this.setAttrValue(value);

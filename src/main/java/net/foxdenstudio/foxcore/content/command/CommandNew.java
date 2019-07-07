@@ -10,7 +10,7 @@ import javax.inject.Inject;
 public class CommandNew extends FoxStandardCommandBase {
 
     @Inject
-    public CommandNew() {
+    private CommandNew() {
     }
 
     @Override
