@@ -4,11 +4,21 @@ import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 
 public class FoxCommandResultImpl implements FoxCommandResult {
 
-    private final int success;
-    private final int failure;
+    private final int successes;
+    private final int failures;
 
-    FoxCommandResultImpl(int success, int failure) {
-        this.success = success;
-        this.failure = failure;
+    FoxCommandResultImpl(int successes, int failures) {
+        this.successes = successes;
+        this.failures = failures;
+    }
+
+    @Override
+    public int getSuccesses() {
+        return successes;
+    }
+
+    @Override
+    public int getFailures() {
+        return failures;
     }
 }

@@ -6,9 +6,10 @@ import com.google.inject.AbstractModule;
 public class FoxCoreModule extends AbstractModule {
     @Override
     protected void configure() {
-        install(new LoggerInjectorModule());
-        install(new CommandModule());
+        install(LoggerInjectorModule.INSTANCE);
+        install(CommandModule.INSTANCE);
         install(ExceptionModule.INSTANCE);
         install(PathModule.INSTANCE);
+        install(IndexModule.INSTANCE);
     }
 }

@@ -33,7 +33,7 @@ public class AttributeContainer implements AttributeHolder {
             for(AttributeHolder parent : parents){
                 AttributeHolder actual = parent;
                 while (actual instanceof DelegateAttributeHolder){
-                    actual = ((DelegateAttributeHolder) actual).getDelegate();
+                    actual = ((DelegateAttributeHolder) actual).getDelegateAttrHolder();
                 }
                 builder.add(actual);
             }

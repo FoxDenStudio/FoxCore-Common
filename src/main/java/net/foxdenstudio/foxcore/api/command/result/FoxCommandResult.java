@@ -1,4 +1,10 @@
 package net.foxdenstudio.foxcore.api.command.result;
 
-public interface FoxCommandResult {
+import net.foxdenstudio.foxcore.platform.command.result.PlatformCommandResult;
+
+public interface FoxCommandResult extends PlatformCommandResult {
+
+    int getSuccesses();
+
+    int getFailures();
 }

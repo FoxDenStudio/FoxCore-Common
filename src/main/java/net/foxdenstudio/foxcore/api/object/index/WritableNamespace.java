@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface WritableNamespace extends Namespace {
 
-    <T extends FoxObject> Optional<IndexReference<T>> addObject(T foxObject, FoxObjectPath path);
+    <T extends FoxObject<T>> Optional<IndexReference<T>> addObject(T foxObject, FoxObjectPath path);
 
 }

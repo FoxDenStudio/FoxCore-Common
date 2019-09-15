@@ -8,6 +8,9 @@ public interface FoxIndexPath extends FoxOptionalPath {
 
     FoxNamespacePath getNamespacePath();
 
+    @Override
+    boolean isEmpty();
+
     boolean equals(Object o);
 
     int hashCode();

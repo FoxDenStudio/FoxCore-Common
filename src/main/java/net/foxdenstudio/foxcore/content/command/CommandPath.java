@@ -5,7 +5,7 @@ import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.path.components.*;
 import net.foxdenstudio.foxcore.api.path.factory.FoxFullPathFactory;
-import net.foxdenstudio.foxcore.platform.command.CommandSource;
+import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.text.Text;
 
 import javax.annotation.Nonnull;
@@ -34,7 +34,7 @@ public class CommandPath extends FoxStandardCommandBase {
         builder.append("full:         ").append(fullPath).append('\n');
         builder.append("index:        ").append(indexPath).append('\n');
         builder.append("  type:       ").append(indexType).append('\n');
-        builder.append("  namesapace: ").append(namespacePath).append("\n");
+        builder.append("  namespace: ").append(namespacePath).append("\n");
         builder.append("object:       ").append(objectPath).append("\n");
         builder.append("links:");
 

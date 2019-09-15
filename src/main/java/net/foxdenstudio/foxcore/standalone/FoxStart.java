@@ -22,6 +22,7 @@ public class FoxStart {
 
     public void start(String[] args) {
         foxCore.awoo();
+        foxCore.configureCommands();
         foxCore.registerCommands();
 
         Scanner scanner = new Scanner(System.in);
@@ -30,7 +31,11 @@ public class FoxStart {
             String line = scanner.nextLine();
             if (line.equalsIgnoreCase("exit")) break;
             if (line.isEmpty()) continue;
-            foxCore.getCommandManager().process(foxCore.getConsoleSource(), line);
+            try {
+                foxCore.getCommandManager().process(foxCore.getConsoleSource(), line);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

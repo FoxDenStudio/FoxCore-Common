@@ -1,12 +1,12 @@
 package net.foxdenstudio.foxcore.content.archetype;
 
-import net.foxdenstudio.foxcore.api.archetype.BaseArchetype;
+import net.foxdenstudio.foxcore.api.archetype.ArchetypeBase;
 import net.foxdenstudio.foxcore.content.attribute.ArchetypeDisplayNameAttribute;
 import net.foxdenstudio.foxcore.content.attribute.EnabledAttribute;
 
 import javax.inject.Inject;
 
-public class RegionArchetype extends BaseArchetype {
+public class RegionArchetype extends ArchetypeBase {
 
     @Inject
     private RegionArchetype(FoxObjectArchetype foxObjectArchetype,
@@ -15,4 +15,5 @@ public class RegionArchetype extends BaseArchetype {
         super("region", "Region", foxObjectArchetype, archetypeDisplayNameAttribute, enabledAttribute);
         this.writeDefaultName(archetypeDisplayNameAttribute);
     }
+
 }

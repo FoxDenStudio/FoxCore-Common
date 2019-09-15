@@ -3,7 +3,7 @@ package net.foxdenstudio.foxcore.api.exception;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import net.foxdenstudio.foxcore.platform.fox.text.TextFactory;
-import net.foxdenstudio.foxcore.platform.command.CommandSource;
+import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.text.Text;
 
 import javax.inject.Inject;

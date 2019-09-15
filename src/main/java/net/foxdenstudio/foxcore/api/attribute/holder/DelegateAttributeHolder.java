@@ -13,53 +13,53 @@ public interface DelegateAttributeHolder extends AttributeHolder {
     @Nonnull
     @Override
     default Set<FoxAttribute<?>> getParentAttributes() {
-        return this.getDelegate().getParentAttributes();
+        return this.getDelegateAttrHolder().getParentAttributes();
     }
 
     @Nonnull
     @Override
     default Set<FoxAttribute<?>> getFixedAttributes() {
-        return this.getDelegate().getFixedAttributes();
+        return this.getDelegateAttrHolder().getFixedAttributes();
     }
 
     @Nonnull
     @Override
     default Set<FoxAttribute<?>> getExtraAttributes() {
-        return this.getDelegate().getExtraAttributes();
+        return this.getDelegateAttrHolder().getExtraAttributes();
     }
 
     @Nonnull
     @Override
     default <V extends FoxAttrValue<?, A>, A extends FoxAttribute<V>> Optional<V> getAttrValue(A attribute) {
-        return this.getDelegate().getAttrValue(attribute);
+        return this.getDelegateAttrHolder().getAttrValue(attribute);
     }
 
     @Nonnull
     @Override
     default <V extends FoxAttrValue<?, A>, A extends FoxAttribute<V>> V getOrCreateAttrValue(A attribute) {
-        return this.getDelegate().getOrCreateAttrValue(attribute);
+        return this.getDelegateAttrHolder().getOrCreateAttrValue(attribute);
     }
 
     @Override
     default void setAttrValue(FoxAttrValue<?, ?> value) {
-        this.getDelegate().setAttrValue(value);
+        this.getDelegateAttrHolder().setAttrValue(value);
     }
 
     @Override
     default boolean removeExtraAttribute(FoxAttribute<?> attribute) {
-        return this.getDelegate().removeExtraAttribute(attribute);
+        return this.getDelegateAttrHolder().removeExtraAttribute(attribute);
     }
 
     @Override
     default boolean hasAttribute(FoxAttribute<?> attribute) {
-        return this.getDelegate().hasAttribute(attribute);
+        return this.getDelegateAttrHolder().hasAttribute(attribute);
     }
 
     @Nonnull
     @Override
     default List<AttributeHolder> getParents() {
-        return this.getDelegate().getParents();
+        return this.getDelegateAttrHolder().getParents();
     }
 
-    AttributeHolder getDelegate();
+    AttributeHolder getDelegateAttrHolder();
 }

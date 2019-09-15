@@ -12,16 +12,14 @@ import java.util.Set;
 
 public interface FoxObject<T extends FoxObject<T>> extends AttributeHolder {
 
-    Set<FoxArchetype> getArchetypes();
-
-    FoxArchetype getPrimaryArchetype();
+    FoxArchetype getArchetype();
 
     Optional<IndexReference<T>> getIndexReference();
 
     void setIndexReference(IndexReference<T> indexReference);
 
-    LinkResult link(@Nonnull FoxObject object, @Nonnull FoxLinkPath path);
+    //LinkResult link(@Nonnull FoxObject object, @Nonnull FoxLinkPath path);
 
-    Set<FoxObject> getLinks(@Nonnull FoxLinkPath path);
+    //Set<FoxObject> getLinks(@Nonnull FoxLinkPath path);
 
 }

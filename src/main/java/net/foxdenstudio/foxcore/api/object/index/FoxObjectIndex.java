@@ -13,7 +13,7 @@ public interface FoxObjectIndex extends Namespace{
     boolean setDefaultNamespace(FoxNamespacePath indexPath);
 
     default void setDefaultNamespace(Namespace namespace){
-        setDefaultNamespace(namespace.getPath().getNamespacePath());
+        setDefaultNamespace(namespace.getIndexPath().getNamespacePath());
     }
 
     String getIndexName();

@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public abstract class BaseArchetype implements FoxArchetype, DelegateAttributeHolder {
+public abstract class ArchetypeBase implements FoxArchetype, DelegateAttributeHolder {
 
     protected final AttributeContainer attributeContainer;
     protected final List<FoxArchetype> parents;
@@ -22,7 +22,8 @@ public abstract class BaseArchetype implements FoxArchetype, DelegateAttributeHo
     private transient Set<FoxArchetype> allParents = null;
     private transient Set<FoxArchetype> allArchetypes = null;
 
-    protected BaseArchetype(@Nonnull String type, @Nonnull String name, @Nonnull Collection<FoxArchetype> parents, @Nonnull FoxAttribute<?>... attributes) {
+    protected ArchetypeBase(@Nonnull String type, @Nonnull String name, @Nonnull Collection<FoxArchetype> parents, @Nonnull FoxAttribute<?>... attributes) {
+
         this.type = type;
         this.name = name;
         this.attributeContainer = new AttributeContainer(parents, true, attributes);
@@ -31,11 +32,11 @@ public abstract class BaseArchetype implements FoxArchetype, DelegateAttributeHo
         this.parents = builder.build();
     }
 
-    protected BaseArchetype(@Nonnull String type, @Nonnull String name, @Nonnull FoxArchetype parent, @Nonnull FoxAttribute<?>... attributes) {
+    protected ArchetypeBase(@Nonnull String type, @Nonnull String name, @Nonnull FoxArchetype parent, @Nonnull FoxAttribute<?>... attributes) {
         this(type, name, ImmutableList.of(parent), attributes);
     }
 
-    protected BaseArchetype(@Nonnull String type, @Nonnull String name, @Nonnull FoxAttribute<?>... attributes) {
+    protected ArchetypeBase(@Nonnull String type, @Nonnull String name, @Nonnull FoxAttribute<?>... attributes) {
         this(type, name, ImmutableList.of(), attributes);
     }
 
@@ -76,7 +77,7 @@ public abstract class BaseArchetype implements FoxArchetype, DelegateAttributeHo
     }
 
     @Override
-    public AttributeContainer getDelegate() {
+    public AttributeContainer getDelegateAttrHolder() {
         return attributeContainer;
     }
 

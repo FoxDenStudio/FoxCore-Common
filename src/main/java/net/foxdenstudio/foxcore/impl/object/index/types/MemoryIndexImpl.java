@@ -67,19 +67,20 @@ public class MemoryIndexImpl implements MemoryIndex {
     }
 
     @Override
-    public Collection<FoxObjectPath> getAllPaths() {
+    public Collection<FoxObjectPath> getAllObjectPaths() {
         return ImmutableSet.copyOf(this.indexMap.keySet());
     }
 
     @Override
-    public FoxIndexPath getPath() {
+    public FoxIndexPath getIndexPath() {
         return this.indexPath;
     }
 
     @Override
-    public <T extends FoxObject> Optional<IndexReference<T>> addObject(T foxObject, FoxObjectPath path) {
+    public <T extends FoxObject<T>> Optional<IndexReference<T>> addObject(T foxObject, FoxObjectPath path) {
         if(!this.indexMap.containsKey(path)){
             IndexReferenceImpl<T> ref = new IndexReferenceImpl<>(foxObject, path);
+            foxObject.setIndexReference(ref);
             this.indexMap.put(path, ref);
             return Optional.of(ref);
         }

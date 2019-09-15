@@ -43,7 +43,6 @@ public class FoxIndexPathFactoryImpl extends FoxPathFactoryBaseImpl implements F
         }
 
         return FoxIndexPathImpl.of(indexType, this.namespacePathFactory.getPath(namespaceString));
-
     }
 
     @Nonnull
@@ -55,6 +54,8 @@ public class FoxIndexPathFactoryImpl extends FoxPathFactoryBaseImpl implements F
     @Nonnull
     @Override
     public FoxIndexPath getPath(@Nonnull String indexType, @Nonnull FoxNamespacePath namespacePath) {
+        if (indexType.isEmpty() && !namespacePath.isEmpty())
+            throw new IllegalArgumentException("Type cannot be empty if namespace path is not empty");
         return FoxIndexPathImpl.of(indexType, namespacePath);
     }
 }

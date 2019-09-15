@@ -40,7 +40,7 @@ public class FoxMainIndexImpl implements FoxMainIndex {
     }
 
     @Override
-    public Collection<FoxObjectPath> getAllPaths() {
-        return this.memoryIndex.getAllPaths();
+    public Collection<FoxObjectPath> getAllObjectPaths() {
+        return this.memoryIndex.getAllObjectPaths();
     }
 }

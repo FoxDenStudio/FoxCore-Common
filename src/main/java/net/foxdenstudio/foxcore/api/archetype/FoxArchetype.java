@@ -1,6 +1,7 @@
 package net.foxdenstudio.foxcore.api.archetype;
 
 import com.google.common.collect.ImmutableSet;
+import net.foxdenstudio.foxcore.api.archetype.container.ArchetypeContainer;
 import net.foxdenstudio.foxcore.api.attribute.holder.AttributeHolder;
 
 import javax.annotation.Nonnull;

@@ -12,8 +12,8 @@ public interface Namespace {
 
     Optional<FoxObject> getObject(FoxObjectPath path);
 
-    Collection<FoxObjectPath> getAllPaths();
+    Collection<FoxObjectPath> getAllObjectPaths();
 
-    FoxIndexPath getPath();
+    FoxIndexPath getIndexPath();
 
 }

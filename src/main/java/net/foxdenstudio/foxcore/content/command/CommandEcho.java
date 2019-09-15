@@ -2,7 +2,7 @@ package net.foxdenstudio.foxcore.content.command;
 
 import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommandBase;
 import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
-import net.foxdenstudio.foxcore.platform.command.CommandSource;
+import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;

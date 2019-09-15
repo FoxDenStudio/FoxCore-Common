@@ -1,8 +1,10 @@
 package net.foxdenstudio.foxcore.standalone.guice.module;
 
 import com.google.inject.AbstractModule;
-import net.foxdenstudio.foxcore.api.command.standard.FoxCommandManager;
+import net.foxdenstudio.foxcore.api.command.result.ResultFactory;
 import net.foxdenstudio.foxcore.guice.module.FoxCoreModule;
+import net.foxdenstudio.foxcore.impl.command.result.ResultFactoryImpl;
+import net.foxdenstudio.foxcore.platform.command.PlatformCommandManager;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
 import net.foxdenstudio.foxcore.standalone.command.StandaloneCommandManager;
 import net.foxdenstudio.foxcore.standalone.command.source.ConsoleTextPrinter;
@@ -16,10 +18,12 @@ public class FoxCoreStandaloneModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new FoxCoreModule());
-        bind(FoxCommandManager.class).to(StandaloneCommandManager.class);
+        bind(PlatformCommandManager.class).to(StandaloneCommandManager.class);
         bind(ConsoleSource.class).to(SimpleConsoleSource.class);
         bind(ConsoleTextPrinter.class).to(PlainConsoleTextPrinter.class);
         bind(TextFactory.class).to(SimpleTextFactory.class);
+        //bind(ResultFactory.class).to(ResultFactoryImpl.class);
+
     }
 
 }

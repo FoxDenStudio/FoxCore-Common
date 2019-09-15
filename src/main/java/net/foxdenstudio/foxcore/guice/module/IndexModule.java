@@ -8,6 +8,12 @@ import net.foxdenstudio.foxcore.impl.object.index.FoxMainIndexImpl;
 import net.foxdenstudio.foxcore.impl.object.index.types.MemoryIndexImpl;
 
 public class IndexModule extends AbstractModule {
+
+    public static final IndexModule INSTANCE = new IndexModule();
+
+    private IndexModule() {
+    }
+
     protected void configure() {
         //add configuration logic here
         bind(MemoryIndex.class)
