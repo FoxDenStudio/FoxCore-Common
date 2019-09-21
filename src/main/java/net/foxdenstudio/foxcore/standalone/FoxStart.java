@@ -24,6 +24,7 @@ public class FoxStart {
         foxCore.awoo();
         foxCore.configureCommands();
         foxCore.registerCommands();
+        foxCore.setupStaticContent();
 
         Scanner scanner = new Scanner(System.in);
 

@@ -34,7 +34,7 @@ public class FoxIndexPathFactoryImpl extends FoxPathFactoryBaseImpl implements F
         String indexType = parts[0];
 
         if (!indexType.isEmpty() && !nameChecker.isClean(indexType))
-            throw exceptionFactory.newFoxCommandException("Name \"" + indexType + "\" is invalid!");
+            throw new FoxCommandException("Name \"" + indexType + "\" is invalid!");
 
         String namespaceString = "";
 

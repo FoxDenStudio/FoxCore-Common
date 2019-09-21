@@ -47,7 +47,7 @@ public class FoxFullPathFactoryImpl extends FoxPathFactoryBaseImpl implements Fo
             indexPath = this.indexPathFactory.getPath(parts[0]);
 
             if(parts.length < 2 || parts[1].isEmpty())
-                throw this.exceptionFactory.newFoxCommandException("Must include object path!");
+                throw new FoxCommandException("Must include object path!");
 
             input = parts[1];
         } else {

@@ -4,9 +4,11 @@ import net.foxdenstudio.foxcore.api.annotation.FoxCorePluginInstance;
 import net.foxdenstudio.foxcore.api.annotation.command.FoxMainDispatcher;
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
 import net.foxdenstudio.foxcore.api.command.standard.FoxCommandDispatcher;
-import net.foxdenstudio.foxcore.content.command.CommandEcho;
-import net.foxdenstudio.foxcore.content.command.CommandList;
-import net.foxdenstudio.foxcore.content.command.CommandPath;
+import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
+import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
+import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
+import net.foxdenstudio.foxcore.api.object.index.WritableNamespace;
+import net.foxdenstudio.foxcore.api.path.factory.FoxObjectPathFactory;
 import net.foxdenstudio.foxcore.platform.command.PlatformCommandManager;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
 import org.slf4j.Logger;
@@ -22,17 +24,13 @@ public class FoxCore {
     private final FoxCommandDispatcher mainCommandDispatcher;
     private final ConsoleSource consoleSource;
 
+    private final FoxMainIndex mainIndex;
+    private final FoxObjectPathFactory objectPathFactory;
+
+    private final StaticContent content;
+
     @FoxLogger("greeting")
     private Logger logger;
-
-    @Inject
-    private CommandEcho commandEcho;
-
-    @Inject
-    private CommandPath commandPath;
-
-    @Inject
-    private CommandList commandList;
 
     @com.google.inject.Inject(optional = true)
     @FoxCorePluginInstance
@@ -42,10 +40,15 @@ public class FoxCore {
     public FoxCore(
             Provider<PlatformCommandManager> commandManager,
             @FoxMainDispatcher FoxCommandDispatcher mainCommandDispatcher,
-            ConsoleSource consoleSource) {
+            ConsoleSource consoleSource,
+            FoxMainIndex mainIndex, FoxObjectPathFactory objectPathFactory,
+            StaticContent content) {
         this.commandManager = commandManager;
         this.mainCommandDispatcher = mainCommandDispatcher;
         this.consoleSource = consoleSource;
+        this.mainIndex = mainIndex;
+        this.objectPathFactory = objectPathFactory;
+        this.content = content;
     }
 
     public void awoo() {
@@ -53,13 +56,25 @@ public class FoxCore {
     }
 
     public void configureCommands() {
-        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, commandEcho, "echo");
-        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, commandPath, "path");
-        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, commandList, "list");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandEcho, "echo");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandPath, "path");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandList, "list");
     }
 
     public void registerCommands() {
         this.commandManager.get().registerCommand(this.foxCorePlugin, this.mainCommandDispatcher, "fox");
+    }
+
+    public void setupStaticContent() {
+        FoxObjectIndex objectIndex = mainIndex.getDefaultObjectIndex();
+        try {
+            WritableNamespace writable = ((WritableNamespace) objectIndex);
+            writable.addObject(content.generatorRectRegion, this.objectPathFactory.getPath("gen/rect"));
+        } catch (ClassCastException e){
+            logger.error("Could not get writable index! This is a development error and should be addressed immediately!", e);
+        } catch (FoxCommandException e){
+            logger.error("Could not get object path! This is a development error and should be addressed immediately!");
+        }
     }
 
     public PlatformCommandManager getCommandManager() {

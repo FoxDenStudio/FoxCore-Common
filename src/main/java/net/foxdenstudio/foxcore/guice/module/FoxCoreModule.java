@@ -8,7 +8,6 @@ public class FoxCoreModule extends AbstractModule {
     protected void configure() {
         install(LoggerInjectorModule.INSTANCE);
         install(CommandModule.INSTANCE);
-        install(ExceptionModule.INSTANCE);
         install(PathModule.INSTANCE);
         install(IndexModule.INSTANCE);
     }

@@ -7,8 +7,6 @@ import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 
 import java.util.Optional;
 
-public interface GeneratorCommand<G extends FoxObject<G>> extends FoxCommand {
-
-    Optional<G> generate(CommandSource source, String arguments) throws FoxCommandException;
+public interface GeneratorObject<T extends GeneratorObject<T, G>, G extends FoxObject<G>> extends FoxObject<T>, GeneratorCommand<G> {
 
 }

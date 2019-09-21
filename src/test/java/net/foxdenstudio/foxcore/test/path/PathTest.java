@@ -5,7 +5,6 @@ import com.google.inject.Injector;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.path.components.*;
 import net.foxdenstudio.foxcore.api.path.factory.*;
-import net.foxdenstudio.foxcore.guice.module.ExceptionModule;
 import net.foxdenstudio.foxcore.guice.module.PathModule;
 import net.foxdenstudio.foxcore.guice.module.TestModule;
 import org.junit.BeforeClass;
@@ -21,7 +20,6 @@ public class PathTest {
     public static void setInjector() {
         injector = Guice.createInjector(
                 PathModule.INSTANCE,
-                ExceptionModule.INSTANCE,
                 TestModule.INSTANCE
         );
     }

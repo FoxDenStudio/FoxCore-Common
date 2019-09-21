@@ -5,7 +5,9 @@ import net.foxdenstudio.foxcore.content.attribute.ArchetypeDisplayNameAttribute;
 import net.foxdenstudio.foxcore.content.attribute.EnabledAttribute;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class RegionArchetype extends ArchetypeBase {
 
     @Inject

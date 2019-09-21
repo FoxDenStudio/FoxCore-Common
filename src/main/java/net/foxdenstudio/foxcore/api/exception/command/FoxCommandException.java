@@ -1,30 +1,21 @@
 package net.foxdenstudio.foxcore.api.exception.command;
 
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
 import net.foxdenstudio.foxcore.api.exception.FoxException;
-
-import javax.inject.Inject;
 
 public class FoxCommandException extends FoxException {
 
-    @Inject
-    protected FoxCommandException() {
-        super();
+    public FoxCommandException() {
     }
 
-    @AssistedInject
-    protected FoxCommandException(@Assisted String message) {
+    public FoxCommandException(String message) {
         super(message);
     }
 
-    @AssistedInject
-    protected FoxCommandException(@Assisted String message, @Assisted Throwable cause) {
+    public FoxCommandException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    @AssistedInject
-    protected FoxCommandException(@Assisted Throwable cause) {
+    public FoxCommandException(Throwable cause) {
         super(cause);
     }
 }

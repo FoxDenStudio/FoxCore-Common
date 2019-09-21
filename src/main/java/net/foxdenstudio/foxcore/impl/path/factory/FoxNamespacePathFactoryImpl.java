@@ -36,7 +36,7 @@ public class FoxNamespacePathFactoryImpl extends FoxPathFactoryBaseImpl implemen
 
         for(String part : parts){
             if(!nameChecker.isClean(part)){
-                throw exceptionFactory.newFoxCommandException("Name \"" + part + "\" is invalid!");
+                throw new FoxCommandException("Name \"" + part + "\" is invalid!");
             }
         }
 
