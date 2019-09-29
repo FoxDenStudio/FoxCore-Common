@@ -5,8 +5,7 @@ import net.foxdenstudio.foxcore.content.archetype.RepresentationArchetype;
 
 import javax.inject.Inject;
 
-public class SimpleRepresentation<R extends FoxRepresentable<SimpleRepresentation<R>, R>>
-        extends RepresentationBase<SimpleRepresentation<R>, R> {
+public class SimpleRepresentation<R extends FoxRepresentable> extends RepresentationBase<R> {
 
     @Inject
     private SimpleRepresentation(RepresentationArchetype representationArchetype,

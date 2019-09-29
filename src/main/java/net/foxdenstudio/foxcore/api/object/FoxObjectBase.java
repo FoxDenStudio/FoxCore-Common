@@ -9,12 +9,12 @@ import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
 
 import java.util.Optional;
 
-public abstract class FoxObjectBase<T extends FoxObjectBase<T>> implements FoxObject<T>, DelegateAttributeHolder {
+public abstract class FoxObjectBase implements FoxObject, DelegateAttributeHolder {
 
     protected final FoxArchetype archetype;
     protected final AttributeContainer attributeContainer;
 
-    protected IndexReference<T> indexReference;
+    protected IndexReference indexReference;
 
     protected FoxObjectBase(FoxArchetype archetype, FoxAttribute<?>... attributes){
         this.archetype = archetype;
@@ -22,14 +22,15 @@ public abstract class FoxObjectBase<T extends FoxObjectBase<T>> implements FoxOb
     }
 
     @Override
-    public Optional<IndexReference<T>> getIndexReference() {
+    public Optional<IndexReference> getIndexReference() {
         return Optional.ofNullable(indexReference);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void setIndexReference(IndexReference<T> indexReference) {
+    public void setIndexReference(IndexReference indexReference) {
         if (indexReference.stillValid() && indexReference.getObject().isPresent() && indexReference.getObject().get() == this) {
-            this.indexReference = indexReference;
+            this.indexReference = (IndexReference) indexReference;
         } else throw new IllegalArgumentException("Index reference must be valid and refer to this object.");
     }
 
@@ -42,4 +43,5 @@ public abstract class FoxObjectBase<T extends FoxObjectBase<T>> implements FoxOb
     public AttributeHolder getDelegateAttrHolder() {
         return this.attributeContainer;
     }
+
 }

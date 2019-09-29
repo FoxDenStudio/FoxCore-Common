@@ -6,10 +6,10 @@ import net.foxdenstudio.foxcore.api.path.components.FoxFullPath;
 
 import java.util.Optional;
 
-public interface IndexReference<T extends FoxObject> extends FoxObjectReference<T> {
+public interface IndexReference extends FoxObjectReference {
 
     @Override
-    Optional<T> getObject();
+    Optional<FoxObject> getObject();
 
     Optional<FoxFullPath> getPrimaryPath();
 

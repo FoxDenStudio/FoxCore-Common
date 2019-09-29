@@ -2,8 +2,9 @@ package net.foxdenstudio.foxcore.api.region;
 
 import net.foxdenstudio.foxcore.api.object.FoxObject;
 
-public interface FoxRegion<T extends FoxRegion<T>> extends FoxObject<T> {
+public interface FoxRegion extends FoxObject {
 
-    boolean contains(int x, int y, int z);
+    boolean containsBlock(int x, int y, int z);
 
+    boolean contains(double x, double y, double z);
 }

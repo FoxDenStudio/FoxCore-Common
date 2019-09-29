@@ -8,7 +8,7 @@ import net.foxdenstudio.foxcore.api.object.FoxObjectBase;
 import javax.inject.Singleton;
 
 @Singleton
-public abstract class GeneratorObjectBase<T extends GeneratorObjectBase<T, G>, G extends FoxObject<G>> extends FoxObjectBase<T> implements GeneratorObject<T, G> {
+public abstract class GeneratorObjectBase<G extends FoxObject> extends FoxObjectBase implements GeneratorObject< G> {
 
     protected GeneratorObjectBase(FoxArchetype archetype, FoxAttribute<?>... attributes) {
         super(archetype, attributes);

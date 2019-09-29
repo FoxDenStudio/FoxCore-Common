@@ -1,8 +1,10 @@
 package net.foxdenstudio.foxcore.api.object.representation;
 
+import net.foxdenstudio.foxcore.api.object.FoxObject;
+
 import java.util.Optional;
 
-public interface FoxRepresentable<T extends RepresentationObject<T, R>, R extends FoxRepresentable<T, R>> {
+public interface FoxRepresentable {
 
-    Optional<T> getRepresentation();
+    Optional<? extends RepresentationObject<?>> getRepresentation();
 }

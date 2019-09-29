@@ -4,8 +4,8 @@ import net.foxdenstudio.foxcore.api.object.FoxObject;
 
 import java.util.Optional;
 
-public interface FoxObjectReference<T extends FoxObject> {
+public interface FoxObjectReference {
 
-    Optional<T> getObject();
+    Optional<FoxObject> getObject();
 
 }

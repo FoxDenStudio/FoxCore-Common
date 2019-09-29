@@ -5,7 +5,7 @@ import net.foxdenstudio.foxcore.content.archetype.FoxObjectArchetype;
 
 import javax.inject.Inject;
 
-public class StubObject extends FoxObjectBase<StubObject> {
+public class StubObject extends FoxObjectBase {
 
     @Inject
     private StubObject(FoxObjectArchetype archetype) {

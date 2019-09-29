@@ -27,7 +27,7 @@ public class MemoryIndexImpl implements MemoryIndex {
     private final FoxNamespacePathFactory namespacePathFactory;
     private final FoxIndexPath indexPath;
 
-    private final Map<FoxObjectPath, IndexReference<?>> indexMap;
+    private final Map<FoxObjectPath, IndexReference> indexMap;
 
     @Inject
     private MemoryIndexImpl(FoxFullPathFactory fullPathFactory,
@@ -63,7 +63,7 @@ public class MemoryIndexImpl implements MemoryIndex {
 
     @Override
     public Optional<FoxObject> getObject(FoxObjectPath path) {
-        return Optional.empty();
+        return Optional.ofNullable(this.indexMap.get(path)).flatMap(IndexReference::getObject);
     }
 
     @Override
@@ -76,10 +76,11 @@ public class MemoryIndexImpl implements MemoryIndex {
         return this.indexPath;
     }
 
+    @SuppressWarnings({"unchecked"})
     @Override
-    public <T extends FoxObject<T>> Optional<IndexReference<T>> addObject(T foxObject, FoxObjectPath path) {
-        if(!this.indexMap.containsKey(path)){
-            IndexReferenceImpl<T> ref = new IndexReferenceImpl<>(foxObject, path);
+    public Optional<IndexReference> addObject(FoxObject foxObject, FoxObjectPath path) {
+        if (!this.indexMap.containsKey(path)) {
+            IndexReferenceImpl ref = new IndexReferenceImpl(foxObject, path);
             foxObject.setIndexReference(ref);
             this.indexMap.put(path, ref);
             return Optional.of(ref);
@@ -87,20 +88,20 @@ public class MemoryIndexImpl implements MemoryIndex {
         return Optional.empty();
     }
 
-    private class IndexReferenceImpl<T extends FoxObject> implements IndexReference<T> {
+    private class IndexReferenceImpl implements IndexReference {
 
-        T object;
+        FoxObject object;
         FoxObjectPath path;
         boolean valid;
 
-        IndexReferenceImpl(T object, FoxObjectPath path) {
+        IndexReferenceImpl(FoxObject object, FoxObjectPath path) {
             this.object = object;
             this.path = path;
             this.valid = true;
         }
 
         @Override
-        public Optional<T> getObject() {
+        public Optional<FoxObject> getObject() {
             return Optional.ofNullable(object);
         }
 

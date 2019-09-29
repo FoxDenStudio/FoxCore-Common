@@ -4,9 +4,7 @@ import net.foxdenstudio.foxcore.api.archetype.FoxArchetype;
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
 import net.foxdenstudio.foxcore.api.object.FoxObjectBase;
 
-public abstract class RepresentationBase<T extends RepresentationBase<T,R>, R extends FoxRepresentable<T, R>>
-        extends FoxObjectBase<T>
-        implements RepresentationObject<T, R> {
+public abstract class RepresentationBase<R extends FoxRepresentable> extends FoxObjectBase implements RepresentationObject<R> {
 
     protected final R represented;
 

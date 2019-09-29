@@ -7,6 +7,6 @@ import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 
 import java.util.Optional;
 
-public interface GeneratorObject<T extends GeneratorObject<T, G>, G extends FoxObject<G>> extends FoxObject<T>, GeneratorCommand<G> {
+public interface GeneratorObject<G extends FoxObject> extends FoxObject, GeneratorCommand<G> {
 
 }
