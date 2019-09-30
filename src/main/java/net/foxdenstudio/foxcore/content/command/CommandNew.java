@@ -15,6 +15,7 @@ import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Optional;
 
 public class CommandNew extends FoxStandardCommandBase {
@@ -81,4 +82,11 @@ public class CommandNew extends FoxStandardCommandBase {
         return resultFactory.success();
     }
 
+    @Override
+    public List<String> getSuggestions(@Nonnull CommandSource source, @Nonnull String arguments) throws FoxCommandException {
+
+
+
+        return super.getSuggestions(source, arguments);
+    }
 }

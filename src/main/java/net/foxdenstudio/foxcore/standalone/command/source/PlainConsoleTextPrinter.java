@@ -2,6 +2,7 @@ package net.foxdenstudio.foxcore.standalone.command.source;
 
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
 import net.foxdenstudio.foxcore.platform.text.Text;
+import net.foxdenstudio.foxcore.standalone.text.SimpleText;
 import org.slf4j.Logger;
 
 public class PlainConsoleTextPrinter implements ConsoleTextPrinter {
@@ -11,6 +12,10 @@ public class PlainConsoleTextPrinter implements ConsoleTextPrinter {
 
     @Override
     public void printText(Text text) {
-        logger.info(text.toPlain());
+        if (text instanceof SimpleText) {
+            logger.info(((SimpleText) text).toANSI());
+        } else {
+            logger.info(text.toPlain());
+        }
     }
 }

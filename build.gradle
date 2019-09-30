@@ -35,6 +35,10 @@ dependencies {
     compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
     compile 'com.google.inject.extensions:guice-multibindings:4.1.0'
 
+    compile 'org.jline:jline:3.12.1'
+    compile 'net.java.dev.jna:jna:5.4.0'
+    //compile 'net.java.dev.jna:platform:3.4.0'
+
     // Java 8 high performance cache (+ wrapper for Guava)
     compile 'com.github.ben-manes.caffeine:caffeine:2.5.4'
     compile('com.github.ben-manes.caffeine:guava:2.5.4') {
@@ -42,6 +46,7 @@ dependencies {
     }
 
     compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile 'org.slf4j:jul-to-slf4j:1.7.25'
 
 
 

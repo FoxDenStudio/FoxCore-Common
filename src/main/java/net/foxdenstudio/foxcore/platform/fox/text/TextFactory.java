@@ -6,4 +6,6 @@ public interface TextFactory {
 
     Text getText(String text);
 
+    Text getText(Object... objects);
+
 }

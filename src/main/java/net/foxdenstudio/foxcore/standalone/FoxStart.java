@@ -1,15 +1,29 @@
 package net.foxdenstudio.foxcore.standalone;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.jul.LevelChangePropagator;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import net.foxdenstudio.foxcore.FoxCore;
 import net.foxdenstudio.foxcore.standalone.guice.module.FoxCoreStandaloneModule;
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.terminal.impl.DumbTerminal;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class FoxStart {
 
@@ -21,23 +35,59 @@ public class FoxStart {
     }
 
     public void start(String[] args) {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        lc.addListener(new LevelChangePropagator());
+
+        Logger logger = (Logger) LoggerFactory.getLogger("org.jline");
+        //logger.setLevel(Level.ALL);
+
         foxCore.awoo();
         foxCore.configureCommands();
         foxCore.registerCommands();
         foxCore.setupStaticContent();
 
-        Scanner scanner = new Scanner(System.in);
+        try {
+            Terminal terminal = TerminalBuilder.builder()
+                    .system(true)
+                    .nativeSignals(true)
+                    .signalHandler(Terminal.SignalHandler.SIG_IGN)
+                    .build();
 
-        while (scanner.hasNext()) {
-            String line = scanner.nextLine();
-            if (line.equalsIgnoreCase("exit")) break;
-            if (line.isEmpty()) continue;
-            try {
-                foxCore.getCommandManager().process(foxCore.getConsoleSource(), line);
-            } catch (Exception e) {
-                e.printStackTrace();
+            LineReader lineReader = LineReaderBuilder.builder()
+                    .terminal(terminal)
+                    .build();
+
+            while (true) {
+                try {
+                    String line = lineReader.readLine(
+                            new AttributedStringBuilder()
+                                    .style(AttributedStyle.DEFAULT.foreground(AttributedStyle.RED | AttributedStyle.BRIGHT))
+                                    .append("> ")
+                                    .toAnsi());
+                    if (line.equalsIgnoreCase("exit")) break;
+                    if (line.isEmpty()) continue;
+                    try {
+                        foxCore.getCommandManager().process(foxCore.getConsoleSource(), line);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } catch (UserInterruptException e){
+                    e.printStackTrace();
+                    break;
+                } catch (EndOfFileException e){
+                    e.printStackTrace();
+                    break;
+                }
             }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+
     }
 
     public static void main(String[] args) {

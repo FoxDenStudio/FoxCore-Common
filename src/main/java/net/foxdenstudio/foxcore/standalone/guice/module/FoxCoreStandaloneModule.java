@@ -18,6 +18,7 @@ public class FoxCoreStandaloneModule extends AbstractModule {
     @Override
     protected void configure() {
         install(new FoxCoreModule());
+        install(new StandaloneTextStyleModule());
         bind(PlatformCommandManager.class).to(StandaloneCommandManager.class);
         bind(ConsoleSource.class).to(SimpleConsoleSource.class);
         bind(ConsoleTextPrinter.class).to(PlainConsoleTextPrinter.class);
