@@ -26,7 +26,7 @@ public class SimpleTextColor implements TextColor {
     }
 
     @Override
-    public String getID() {
+    public String getId() {
         return this.id;
     }
 

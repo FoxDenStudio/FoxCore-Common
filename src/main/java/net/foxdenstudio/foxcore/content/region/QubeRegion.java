@@ -247,7 +247,7 @@ public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
             if (this.zBounds.length != 0) {
                 builder.append(tf.of(tc.AQUA, "Z Bounds: ", tc.RESET, Arrays.toString(this.zBounds), "\n"));
             }
-            builder.append(tf.of(tc.YELLOW, "Mode: "));
+            builder.append(tf.of(tc.GOLD, "Mode: "));
             Mode mode = Mode.CUSTOM;
             if (this.xBounds.length == 0 && this.yBounds.length == 0 && this.zBounds.length == 0) {
                 mode = Mode.SINGLE;
@@ -289,17 +289,17 @@ public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
                     builder.append(tf.of(tc.YELLOW, "Single"));
                 case BOX:
                     builder.append(tf.of(tc.RESET, "Box"));
-                    builder.append(tf.of("\n"));
+                    builder.append(tf.of("\n\n"));
                     builder.append(this.generateVisual(null));
                     break;
                 case RECT:
                     builder.append(tf.of(tc.RESET, "Rectangle"));
-                    builder.append(tf.of("\n"));
+                    builder.append(tf.of("\n\n"));
                     builder.append(this.generateVisual(null));
                     break;
                 case CUSTOM:
                     builder.append(tf.of(tc.LIGHT_PURPLE, "Custom"));
-                    builder.append(tf.of("\n"));
+                    builder.append(tf.of("\n\n"));
                     builder.append(this.generateVisual(null));
                     break;
             }
@@ -463,25 +463,25 @@ public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
             case 4:
                 colors[0] = tc.GRAY;
                 colors[1] = tc.RED;
-                colors[2] = tc.GOLD;
-                colors[3] = tc.YELLOW;
-                colors[4] = tc.GREEN;
+                colors[2] = tc.YELLOW;
+                colors[3] = tc.GREEN;
+                colors[4] = tc.AQUA;
                 break;
             case 5:
                 colors[0] = tc.GRAY;
                 colors[1] = tc.RED;
-                colors[2] = tc.GOLD;
-                colors[3] = tc.YELLOW;
-                colors[4] = tc.GREEN;
-                colors[5] = tc.AQUA;
+                colors[2] = tc.YELLOW;
+                colors[3] = tc.GREEN;
+                colors[4] = tc.AQUA;
+                colors[5] = tc.LIGHT_PURPLE;
                 break;
             case 6:
                 colors[0] = tc.GRAY;
                 colors[1] = tc.RED;
-                colors[2] = tc.GOLD;
-                colors[3] = tc.YELLOW;
-                colors[4] = tc.GREEN;
-                colors[5] = tc.AQUA;
+                colors[2] = tc.YELLOW;
+                colors[3] = tc.GREEN;
+                colors[4] = tc.AQUA;
+                colors[5] = tc.BLUE;
                 colors[6] = tc.LIGHT_PURPLE;
                 break;
             case 7:

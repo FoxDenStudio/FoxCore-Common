@@ -6,7 +6,7 @@ public interface Text {
 
     interface Builder {
 
-        Builder append(Text obj);
+        Builder append(Text... children);
 
         Text build();
     }

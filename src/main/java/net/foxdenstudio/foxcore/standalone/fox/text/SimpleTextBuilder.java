@@ -5,6 +5,7 @@ import net.foxdenstudio.foxcore.standalone.text.SimpleText;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SimpleTextBuilder implements Text.Builder {
@@ -16,8 +17,8 @@ public class SimpleTextBuilder implements Text.Builder {
 
 
     @Override
-    public Text.Builder append(Text obj) {
-        parts.add(obj);
+    public Text.Builder append(Text... children) {
+        parts.addAll(Arrays.asList(children));
         return this;
     }
 

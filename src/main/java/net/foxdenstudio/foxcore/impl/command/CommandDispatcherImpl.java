@@ -2,13 +2,14 @@ package net.foxdenstudio.foxcore.impl.command;
 
 import com.google.common.collect.ImmutableSet;
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
+import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 import net.foxdenstudio.foxcore.api.command.standard.FoxCommandDispatcher;
 import net.foxdenstudio.foxcore.api.command.standard.FoxCommandMapping;
 import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommand;
-import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommandBase;
-import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.command.PlatformCommand;
+import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
+import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -45,7 +46,7 @@ public class CommandDispatcherImpl extends FoxStandardCommandBase implements Fox
         String[] parts = arguments.split("\\s+", 2);
         String command = parts[0];
 
-        if(command.trim().isEmpty()){
+        if (command.trim().isEmpty()) {
             String response = "Commands: " + this.commandMap.keySet().toString();
             source.sendMessage(this.tf.of(response));
             return resultFactory.empty();
@@ -61,7 +62,11 @@ public class CommandDispatcherImpl extends FoxStandardCommandBase implements Fox
         try {
             foxCommand.process(source, args);
         } catch (Exception e) {
-            logger.debug("Exception processing command: " + arguments, e);
+            if (source instanceof ConsoleSource) {
+                logger.info("Exception processing command: " + arguments, e);
+            } else {
+                logger.debug("Exception processing command: " + arguments, e);
+            }
             source.sendMessage(this.tf.of("Error executing commmand: " + e.getMessage()));
         }
         return resultFactory.empty();
@@ -72,7 +77,7 @@ public class CommandDispatcherImpl extends FoxStandardCommandBase implements Fox
         return this.registerCommand(plugin, (PlatformCommand) command, primaryAlias, secondaryAliases);
     }
 
-    private static class CommandMappingImpl implements FoxCommandMapping{
+    private static class CommandMappingImpl implements FoxCommandMapping {
 
         final PlatformCommand callable;
         final String primary;
@@ -80,7 +85,7 @@ public class CommandDispatcherImpl extends FoxStandardCommandBase implements Fox
 
         transient final Set<String> all;
 
-        CommandMappingImpl(PlatformCommand callable, String primary, Set<String> secondary){
+        CommandMappingImpl(PlatformCommand callable, String primary, Set<String> secondary) {
             this.callable = callable;
             this.primary = primary;
             this.secondary = ImmutableSet.copyOf(secondary);
