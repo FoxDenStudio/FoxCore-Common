@@ -430,8 +430,8 @@ public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
                     builder.append(palette[yCounts[i][j]]);
                 }
                 builder.append(tf.of("  "));
-                for (int j = xCounts[i].length - 1 ; j >= 0; j--) {
-                    builder.append(palette[xCounts[j][i]]);
+                for (int j = xCounts.length - 1; j >= 0; j--) {
+                    builder.append(palette[xCounts[j][yCounts.length - i - 1]]);
                 }
             }
         }
