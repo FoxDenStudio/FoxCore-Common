@@ -2,7 +2,6 @@ package net.foxdenstudio.foxcore.impl.command;
 
 import com.google.common.collect.ImmutableSet;
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
-import net.foxdenstudio.foxcore.api.command.FoxCommandBase;
 import net.foxdenstudio.foxcore.api.command.standard.FoxCommandDispatcher;
 import net.foxdenstudio.foxcore.api.command.standard.FoxCommandMapping;
 import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommand;
@@ -48,13 +47,13 @@ public class CommandDispatcherImpl extends FoxStandardCommandBase implements Fox
 
         if(command.trim().isEmpty()){
             String response = "Commands: " + this.commandMap.keySet().toString();
-            source.sendMessage(this.textFactory.getText(response));
+            source.sendMessage(this.tf.of(response));
             return resultFactory.empty();
         }
 
         FoxCommandMapping mapping = commandMap.get(command.toLowerCase());
         if (mapping == null) {
-            source.sendMessage(textFactory.getText("No such command: " + command));
+            source.sendMessage(tf.of("No such command: " + command));
             return resultFactory.failure();
         }
         PlatformCommand foxCommand = mapping.getCallable();
@@ -63,7 +62,7 @@ public class CommandDispatcherImpl extends FoxStandardCommandBase implements Fox
             foxCommand.process(source, args);
         } catch (Exception e) {
             logger.debug("Exception processing command: " + arguments, e);
-            source.sendMessage(this.textFactory.getText("Error executing commmand: " + e.getMessage()));
+            source.sendMessage(this.tf.of("Error executing commmand: " + e.getMessage()));
         }
         return resultFactory.empty();
     }

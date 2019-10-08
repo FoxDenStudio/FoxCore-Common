@@ -13,7 +13,7 @@ public class PlainConsoleTextPrinter implements ConsoleTextPrinter {
     @Override
     public void printText(Text text) {
         if (text instanceof SimpleText) {
-            logger.info(((SimpleText) text).toANSI());
+            logger.info(((SimpleText) text).toAttributedString().toAnsi());
         } else {
             logger.info(text.toPlain());
         }

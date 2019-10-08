@@ -4,8 +4,10 @@ import net.foxdenstudio.foxcore.platform.text.Text;
 
 public interface TextFactory {
 
-    Text getText(String text);
+    Text of(String text);
 
-    Text getText(Object... objects);
+    Text of(Object... objects);
+
+    Text.Builder builder();
 
 }

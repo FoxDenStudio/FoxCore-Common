@@ -10,7 +10,6 @@ import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
 import net.foxdenstudio.foxcore.api.object.index.WritableNamespace;
 import net.foxdenstudio.foxcore.api.path.components.FoxObjectPath;
 import net.foxdenstudio.foxcore.api.path.factory.FoxObjectPathFactory;
-import net.foxdenstudio.foxcore.api.region.FoxRegion;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 
 import javax.annotation.Nonnull;
@@ -33,7 +32,7 @@ public class CommandNew extends FoxStandardCommandBase {
     public FoxCommandResult process(@Nonnull CommandSource source, @Nonnull String arguments) throws FoxCommandException {
         arguments = arguments.trim();
         if (arguments.isEmpty()) {
-            source.sendMessage(textFactory.getText("Syntax: <name/path> <generator> <arguments>"));
+            source.sendMessage(tf.of("Syntax: <name/path> <generator> <arguments>"));
             return resultFactory.empty();
         }
         String[] args = arguments.split(" +", 3);
@@ -77,7 +76,7 @@ public class CommandNew extends FoxStandardCommandBase {
             throw new FoxCommandException("Generator returned existing object for an unknown reason!");
 
         ((WritableNamespace) objectIndex).addObject(newObject, objectPath);
-        source.sendMessage(this.textFactory.getText("Successfully created object!"));
+        source.sendMessage(this.tf.of("Successfully created object!"));
 
         return resultFactory.success();
     }

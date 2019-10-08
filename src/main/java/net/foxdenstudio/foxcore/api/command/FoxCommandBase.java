@@ -8,7 +8,7 @@ import javax.inject.Inject;
 public abstract class FoxCommandBase implements FoxCommand {
 
     @Inject
-    protected TextFactory textFactory;
+    protected TextFactory tf;
 
     @Inject
     protected ResultFactory resultFactory;

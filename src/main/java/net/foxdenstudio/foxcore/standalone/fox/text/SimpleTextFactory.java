@@ -6,26 +6,34 @@ import net.foxdenstudio.foxcore.platform.text.format.TextColors;
 import net.foxdenstudio.foxcore.standalone.text.SimpleText;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Singleton
 public class SimpleTextFactory implements TextFactory {
 
     private final TextColors textColors;
+    private final Provider<SimpleTextBuilder> builderProvider;
 
     @Inject
-    private SimpleTextFactory(TextColors textColors) {
+    private SimpleTextFactory(TextColors textColors, Provider<SimpleTextBuilder> builderProvider) {
         this.textColors = textColors;
+        this.builderProvider = builderProvider;
     }
 
     @Override
-    public Text getText(String text) {
-        return new SimpleText(this.textColors, text);
+    public Text of(String text) {
+        return SimpleText.of(text);
     }
 
     @Override
-    public Text getText(Object... objects) {
-        return new SimpleText(this.textColors, objects);
+    public Text of(Object... objects) {
+        return SimpleText.of(objects);
+    }
+
+    @Override
+    public Text.Builder builder() {
+        return builderProvider.get();
     }
 
 }

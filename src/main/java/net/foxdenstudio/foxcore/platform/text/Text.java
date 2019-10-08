@@ -4,4 +4,10 @@ public interface Text {
 
     String toPlain();
 
+    interface Builder {
+
+        Builder append(Text obj);
+
+        Text build();
+    }
 }

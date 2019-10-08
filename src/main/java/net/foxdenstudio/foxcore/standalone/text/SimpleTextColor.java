@@ -49,4 +49,8 @@ public class SimpleTextColor implements TextColor {
     public int getANSIColor() {
         return color;
     }
+
+    public boolean isReset(){
+        return this.reset;
+    }
 }

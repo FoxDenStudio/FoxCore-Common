@@ -45,7 +45,7 @@ public class CommandPath extends FoxStandardCommandBase {
             builder.append("\n").append(message).append(linkPath);
         }
 
-        Text message = this.textFactory.getText(builder.toString());
+        Text message = this.tf.of(builder.toString());
 
         source.sendMessage(message);
 

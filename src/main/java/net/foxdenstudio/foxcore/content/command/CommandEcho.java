@@ -18,7 +18,7 @@ public class CommandEcho extends FoxStandardCommandBase {
         if (!source.hasPermission("fox.echo")) return resultFactory.failure();
         String message = source.getName() + " said: "
                 + (arguments.isEmpty() ? "(empty)" : arguments);
-        source.sendMessage(textFactory.getText(message));
+        source.sendMessage(tf.of(message));
         return resultFactory.empty();
     }
 }

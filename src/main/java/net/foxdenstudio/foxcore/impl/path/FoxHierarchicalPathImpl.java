@@ -37,6 +37,9 @@ public class FoxHierarchicalPathImpl implements FoxHierarchicalPath, FoxOptional
         if (elements == null || elements.length == 0) return root();
 
         // TODO perform input validation maybe?
+        for (int i = 0; i < elements.length; i++) {
+            elements[i] = elements[i].toLowerCase();
+        }
 
         return new FoxHierarchicalPathImpl(elements);
     }

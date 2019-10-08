@@ -2,19 +2,28 @@ package net.foxdenstudio.foxcore.content.region;
 
 import net.foxdenstudio.foxcore.api.annotation.module.FoxGenerator;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
+import net.foxdenstudio.foxcore.api.object.FoxDetailableObject;
 import net.foxdenstudio.foxcore.api.object.generator.GeneratorObjectBase;
 import net.foxdenstudio.foxcore.api.region.FoxRegionBase;
 import net.foxdenstudio.foxcore.content.archetype.GeneratorArchetype;
 import net.foxdenstudio.foxcore.content.archetype.RegionArchetype;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
+import net.foxdenstudio.foxcore.platform.fox.text.TextFactory;
+import net.foxdenstudio.foxcore.platform.text.Text;
+import net.foxdenstudio.foxcore.platform.text.format.TextColor;
+import net.foxdenstudio.foxcore.platform.text.format.TextColors;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import java.util.Arrays;
+import java.util.Random;
 
-public class QubeRegion extends FoxRegionBase {
+public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
 
+    private final TextFactory tf;
+    private final TextColors tc;
 
     private int[] xBounds = {};
     private int[] yBounds = {};
@@ -23,8 +32,10 @@ public class QubeRegion extends FoxRegionBase {
     private boolean[][][] volumes = {{{false}}};
 
     @Inject
-    private QubeRegion(RegionArchetype archetype) {
+    private QubeRegion(RegionArchetype archetype, TextFactory textFactory, TextColors textColors) {
         super(archetype);
+        this.tf = textFactory;
+        this.tc = textColors;
     }
 
 
@@ -91,6 +102,9 @@ public class QubeRegion extends FoxRegionBase {
     }
 
     public void addXBound(int x) {
+        for (int xb : this.xBounds) {
+            if (xb == x) return;
+        }
         int[] newBounds = new int[this.xBounds.length + 1];
         int inserted = 0;
         int pos = 0;
@@ -124,6 +138,9 @@ public class QubeRegion extends FoxRegionBase {
     }
 
     public void addYBound(int y) {
+        for (int yb : this.yBounds) {
+            if (yb == y) return;
+        }
         int[] newBounds = new int[this.yBounds.length + 1];
         int inserted = 0;
         int pos = 0;
@@ -156,6 +173,9 @@ public class QubeRegion extends FoxRegionBase {
     }
 
     public void addZBound(int z) {
+        for (int zb : this.zBounds) {
+            if (zb == z) return;
+        }
         int[] newBounds = new int[this.zBounds.length + 1];
         int inserted = 0;
         int pos = 0;
@@ -205,6 +225,313 @@ public class QubeRegion extends FoxRegionBase {
                 }
             }
         }
+    }
+
+    @Override
+    public Text details(CommandSource source, String arguments) {
+        Text.Builder builder = tf.builder();
+        if (this.xBounds.length == 0 && this.yBounds.length == 0 && this.zBounds.length == 0) {
+            builder.append(tf.of(tc.GRAY, "No bounds\n", tc.YELLOW, "Mode: "));
+            if (this.volumes[0][0][0]) {
+                builder.append(tf.of(tc.GREEN, "All"));
+            } else {
+                builder.append(tf.of(tc.RED, "None"));
+            }
+        } else {
+            if (this.xBounds.length != 0) {
+                builder.append(tf.of(tc.RED, "X Bounds: ", tc.RESET, Arrays.toString(this.xBounds), "\n"));
+            }
+            if (this.yBounds.length != 0) {
+                builder.append(tf.of(tc.GREEN, "Y Bounds: ", tc.RESET, Arrays.toString(this.yBounds), "\n"));
+            }
+            if (this.zBounds.length != 0) {
+                builder.append(tf.of(tc.AQUA, "Z Bounds: ", tc.RESET, Arrays.toString(this.zBounds), "\n"));
+            }
+            builder.append(tf.of(tc.YELLOW, "Mode: "));
+            Mode mode = Mode.CUSTOM;
+            if (this.xBounds.length == 0 && this.yBounds.length == 0 && this.zBounds.length == 0) {
+                mode = Mode.SINGLE;
+            } else if (this.xBounds.length == 2 && this.zBounds.length == 2) {
+                if (this.yBounds.length == 2) {
+                    boolean outside = false, inside = false;
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = 0; j < 3; j++) {
+                            for (int k = 0; k < 3; k++) {
+                                if (i == 1 && j == 1 && k == 1) {
+                                    inside = this.volumes[i][j][k];
+                                } else {
+                                    outside |= this.volumes[i][j][k];
+                                }
+                            }
+                        }
+                    }
+                    if (inside && !outside) {
+                        mode = Mode.BOX;
+                    }
+                } else if (this.yBounds.length == 0) {
+                    boolean outside = false, inside = false;
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = 0; j < 3; j++) {
+                            if (i == 1 && j == 1) {
+                                inside = this.volumes[i][0][j];
+                            } else {
+                                outside |= this.volumes[i][0][j];
+                            }
+                        }
+                    }
+                    if (inside && !outside) {
+                        mode = Mode.RECT;
+                    }
+                }
+            }
+            switch (mode) {
+                case SINGLE:
+                    builder.append(tf.of(tc.YELLOW, "Single"));
+                case BOX:
+                    builder.append(tf.of(tc.RESET, "Box"));
+                    builder.append(tf.of("\n"));
+                    builder.append(this.generateVisual(null));
+                    break;
+                case RECT:
+                    builder.append(tf.of(tc.RESET, "Rectangle"));
+                    builder.append(tf.of("\n"));
+                    builder.append(this.generateVisual(null));
+                    break;
+                case CUSTOM:
+                    builder.append(tf.of(tc.LIGHT_PURPLE, "Custom"));
+                    builder.append(tf.of("\n"));
+                    builder.append(this.generateVisual(null));
+                    break;
+            }
+
+        }
+
+        return builder.build();
+    }
+
+    private Text generateVisual(Axis axis) {
+        return this.generateVisual(axis, -1, -1, -1, -1, -1, -1);
+    }
+
+    private Text generateVisual(Axis axis, int lowX, int lowY, int lowZ, int highX, int highY, int highZ) {
+        if (lowX < 0 || lowX > this.xBounds.length) lowX = 0;
+        if (lowY < 0 || lowY > this.yBounds.length) lowY = 0;
+        if (lowZ < 0 || lowZ > this.zBounds.length) lowZ = 0;
+        if (highX < 0 || highX > this.xBounds.length) highX = this.xBounds.length;
+        if (highY < 0 || highY > this.yBounds.length) highY = this.yBounds.length;
+        if (highZ < 0 || highZ > this.zBounds.length) highZ = this.zBounds.length;
+
+        int[][] xCounts = {};
+        int[][] yCounts = {};
+        int[][] zCounts = {};
+        int xRange = 0;
+        int yRange = 0;
+        int zRange = 0;
+        int maxRange;
+        int highest = 0;
+
+        if (axis == null || axis == Axis.X) {
+            xRange = highX - lowX + 1;
+            xCounts = new int[highY - lowY + 1][];
+            for (int i = 0; i < xCounts.length; i++) {
+                xCounts[i] = new int[highZ - lowZ + 1];
+                for (int j = 0; j < xCounts[i].length; j++) {
+                    int count = 0;
+                    for (int k = 0; k < xRange; k++) {
+                        if (this.volumes[lowX + k][highY - i][lowZ + j]) count++;
+                    }
+                    if (count > highest) highest = count;
+                    xCounts[i][j] = count;
+                }
+            }
+        }
+        if (axis == null || axis == Axis.Y) {
+            yRange = highY - lowY + 1;
+            yCounts = new int[highZ - lowZ + 1][];
+            for (int i = 0; i < yCounts.length; i++) {
+                yCounts[i] = new int[highX - lowX + 1];
+                for (int j = 0; j < yCounts[i].length; j++) {
+                    int count = 0;
+                    for (int k = 0; k < yRange; k++) {
+                        if (this.volumes[lowX + j][lowY + k][highZ - i]) count++;
+                    }
+                    if (count > highest) highest = count;
+                    yCounts[i][j] = count;
+                }
+            }
+        }
+        if (axis == null || axis == Axis.Z) {
+            zRange = highZ - lowZ + 1;
+            zCounts = new int[highY - lowY + 1][];
+            for (int i = 0; i < zCounts.length; i++) {
+                zCounts[i] = new int[highX - lowX + 1];
+                for (int j = 0; j < zCounts[i].length; j++) {
+                    int count = 0;
+                    for (int k = 0; k < zRange; k++) {
+                        if (this.volumes[lowX + j][highY - i][lowZ + k]) count++;
+                    }
+                    if (count > highest) highest = count;
+                    zCounts[i][j] = count;
+                }
+            }
+        }
+
+        maxRange = xRange;
+        if (yRange > maxRange) maxRange = yRange;
+        if (zRange > maxRange) maxRange = zRange;
+
+        Text[] palette = getPalette(highest, maxRange);
+
+        if (palette == null) return tf.of(tc.GRAY, "Visualization too deep to generate");
+
+        Text.Builder builder = tf.builder();
+
+        if (axis != null) {
+            int[][] counts2d = {};
+            switch (axis) {
+                case X:
+                    counts2d = xCounts;
+                    break;
+                case Y:
+                    counts2d = yCounts;
+                    break;
+                case Z:
+                    counts2d = zCounts;
+                    break;
+            }
+            builder.append(tf.of(tc.RESET, "View: "));
+            builder.append(getName(axis));
+            builder.append(tf.of(tc.RESET, " Legend: "));
+            builder.append(tf.of((Object[]) palette));
+            builder.append(tf.of("\n"));
+
+            for (int[] counts : counts2d) {
+                builder.append(tf.of("\n"));
+                for (int count : counts) {
+                    builder.append(palette[count]);
+                }
+            }
+
+        } else {
+            for (int i = 0; i < zCounts.length; i++) {
+                for (int j = 0; j < zCounts[i].length; j++) {
+                    builder.append(palette[zCounts[i][j]]);
+                }
+                if (i == 0) {
+                    builder.append(tf.of(tc.RESET, "  Legend: "));
+                    builder.append(tf.of((Object[]) palette));
+                }
+                builder.append(tf.of("\n"));
+            }
+
+            for (int i = 0; i < yCounts.length; i++) {
+                builder.append(tf.of("\n"));
+                for (int j = 0; j < yCounts[i].length; j++) {
+                    builder.append(palette[yCounts[i][j]]);
+                }
+                builder.append(tf.of("  "));
+                for (int j = 0; j < zCounts[i].length; j++) {
+                    builder.append(palette[zCounts[i][j]]);
+                }
+            }
+        }
+        return builder.build();
+    }
+
+    private Text[] getPalette(int max, int range) {
+        if (max > range) return null;
+        TextColor[] colors = new TextColor[max + 1];
+        switch (max) {
+            case 0:
+                colors[0] = tc.GRAY;
+                break;
+            case 1:
+                colors[0] = tc.GRAY;
+                colors[1] = tc.GREEN;
+                break;
+            case 2:
+                colors[0] = tc.GRAY;
+                colors[1] = tc.RED;
+                colors[2] = tc.GREEN;
+                break;
+            case 3:
+                colors[0] = tc.GRAY;
+                colors[1] = tc.RED;
+                colors[2] = tc.YELLOW;
+                colors[3] = tc.GREEN;
+                break;
+            case 4:
+                colors[0] = tc.GRAY;
+                colors[1] = tc.RED;
+                colors[2] = tc.GOLD;
+                colors[3] = tc.YELLOW;
+                colors[4] = tc.GREEN;
+                break;
+            case 5:
+                colors[0] = tc.GRAY;
+                colors[1] = tc.RED;
+                colors[2] = tc.GOLD;
+                colors[3] = tc.YELLOW;
+                colors[4] = tc.GREEN;
+                colors[5] = tc.AQUA;
+                break;
+            case 6:
+                colors[0] = tc.GRAY;
+                colors[1] = tc.RED;
+                colors[2] = tc.GOLD;
+                colors[3] = tc.YELLOW;
+                colors[4] = tc.GREEN;
+                colors[5] = tc.AQUA;
+                colors[6] = tc.LIGHT_PURPLE;
+                break;
+            case 7:
+                colors[0] = tc.GRAY;
+                colors[1] = tc.RED;
+                colors[2] = tc.GOLD;
+                colors[3] = tc.YELLOW;
+                colors[4] = tc.GREEN;
+                colors[5] = tc.AQUA;
+                colors[6] = tc.BLUE;
+                colors[7] = tc.LIGHT_PURPLE;
+                break;
+            default:
+                return null;
+        }
+
+        Text def = tf.of(tc.DARK_GRAY, "O");
+
+        Text[] ret = new Text[range + 1];
+        for (int i = 0; i <= range; i++) {
+            if (i <= max) {
+                ret[i] = tf.of(colors[i], "O");
+            } else {
+                ret[i] = def;
+            }
+        }
+
+        return ret;
+    }
+
+    private Text getName(Axis axis) {
+        if (axis == null) return tf.of(tc.YELLOW, "None");
+        switch (axis) {
+            case X:
+                return tf.of(tc.RED, "X-Axis");
+            case Y:
+                return tf.of(tc.GREEN, "Y-Axis");
+            case Z:
+                return tf.of(tc.AQUA, "Z-Axis");
+            default:
+                return tf.of(tc.LIGHT_PURPLE, "<ERROR!>");
+        }
+    }
+
+    private enum Axis {
+        X, Y, Z;
+    }
+
+    public enum Mode {
+        SINGLE, BOX, RECT, CUSTOM
     }
 
     public enum Op {
@@ -277,9 +604,9 @@ public class QubeRegion extends FoxRegionBase {
             int[] coords = new int[4];
             for (int i = 0; i < 4; i++) {
                 try {
-                    coords[i] = Integer.parseInt(args[i]);
+                    coords[i] = Integer.parseInt(args[i].trim());
                 } catch (NumberFormatException e) {
-                    throw new FoxCommandException("\"" + args[i] + "\" is not an integer!", e);
+                    throw new FoxCommandException("\"" + args[i].trim() + "\" is not an integer!", e);
                 }
             }
             QubeRegion region = provider.get();
@@ -287,7 +614,7 @@ public class QubeRegion extends FoxRegionBase {
             region.addXBound(coords[2]);
             region.addZBound(coords[1]);
             region.addZBound(coords[3]);
-            region.addVolume(1,0,1);
+            region.addVolume(1, 0, 1);
             return region;
         }
     }
@@ -312,9 +639,9 @@ public class QubeRegion extends FoxRegionBase {
             int[] coords = new int[6];
             for (int i = 0; i < 6; i++) {
                 try {
-                    coords[i] = Integer.parseInt(args[i]);
+                    coords[i] = Integer.parseInt(args[i].trim());
                 } catch (NumberFormatException e) {
-                    throw new FoxCommandException("\"" + args[i] + "\" is not an integer!", e);
+                    throw new FoxCommandException("\"" + args[i].trim() + "\" is not an integer!", e);
                 }
             }
             QubeRegion region = provider.get();
@@ -324,7 +651,158 @@ public class QubeRegion extends FoxRegionBase {
             region.addYBound(coords[4]);
             region.addZBound(coords[2]);
             region.addZBound(coords[5]);
-            region.addVolume(1,1,1);
+            region.addVolume(1, 1, 1);
+            return region;
+        }
+    }
+
+    @Singleton
+    @FoxGenerator
+    public static class FLARDGenerator extends GeneratorObjectBase<QubeRegion> {
+
+        private final Provider<QubeRegion> provider;
+
+        @Inject
+        private FLARDGenerator(GeneratorArchetype archetype, Provider<QubeRegion> provider) {
+            super(archetype);
+            this.provider = provider;
+        }
+
+        @Override
+        public QubeRegion generate(CommandSource source, String arguments) throws FoxCommandException {
+            String[] args = arguments.split(" +");
+            if (args.length < 6)
+                throw new FoxCommandException("Must specify 6 integer coordinates! <x1> <y1> <z1> <x2> <y2> <z2>");
+            int[] coords = new int[6];
+            for (int i = 0; i < 6; i++) {
+                try {
+                    coords[i] = Integer.parseInt(args[i].trim());
+                } catch (NumberFormatException e) {
+                    throw new FoxCommandException("\"" + args[i].trim() + "\" is not an integer!", e);
+                }
+            }
+            boolean infinite = args.length > 6 && args[6].trim().equalsIgnoreCase("inf");
+
+            int cutoff = infinite ? 4 : 6;
+            int xRange = Math.abs(coords[0] - coords[3]);
+            int yRange = Math.abs(coords[1] - coords[4]);
+            int zRange = Math.abs(coords[2] - coords[5]);
+
+            QubeRegion region = provider.get();
+
+            region.addXBound(coords[0]);
+            region.addXBound(coords[3]);
+            region.addYBound(coords[1]);
+            region.addYBound(coords[4]);
+            region.addZBound(coords[2]);
+            region.addZBound(coords[5]);
+
+
+            Random random = new Random();
+
+            if (infinite) {
+
+                if (xRange < cutoff) {
+                    int min = Math.min(coords[0], coords[3]);
+                    for (int i = 1; i < xRange; i++) {
+                        region.addXBound(min + i);
+                    }
+                } else {
+                    region.addXBound((3 * coords[0] + coords[3]) / 4);
+                    region.addXBound((coords[0] + coords[3]) / 2);
+                    region.addXBound((coords[0] + 3 * coords[3]) / 4);
+                }
+
+                if (yRange < cutoff) {
+                    int min = Math.min(coords[1], coords[4]);
+                    for (int i = 1; i < yRange; i++) {
+                        region.addYBound(min + i);
+                    }
+                } else {
+                    region.addYBound((3 * coords[1] + coords[4]) / 4);
+                    region.addYBound((coords[1] + coords[4]) / 2);
+                    region.addYBound((coords[1] + 3 * coords[4]) / 4);
+                }
+
+                if (zRange < cutoff) {
+                    int min = Math.min(coords[2], coords[5]);
+                    for (int i = 1; i < zRange; i++) {
+                        region.addZBound(min + i);
+                    }
+                } else {
+                    region.addZBound((3 * coords[2] + coords[5]) / 4);
+                    region.addZBound((coords[2] + coords[5]) / 2);
+                    region.addZBound((coords[2] + 3 * coords[5]) / 4);
+                }
+
+                xRange = Math.min(xRange, cutoff);
+                yRange = Math.min(yRange, cutoff);
+                zRange = Math.min(zRange, cutoff);
+
+                for (int i = 0; i < xRange + 2; i++) {
+                    for (int j = 0; j < yRange + 2; j++) {
+                        for (int k = 0; k < zRange + 2; k++) {
+                            if (random.nextBoolean()) {
+                                region.addVolume(i, j, k);
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (xRange < cutoff) {
+                    int min = Math.min(coords[0], coords[3]);
+                    for (int i = 1; i < xRange; i++) {
+                        region.addXBound(min + i);
+                    }
+                } else {
+                    region.addXBound((5 * coords[0] + coords[3]) / 6);
+                    region.addXBound((2 * coords[0] + coords[3]) / 3);
+                    region.addXBound((coords[0] + coords[3]) / 2);
+                    region.addXBound((coords[0] + 2 * coords[3]) / 3);
+                    region.addXBound((coords[0] + 5 * coords[3]) / 6);
+                }
+
+                if (yRange < cutoff) {
+                    int min = Math.min(coords[1], coords[4]);
+                    for (int i = 1; i < yRange; i++) {
+                        region.addYBound(min + i);
+                    }
+                } else {
+                    region.addYBound((5 * coords[1] + coords[4]) / 6);
+                    region.addYBound((2 * coords[1] + coords[4]) / 3);
+                    region.addYBound((coords[1] + coords[4]) / 2);
+                    region.addYBound((coords[1] + 2 * coords[4]) / 3);
+                    region.addYBound((coords[1] + 5 * coords[4]) / 6);
+                }
+
+                if (zRange < cutoff) {
+                    int min = Math.min(coords[2], coords[5]);
+                    for (int i = 1; i < zRange; i++) {
+                        region.addZBound(min + i);
+                    }
+                } else {
+                    region.addZBound((5 * coords[2] + coords[5]) / 6);
+                    region.addZBound((2 * coords[2] + coords[5]) / 3);
+                    region.addZBound((coords[2] + coords[5]) / 2);
+                    region.addZBound((coords[2] + 2 * coords[5]) / 3);
+                    region.addZBound((coords[2] + 5 * coords[5]) / 6);
+                }
+
+                xRange = Math.min(xRange, cutoff);
+                yRange = Math.min(yRange, cutoff);
+                zRange = Math.min(zRange, cutoff);
+
+                for (int i = 1; i < xRange + 1; i++) {
+                    for (int j = 1; j < yRange + 1; j++) {
+                        for (int k = 1; k < zRange + 1; k++) {
+                            if (random.nextBoolean()) {
+                                region.addVolume(i, j, k);
+                            }
+                        }
+                    }
+                }
+            }
+
             return region;
         }
     }

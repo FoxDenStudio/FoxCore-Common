@@ -60,6 +60,7 @@ public class FoxCore {
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandPath, "path");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandList, "list");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandNew, "new");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandDetail, "detail", "det");
     }
 
     public void registerCommands() {
@@ -72,6 +73,7 @@ public class FoxCore {
             WritableNamespace writable = ((WritableNamespace) objectIndex);
             writable.addObject(content.generatorRegionRect, this.objectPathFactory.getPath("gen/region/rect"));
             writable.addObject(content.generatorRegionBox, this.objectPathFactory.getPath("gen/region/box"));
+            writable.addObject(content.generatorRegionFlard, this.objectPathFactory.getPath("gen/region/flard"));
         } catch (ClassCastException e){
             logger.error("Could not get writable index! This is a development error and should be addressed immediately!", e);
         } catch (FoxCommandException e){

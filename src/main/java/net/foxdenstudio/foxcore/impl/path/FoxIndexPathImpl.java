@@ -21,7 +21,7 @@ public class FoxIndexPathImpl implements FoxIndexPath {
     public static FoxIndexPathImpl of(String indexType, FoxNamespacePath namespacePath) {
         if(indexType.isEmpty() && !namespacePath.isEmpty())
             throw new IllegalArgumentException("namespacePath must be empty if indexType is empty!");
-        return new FoxIndexPathImpl(indexType, namespacePath);
+        return new FoxIndexPathImpl(indexType.toLowerCase(), namespacePath);
     }
 
     @Override

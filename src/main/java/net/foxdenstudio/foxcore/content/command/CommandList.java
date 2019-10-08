@@ -12,8 +12,6 @@ import net.foxdenstudio.foxcore.api.path.factory.FoxObjectPathFactory;
 import net.foxdenstudio.foxcore.content.object.StubObject;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.text.format.TextColors;
-import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -53,7 +51,7 @@ public class CommandList extends FoxStandardCommandBase {
             MemoryIndex memoryIndex = (MemoryIndex) objectIndex;
             //memoryIndex.addObject(object, newPath);
         } else {
-            source.sendMessage(this.textFactory.getText("wtf!?"));
+            source.sendMessage(this.tf.of("wtf!?"));
         }
 
         Collection<FoxObjectPath> allPaths = objectIndex.getAllObjectPaths();
@@ -62,7 +60,7 @@ public class CommandList extends FoxStandardCommandBase {
         allPaths.stream()
                 .sorted(Comparator.comparing(FoxObjectPath::toString))
                 .forEach(path -> builder.append('\n').append(path.toString()));
-        source.sendMessage(this.textFactory.getText(textColors.YELLOW, heading, textColors.RESET, builder.toString()));
+        source.sendMessage(this.tf.of(textColors.YELLOW, heading, textColors.RESET, builder.toString()));
 
 
 
