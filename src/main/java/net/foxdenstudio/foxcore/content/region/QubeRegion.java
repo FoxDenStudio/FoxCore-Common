@@ -1,12 +1,15 @@
 package net.foxdenstudio.foxcore.content.region;
 
 import net.foxdenstudio.foxcore.api.annotation.module.FoxGenerator;
+import net.foxdenstudio.foxcore.api.archetype.ArchetypeBase;
+import net.foxdenstudio.foxcore.api.archetype.type.FoxType;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.FoxDetailableObject;
 import net.foxdenstudio.foxcore.api.object.generator.GeneratorObjectBase;
 import net.foxdenstudio.foxcore.api.region.FoxRegionBase;
 import net.foxdenstudio.foxcore.content.archetype.GeneratorArchetype;
 import net.foxdenstudio.foxcore.content.archetype.RegionArchetype;
+import net.foxdenstudio.foxcore.content.attribute.ArchetypeDisplayNameAttribute;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.fox.text.TextFactory;
 import net.foxdenstudio.foxcore.platform.text.Text;
@@ -20,7 +23,7 @@ import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.Random;
 
-public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
+public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDetailableObject {
 
     private final TextFactory tf;
     private final TextColors tc;
@@ -32,7 +35,7 @@ public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
     private boolean[][][] volumes = {{{false}}};
 
     @Inject
-    private QubeRegion(RegionArchetype archetype, TextFactory textFactory, TextColors textColors) {
+    private QubeRegion(Type archetype, TextFactory textFactory, TextColors textColors) {
         super(archetype);
         this.tf = textFactory;
         this.tc = textColors;
@@ -324,10 +327,9 @@ public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
         int[][] xCounts = {};
         int[][] yCounts = {};
         int[][] zCounts = {};
-        int xRange = 0;
-        int yRange = 0;
-        int zRange = 0;
-        int maxRange;
+        int xRange;
+        int yRange;
+        int zRange;
         int highest = 0;
 
         if (axis == null || axis == Axis.X) {
@@ -376,11 +378,7 @@ public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
             }
         }
 
-        maxRange = xRange;
-        if (yRange > maxRange) maxRange = yRange;
-        if (zRange > maxRange) maxRange = zRange;
-
-        Text[] palette = getPalette(highest, maxRange);
+        Text[] palette = getPalette(highest);
 
         if (palette == null) return tf.of(tc.GRAY, "Visualization too deep to generate");
 
@@ -438,75 +436,14 @@ public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
         return builder.build();
     }
 
-    private Text[] getPalette(int max, int range) {
-        if (max > range) return null;
-        TextColor[] colors = new TextColor[max + 1];
-        switch (max) {
-            case 0:
-                colors[0] = tc.GRAY;
-                break;
-            case 1:
-                colors[0] = tc.GRAY;
-                colors[1] = tc.GREEN;
-                break;
-            case 2:
-                colors[0] = tc.GRAY;
-                colors[1] = tc.RED;
-                colors[2] = tc.GREEN;
-                break;
-            case 3:
-                colors[0] = tc.GRAY;
-                colors[1] = tc.RED;
-                colors[2] = tc.YELLOW;
-                colors[3] = tc.GREEN;
-                break;
-            case 4:
-                colors[0] = tc.GRAY;
-                colors[1] = tc.RED;
-                colors[2] = tc.YELLOW;
-                colors[3] = tc.GREEN;
-                colors[4] = tc.AQUA;
-                break;
-            case 5:
-                colors[0] = tc.GRAY;
-                colors[1] = tc.RED;
-                colors[2] = tc.YELLOW;
-                colors[3] = tc.GREEN;
-                colors[4] = tc.AQUA;
-                colors[5] = tc.LIGHT_PURPLE;
-                break;
-            case 6:
-                colors[0] = tc.GRAY;
-                colors[1] = tc.RED;
-                colors[2] = tc.YELLOW;
-                colors[3] = tc.GREEN;
-                colors[4] = tc.AQUA;
-                colors[5] = tc.BLUE;
-                colors[6] = tc.LIGHT_PURPLE;
-                break;
-            case 7:
-                colors[0] = tc.GRAY;
-                colors[1] = tc.RED;
-                colors[2] = tc.GOLD;
-                colors[3] = tc.YELLOW;
-                colors[4] = tc.GREEN;
-                colors[5] = tc.AQUA;
-                colors[6] = tc.BLUE;
-                colors[7] = tc.LIGHT_PURPLE;
-                break;
-            default:
-                return null;
-        }
+    private Text[] getPalette(int max) {
+        if(max >= archetype.palette.length) return null;
 
-        Text def = tf.of(tc.DARK_GRAY, "O");
+        TextColor[] colors = archetype.palette[max];
 
-        Text[] ret = new Text[range + 1];
-        for (int i = 0; i <= range; i++) {
-            if (i <= max) {
-                ret[i] = tf.of(colors[i], "O");
-            } else {
-                ret[i] = def;
-            }
+        Text[] ret = new Text[max + 1];
+        for (int i = 0; i <= max; i++) {
+            ret[i] = tf.of(colors[i], "O");
         }
 
         return ret;
@@ -581,6 +518,40 @@ public class QubeRegion extends FoxRegionBase implements FoxDetailableObject {
                 if (name.equalsIgnoreCase(op.name())) return op;
             }
             return null;
+        }
+    }
+
+    @Singleton
+    public static class Type extends ArchetypeBase implements FoxType {
+
+        private final TextColors tc;
+        final TextColor[][] palette;
+
+        @Inject
+        private Type(RegionArchetype regionArchetype,
+                     ArchetypeDisplayNameAttribute archetypeDisplayNameAttribute,
+                     TextColors tc) {
+            super("qube", "Qube", regionArchetype, archetypeDisplayNameAttribute);
+            this.tc = tc;
+            this.writeDefaultName(archetypeDisplayNameAttribute);
+            this.palette = new TextColor[][]{
+                    {tc.DARK_GRAY},
+                    {tc.DARK_GRAY, tc.GREEN},
+                    {tc.DARK_GRAY, tc.RED, tc.GREEN},
+                    {tc.DARK_GRAY, tc.RED, tc.YELLOW, tc.GREEN},
+                    {tc.DARK_GRAY, tc.RED, tc.YELLOW, tc.GREEN, tc.AQUA},
+                    {tc.DARK_GRAY, tc.RED, tc.YELLOW, tc.GREEN, tc.AQUA, tc.LIGHT_PURPLE},
+                    {tc.DARK_GRAY, tc.RED, tc.YELLOW, tc.GREEN, tc.AQUA, tc.BLUE, tc.LIGHT_PURPLE},
+                    {tc.DARK_GRAY, tc.RED, tc.GOLD, tc.YELLOW, tc.GREEN, tc.AQUA, tc.BLUE, tc.LIGHT_PURPLE},
+                    {tc.DARK_GRAY, tc.GRAY, tc.RED, tc.GOLD, tc.YELLOW, tc.GREEN, tc.AQUA, tc.BLUE, tc.LIGHT_PURPLE},
+                    {tc.BLACK, tc.DARK_GRAY, tc.GRAY, tc.RED, tc.GOLD, tc.YELLOW, tc.GREEN, tc.AQUA, tc.BLUE, tc.LIGHT_PURPLE},
+                    {tc.BLACK, tc.DARK_GRAY, tc.GRAY, tc.RED, tc.GOLD, tc.YELLOW, tc.GREEN, tc.AQUA, tc.BLUE, tc.LIGHT_PURPLE, tc.WHITE},
+                    {tc.BLACK, tc.DARK_GRAY, tc.GRAY, tc.DARK_RED, tc.RED, tc.GOLD, tc.YELLOW, tc.GREEN, tc.AQUA, tc.BLUE, tc.LIGHT_PURPLE, tc.WHITE},
+                    {tc.BLACK, tc.DARK_GRAY, tc.GRAY, tc.DARK_RED, tc.RED, tc.GOLD, tc.YELLOW, tc.GREEN, tc.AQUA, tc.BLUE, tc.DARK_PURPLE, tc.LIGHT_PURPLE, tc.WHITE},
+                    {tc.BLACK, tc.DARK_GRAY, tc.GRAY, tc.DARK_RED, tc.RED, tc.GOLD, tc.YELLOW, tc.GREEN, tc.DARK_AQUA, tc.AQUA, tc.BLUE, tc.DARK_PURPLE, tc.LIGHT_PURPLE, tc.WHITE},
+                    {tc.BLACK, tc.DARK_GRAY, tc.GRAY, tc.DARK_RED, tc.RED, tc.GOLD, tc.YELLOW, tc.DARK_GREEN, tc.GREEN, tc.DARK_AQUA, tc.AQUA, tc.BLUE, tc.DARK_PURPLE, tc.LIGHT_PURPLE, tc.WHITE},
+                    {tc.BLACK, tc.DARK_GRAY, tc.GRAY, tc.DARK_RED, tc.RED, tc.GOLD, tc.YELLOW, tc.DARK_GREEN, tc.GREEN, tc.DARK_AQUA, tc.AQUA, tc.DARK_BLUE, tc.BLUE, tc.DARK_PURPLE, tc.LIGHT_PURPLE, tc.WHITE},
+            };
         }
     }
 

@@ -9,14 +9,14 @@ import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
 
 import java.util.Optional;
 
-public abstract class FoxObjectBase implements FoxObject, DelegateAttributeHolder {
+public abstract class FoxObjectBase<A extends FoxArchetype> implements FoxObject, DelegateAttributeHolder {
 
-    protected final FoxArchetype archetype;
+    protected final A archetype;
     protected final AttributeContainer attributeContainer;
 
     protected IndexReference indexReference;
 
-    protected FoxObjectBase(FoxArchetype archetype, FoxAttribute<?>... attributes){
+    protected FoxObjectBase(A archetype, FoxAttribute<?>... attributes){
         this.archetype = archetype;
         this.attributeContainer = new AttributeContainer(archetype, true, attributes);
     }
@@ -35,7 +35,7 @@ public abstract class FoxObjectBase implements FoxObject, DelegateAttributeHolde
     }
 
     @Override
-    public FoxArchetype getArchetype() {
+    public A getArchetype() {
         return this.archetype;
     }
 
