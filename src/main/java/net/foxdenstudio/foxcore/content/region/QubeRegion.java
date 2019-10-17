@@ -287,9 +287,30 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                     }
                 }
             }
+            if (mode == Mode.CUSTOM) {
+                if (this.xBounds.length == 0) {
+                    if (this.yBounds.length == 0) {
+                        mode = Mode.Z;
+                    } else if (this.zBounds.length == 0) {
+                        mode = Mode.Y;
+                    } else {
+                        mode = Mode.YZ;
+                    }
+                } else if (this.yBounds.length == 0) {
+                    if (this.zBounds.length == 0) {
+                        mode = Mode.X;
+                    } else {
+                        mode = Mode.XZ;
+                    }
+                } else if (this.zBounds.length == 0) {
+                    mode = Mode.XY;
+                }
+            }
             switch (mode) {
                 case SINGLE:
-                    builder.append(tf.of(tc.YELLOW, "Single"));
+                    builder.append(tf.of(tc.YELLOW, "Single - "));
+                    if (volumes[0][0][0]) builder.append(tf.of(tc.GREEN, "On"));
+                    else builder.append(tf.of(tc.RED, "Off"));
                 case BOX:
                     builder.append(tf.of(tc.RESET, "Box"));
                     builder.append(tf.of("\n\n"));
@@ -297,13 +318,43 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                     break;
                 case RECT:
                     builder.append(tf.of(tc.RESET, "Rectangle"));
-                    builder.append(tf.of("\n\n"));
-                    builder.append(this.generateVisual(null));
+                    builder.append(tf.of("\n"));
+                    builder.append(this.generateVisual(Axis.Y));
                     break;
                 case CUSTOM:
                     builder.append(tf.of(tc.LIGHT_PURPLE, "Custom"));
                     builder.append(tf.of("\n\n"));
                     builder.append(this.generateVisual(null));
+                    break;
+                case XY:
+                    builder.append(tf.of(tc.RED, "X", tc.GREEN, "Y"));
+                    builder.append(tf.of("\n"));
+                    builder.append(this.generateVisual(Axis.Z));
+                    break;
+                case YZ:
+                    builder.append(tf.of( tc.GREEN, "Y", tc.AQUA, "Z"));
+                    builder.append(tf.of("\n"));
+                    builder.append(this.generateVisual(Axis.X));
+                    break;
+                case XZ:
+                    builder.append(tf.of(tc.RED, "X", tc.AQUA, "Z"));
+                    builder.append(tf.of("\n"));
+                    builder.append(this.generateVisual(Axis.Y));
+                    break;
+                case X:
+                    builder.append(tf.of(tc.RED, "X"));
+                    builder.append(tf.of("\n"));
+                    builder.append(this.generateVisual(Axis.Z));
+                    break;
+                case Y:
+                    builder.append(tf.of(tc.GREEN, "Y"));
+                    builder.append(tf.of("\n"));
+                    builder.append(this.generateVisual(Axis.X));
+                    break;
+                case Z:
+                    builder.append(tf.of( tc.AQUA, "Z"));
+                    builder.append(tf.of("\n"));
+                    builder.append(this.generateVisual(Axis.X));
                     break;
             }
 
@@ -399,7 +450,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             }
             builder.append(tf.of(tc.RESET, "View: "));
             builder.append(getName(axis));
-            builder.append(tf.of(tc.RESET, " Legend: "));
+            builder.append(tf.of(tc.RESET, "  Legend: "));
             builder.append(tf.of((Object[]) palette));
             builder.append(tf.of("\n"));
 
@@ -416,7 +467,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                     builder.append(palette[zCounts[i][j]]);
                 }
                 if (i == 0) {
-                    builder.append(tf.of(tc.RESET, "  Legend: "));
+                    builder.append(tf.of(tc.RESET, "  L: "));
                     builder.append(tf.of((Object[]) palette));
                 }
                 builder.append(tf.of("\n"));
@@ -437,7 +488,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
     }
 
     private Text[] getPalette(int max) {
-        if(max >= archetype.palette.length) return null;
+        if (max >= archetype.palette.length) return null;
 
         TextColor[] colors = archetype.palette[max];
 
@@ -468,7 +519,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
     }
 
     public enum Mode {
-        SINGLE, BOX, RECT, CUSTOM
+        SINGLE, BOX, RECT, CUSTOM, XY, YZ, XZ, X, Y, Z
     }
 
     public enum Op {
