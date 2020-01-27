@@ -4,12 +4,15 @@ import com.google.common.collect.ImmutableList;
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
 import net.foxdenstudio.foxcore.api.attribute.holder.AttributeContainer;
 import net.foxdenstudio.foxcore.api.attribute.holder.DelegateAttributeHolder;
+import net.foxdenstudio.foxcore.api.object.representation.RepresentationObject;
 import net.foxdenstudio.foxcore.content.attribute.ArchetypeDisplayNameAttribute;
 import net.foxdenstudio.foxcore.content.attribute.value.ArchetypeDisplayNameAttrValue;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public abstract class ArchetypeBase implements FoxArchetype, DelegateAttributeHolder {
@@ -18,6 +21,9 @@ public abstract class ArchetypeBase implements FoxArchetype, DelegateAttributeHo
     protected final List<FoxArchetype> parents;
     protected final String type;
     protected final String name;
+
+    @Nullable
+    protected RepresentationObject<?> representation = null;
 
     private transient Set<FoxArchetype> allParents = null;
     private transient Set<FoxArchetype> allArchetypes = null;
@@ -85,5 +91,18 @@ public abstract class ArchetypeBase implements FoxArchetype, DelegateAttributeHo
         ArchetypeDisplayNameAttrValue value = archetypeDisplayNameAttribute.getValueProvider().get();
         value.set(this.getName());
         this.setAttrValue(value);
+    }
+
+    @Override
+    public Optional<? extends RepresentationObject<?>> getRepresentation() {
+        return Optional.ofNullable(this.representation);
+    }
+
+    @Override
+    public boolean setRepresentation(@Nullable RepresentationObject<?> representation) {
+        if (this.representation == null) {
+            this.representation = representation;
+            return true;
+        } else return false;
     }
 }

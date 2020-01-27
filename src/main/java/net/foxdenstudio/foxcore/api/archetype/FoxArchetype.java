@@ -3,12 +3,16 @@ package net.foxdenstudio.foxcore.api.archetype;
 import com.google.common.collect.ImmutableSet;
 import net.foxdenstudio.foxcore.api.archetype.container.ArchetypeContainer;
 import net.foxdenstudio.foxcore.api.attribute.holder.AttributeHolder;
+import net.foxdenstudio.foxcore.api.object.representation.FoxRepresentable;
+import net.foxdenstudio.foxcore.api.object.representation.RepresentationObject;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-public interface FoxArchetype extends AttributeHolder {
+public interface FoxArchetype extends AttributeHolder, FoxRepresentable {
 
     @Nonnull
     String getType();
@@ -37,4 +41,10 @@ public interface FoxArchetype extends AttributeHolder {
         builder.add(this);
         return builder.build();
     }
+
+    @Override
+    Optional<? extends RepresentationObject<?>> getRepresentation();
+
+    @Override
+    boolean setRepresentation(@Nullable RepresentationObject<?> representation);
 }

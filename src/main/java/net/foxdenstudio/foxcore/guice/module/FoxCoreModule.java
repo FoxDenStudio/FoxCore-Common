@@ -1,6 +1,8 @@
 package net.foxdenstudio.foxcore.guice.module;
 
 import com.google.inject.AbstractModule;
+import net.foxdenstudio.foxcore.api.FoxRegistry;
+import net.foxdenstudio.foxcore.impl.FoxRegistryImpl;
 
 
 public class FoxCoreModule extends AbstractModule {
@@ -10,5 +12,6 @@ public class FoxCoreModule extends AbstractModule {
         install(CommandModule.INSTANCE);
         install(PathModule.INSTANCE);
         install(IndexModule.INSTANCE);
+        bind(FoxRegistry.class).to(FoxRegistryImpl.class);
     }
 }

@@ -2,15 +2,9 @@ package net.foxdenstudio.foxcore.test.path;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
-import net.foxdenstudio.foxcore.api.path.components.*;
-import net.foxdenstudio.foxcore.api.path.factory.*;
 import net.foxdenstudio.foxcore.guice.module.PathModule;
 import net.foxdenstudio.foxcore.guice.module.TestModule;
 import org.junit.BeforeClass;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class PathTest {
 
@@ -25,7 +19,7 @@ public class PathTest {
     }
 
 
-    @Test
+    /*@Test
     public void objectPathFactory_givenValidInput_createsPath() throws FoxCommandException {
         FoxObjectPathFactory pathFactory = injector.getInstance(FoxObjectPathFactory.class);
         FoxObjectPath path;
@@ -184,6 +178,6 @@ public class PathTest {
         assertEquals("links[1] getElement(0)", "a", path.getLinkPaths().get(1).getElement(0));
         assertEquals("links[1] getElement(1)", "snep", path.getLinkPaths().get(1).getElement(1));
 
-    }
+    }*/
 
 }

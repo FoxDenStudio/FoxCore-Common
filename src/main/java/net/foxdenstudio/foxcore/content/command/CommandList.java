@@ -7,8 +7,7 @@ import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
 import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
 import net.foxdenstudio.foxcore.api.object.index.types.MemoryIndex;
-import net.foxdenstudio.foxcore.api.path.components.FoxObjectPath;
-import net.foxdenstudio.foxcore.api.path.factory.FoxObjectPathFactory;
+import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.content.object.StubObject;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.text.format.TextColors;
@@ -23,7 +22,6 @@ import java.util.Comparator;
 public class CommandList extends FoxStandardCommandBase {
 
     private final Provider<StubObject> stubObjectProvider;
-    private final FoxObjectPathFactory objectPathFactory;
     private final FoxMainIndex mainIndex;
 
     private final TextColors textColors;
@@ -34,9 +32,8 @@ public class CommandList extends FoxStandardCommandBase {
     Logger logger;
 
     @Inject
-    private CommandList(Provider<StubObject> stubObjectProvider, FoxObjectPathFactory objectPathFactory, FoxMainIndex mainIndex, TextColors textColors){
+    private CommandList(Provider<StubObject> stubObjectProvider, FoxMainIndex mainIndex, TextColors textColors) {
         this.stubObjectProvider = stubObjectProvider;
-        this.objectPathFactory = objectPathFactory;
         this.mainIndex = mainIndex;
         this.textColors = textColors;
     }
@@ -47,18 +44,18 @@ public class CommandList extends FoxStandardCommandBase {
         //String objectName = "awoo-stub-" + (id++);
         //FoxObjectPath newPath = this.objectPathFactory.getPath(objectName);
         FoxObjectIndex objectIndex = mainIndex.getDefaultObjectIndex();
-        if(objectIndex instanceof MemoryIndex){
+        if (objectIndex instanceof MemoryIndex) {
             MemoryIndex memoryIndex = (MemoryIndex) objectIndex;
             //memoryIndex.addObject(object, newPath);
         } else {
             source.sendMessage(this.tf.of("wtf!?"));
         }
 
-        Collection<FoxObjectPath> allPaths = objectIndex.getAllObjectPaths();
+        Collection<StandardPathComponent> allPaths = objectIndex.getAllObjectPaths();
         String heading = "The following objects exist:";
         StringBuilder builder = new StringBuilder();
         allPaths.stream()
-                .sorted(Comparator.comparing(FoxObjectPath::toString))
+                .sorted(Comparator.comparing(StandardPathComponent::toString))
                 .forEach(path -> builder.append('\n').append(path.toString()));
         source.sendMessage(this.tf.of(textColors.YELLOW, heading, textColors.RESET, builder.toString()));
 

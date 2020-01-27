@@ -1,5 +1,6 @@
 package net.foxdenstudio.foxcore;
 
+import net.foxdenstudio.foxcore.content.archetype.RepresentationArchetype;
 import net.foxdenstudio.foxcore.content.command.*;
 import net.foxdenstudio.foxcore.content.region.QubeRegion;
 
@@ -24,4 +25,9 @@ public class StaticContent {
     QubeRegion.BoxGenerator generatorRegionBox;
     @Inject
     QubeRegion.FLARDGenerator generatorRegionFlard;
+
+    @Inject
+    QubeRegion.Type qubeRegionType;
+    @Inject
+    RepresentationArchetype representationArchetype;
 }

@@ -1,8 +1,7 @@
 package net.foxdenstudio.foxcore.api.object.index.types;
 
-import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
-import net.foxdenstudio.foxcore.api.object.index.WritableNamespace;
+import net.foxdenstudio.foxcore.api.object.index.WritableIndex;
 
-public interface MemoryIndex extends FoxObjectIndex, WritableNamespace {
+public interface MemoryIndex extends WritableIndex {
 
 }

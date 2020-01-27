@@ -70,7 +70,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                 int lower = 0;
                 int upper = bounds.length;
                 while (lower != upper) {
-                    int bound = (lower + upper) / 2;
+                    int bound = (lower + upper) >> 1;
                     if (val < bounds[bound]) {
                         upper = bound;
                     } else {
@@ -93,7 +93,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                 int lower = 0;
                 int upper = bounds.length;
                 while (lower != upper) {
-                    int bound = (lower + upper) / 2;
+                    int bound = (lower + upper) >> 1;
                     if (val < bounds[bound]) {
                         upper = bound;
                     } else {

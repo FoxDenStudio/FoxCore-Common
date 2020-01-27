@@ -1,33 +1,31 @@
 package net.foxdenstudio.foxcore.api.object.index;
 
 import net.foxdenstudio.foxcore.api.object.FoxObject;
-import net.foxdenstudio.foxcore.api.path.components.FoxIndexPath;
-import net.foxdenstudio.foxcore.api.path.components.FoxObjectPath;
+import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
+import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
+import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-public interface FoxMainIndex extends Namespace {
+public interface FoxMainIndex extends WritableNamespace {
 
     Optional<FoxObjectIndex> getObjectIndex(String type);
 
     Map<String, FoxObjectIndex> getIndices();
 
-    FoxObjectIndex getDefaultObjectIndex();
+    @Nonnull
+    WritableIndex getDefaultObjectIndex();
 
     @Override
-    default Optional<FoxObject> getObject(FoxObjectPath path) {
+    default Optional<FoxObject> getObject(StandardPathComponent path) {
         return this.getDefaultObjectIndex().getObject(path);
     }
 
-    /**
-     * Returns the default path of the main index.
-     * Equivalent to getting the path of the default object index.
-     *
-     * @return default index path
-     */
     @Override
-    default FoxIndexPath getIndexPath() {
-        return this.getDefaultObjectIndex().getIndexPath();
-    }
+    Optional<IndexReference> addObject(FoxObject foxObject, StandardPathComponent path);
+
+    @Override
+    Collection<StandardPathComponent> getAllObjectPaths();
 }

@@ -8,8 +8,10 @@ import net.foxdenstudio.foxcore.api.object.FoxDetailableObject;
 import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
 import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
-import net.foxdenstudio.foxcore.api.path.components.FoxObjectPath;
-import net.foxdenstudio.foxcore.api.path.factory.FoxObjectPathFactory;
+import net.foxdenstudio.foxcore.api.path.FoxPath;
+import net.foxdenstudio.foxcore.api.path.FoxPathExt;
+import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
+import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.text.Text;
 import net.foxdenstudio.foxcore.platform.text.format.TextColors;
@@ -20,14 +22,14 @@ import java.util.Optional;
 
 public class CommandDetail extends FoxStandardCommandBase {
 
-    private final FoxObjectPathFactory objectPathFactory;
+    private final FoxPathFactory pathFactory;
     private final FoxMainIndex mainIndex;
 
     private final TextColors textColors;
 
     @Inject
-    private CommandDetail(FoxObjectPathFactory objectPathFactory, FoxMainIndex mainIndex, TextColors textColors) {
-        this.objectPathFactory = objectPathFactory;
+    private CommandDetail(FoxPathFactory pathFactory, FoxMainIndex mainIndex, TextColors textColors) {
+        this.pathFactory = pathFactory;
         this.mainIndex = mainIndex;
         this.textColors = textColors;
     }
@@ -41,10 +43,15 @@ public class CommandDetail extends FoxStandardCommandBase {
         }
         String[] args = arguments.split(" +", 2);
         String objectPathStr = args[0];
-        FoxObjectPath objectPath = this.objectPathFactory.getPath(objectPathStr);
+        FoxPath objectPath = this.pathFactory.fromChecked(objectPathStr);
+        FoxPathExt objectPathExt = ((FoxPathExt) objectPath);
+        Optional<StandardPathComponent> objectPathObjectCompoment = objectPathExt.getObjectComponent();
+        if (!objectPathObjectCompoment.isPresent())
+            throw new FoxCommandException("No object path specified!");
+
         FoxObjectIndex objectIndex = mainIndex.getDefaultObjectIndex();
 
-        Optional<FoxObject> opt = objectIndex.getObject(objectPath);
+        Optional<FoxObject> opt = objectIndex.getObject(objectPathObjectCompoment.get());
         if (!opt.isPresent()) {
             throw new FoxCommandException("No object exists at this path!");
         }

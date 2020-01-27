@@ -1,14 +1,13 @@
 package net.foxdenstudio.foxcore;
 
+import net.foxdenstudio.foxcore.api.FoxRegistry;
 import net.foxdenstudio.foxcore.api.annotation.FoxCorePluginInstance;
 import net.foxdenstudio.foxcore.api.annotation.command.FoxMainDispatcher;
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
 import net.foxdenstudio.foxcore.api.command.standard.FoxCommandDispatcher;
-import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
-import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
-import net.foxdenstudio.foxcore.api.object.index.WritableNamespace;
-import net.foxdenstudio.foxcore.api.path.factory.FoxObjectPathFactory;
+import net.foxdenstudio.foxcore.api.object.index.WritableIndex;
+import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.platform.command.PlatformCommandManager;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
 import org.slf4j.Logger;
@@ -25,7 +24,8 @@ public class FoxCore {
     private final ConsoleSource consoleSource;
 
     private final FoxMainIndex mainIndex;
-    private final FoxObjectPathFactory objectPathFactory;
+
+    private final FoxRegistry registry;
 
     private final StaticContent content;
 
@@ -40,17 +40,19 @@ public class FoxCore {
     public FoxCore(
             Provider<PlatformCommandManager> commandManager,
             @FoxMainDispatcher FoxCommandDispatcher mainCommandDispatcher,
-            ConsoleSource consoleSource,
-            FoxMainIndex mainIndex, FoxObjectPathFactory objectPathFactory,
-            StaticContent content) {
+            ConsoleSource consoleSource, FoxMainIndex mainIndex,
+            FoxRegistry registry, StaticContent content) {
         this.commandManager = commandManager;
         this.mainCommandDispatcher = mainCommandDispatcher;
         this.consoleSource = consoleSource;
         this.mainIndex = mainIndex;
-        this.objectPathFactory = objectPathFactory;
+        this.registry = registry;
         this.content = content;
     }
 
+    /**
+     * Awoo, because I'm furry trash.
+     */
     public void awoo() {
         logger.info("Awoo!");
     }
@@ -68,16 +70,15 @@ public class FoxCore {
     }
 
     public void setupStaticContent() {
-        FoxObjectIndex objectIndex = mainIndex.getDefaultObjectIndex();
+        WritableIndex writable = mainIndex.getDefaultObjectIndex();
+        writable.addObject(content.generatorRegionRect, StandardPathComponent.of("gen", "region", "rect"));
+        writable.addObject(content.generatorRegionBox, StandardPathComponent.of("gen", "region", "box"));
+        writable.addObject(content.generatorRegionFlard, StandardPathComponent.of("gen", "region", "flard"));
         try {
-            WritableNamespace writable = ((WritableNamespace) objectIndex);
-            writable.addObject(content.generatorRegionRect, this.objectPathFactory.getPath("gen/region/rect"));
-            writable.addObject(content.generatorRegionBox, this.objectPathFactory.getPath("gen/region/box"));
-            writable.addObject(content.generatorRegionFlard, this.objectPathFactory.getPath("gen/region/flard"));
-        } catch (ClassCastException e){
-            logger.error("Could not get writable index! This is a development error and should be addressed immediately!", e);
-        } catch (FoxCommandException e){
-            logger.error("Could not get object path! This is a development error and should be addressed immediately!");
+            this.registry.registerArchetype(content.qubeRegionType);
+            this.registry.registerArchetype(content.representationArchetype);
+        } catch (Exception e) {
+            logger.error("Exception configuring registry!", e);
         }
     }
 
