@@ -1,10 +1,11 @@
 package net.foxdenstudio.foxcore.api.path;
 
-import net.foxdenstudio.foxcore.api.path.component.IndexPathComponent;
-import net.foxdenstudio.foxcore.api.path.component.LinkPathComponent;
-import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.api.path.resolve.ResolveConfig;
 import net.foxdenstudio.foxcore.api.path.resolve.ResolveOption;
+import net.foxdenstudio.foxcore.api.path.section.FoxPathSection;
+import net.foxdenstudio.foxcore.api.path.section.IndexPathSection;
+import net.foxdenstudio.foxcore.api.path.section.LinkPathSection;
+import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,11 +17,11 @@ public interface FoxPathExt extends FoxPath {
 
     ResolveOption<LinkResolve> LINK_RESOLVE = ResolveOption.of("appendObjectToLinks", LinkResolve.REPLACE);
 
-    Optional<IndexPathComponent> getIndexComponent();
+    Optional<IndexPathSection> getIndexSection();
 
-    Optional<StandardPathComponent> getObjectComponent();
+    Optional<ObjectPathSection> getObjectSection();
 
-    Optional<LinkPathComponent> getLinkComponent();
+    Optional<LinkPathSection> getLinkSection();
 
     Mode getMode();
 
@@ -43,30 +44,35 @@ public interface FoxPathExt extends FoxPath {
 
     @Nonnull
     @Override
-    FoxPath resolve(FoxPath path);
+    default FoxPath resolve(@Nullable FoxPath path) {
+        return resolve(path, new ResolveConfig());
+    }
 
     @Nonnull
     @Override
-    FoxPath resolve(FoxPath path, ResolveConfig config);
+    FoxPath resolve(@Nullable FoxPath path, ResolveConfig config);
 
     enum Mode {
         RELATIVE, ABSOLUTE, LINK, DEFAULT
     }
 
-    enum LinkResolve{
+    enum LinkResolve {
         REPLACE, APPEND, SPLICE
     }
 
     interface Builder {
 
         @Nonnull
-        Builder indexComponent(@Nullable IndexPathComponent component);
+        Builder indexSection(@Nullable IndexPathSection section);
 
         @Nonnull
-        Builder objectComponent(@Nullable StandardPathComponent component);
+        Builder objectSection(@Nullable ObjectPathSection section);
 
         @Nonnull
-        Builder linkComponent(@Nullable LinkPathComponent component);
+        Builder linkSection(@Nullable LinkPathSection section);
+
+        @Nonnull
+        Builder addSection(@Nullable FoxPathSection section);
 
         @Nonnull
         Builder mode(@Nonnull Mode mode);

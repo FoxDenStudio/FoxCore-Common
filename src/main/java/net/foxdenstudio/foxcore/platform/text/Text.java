@@ -1,6 +1,6 @@
 package net.foxdenstudio.foxcore.platform.text;
 
-public interface Text {
+public interface Text extends TextRepresentable{
 
     String toPlain();
 
@@ -9,5 +9,10 @@ public interface Text {
         Builder append(Text... children);
 
         Text build();
+    }
+
+    @Override
+    default Text toText() {
+        return this;
     }
 }

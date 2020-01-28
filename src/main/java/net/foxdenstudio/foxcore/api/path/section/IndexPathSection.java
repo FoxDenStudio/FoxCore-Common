@@ -1,17 +1,18 @@
-package net.foxdenstudio.foxcore.api.path.component;
+package net.foxdenstudio.foxcore.api.path.section;
 
 import com.google.common.base.Preconditions;
+import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public final class IndexPathComponent implements FoxPathComponent {
+public final class IndexPathSection implements FoxPathSection {
 
     private final String index;
     private final StandardPathComponent namespace;
 
-    public IndexPathComponent(@Nonnull String index, @Nullable StandardPathComponent namespace) {
+    public IndexPathSection(@Nonnull String index, @Nullable StandardPathComponent namespace) {
         Preconditions.checkNotNull(index);
         Preconditions.checkArgument(!index.isEmpty(), "Index name cannot be empty!");
         this.index = index;
@@ -30,7 +31,7 @@ public final class IndexPathComponent implements FoxPathComponent {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        IndexPathComponent that = (IndexPathComponent) o;
+        IndexPathSection that = (IndexPathSection) o;
         return index.equals(that.index) &&
                 namespace.equals(that.namespace);
     }

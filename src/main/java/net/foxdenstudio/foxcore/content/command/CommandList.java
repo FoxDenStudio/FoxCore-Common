@@ -1,6 +1,7 @@
 package net.foxdenstudio.foxcore.content.command;
 
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
+import net.foxdenstudio.foxcore.api.command.context.CommandContext;
 import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommandBase;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
@@ -40,47 +41,16 @@ public class CommandList extends FoxStandardCommandBase {
 
     @Override
     public FoxCommandResult process(@Nonnull CommandSource source, @Nonnull String arguments) throws FoxCommandException {
-        //StubObject object = this.stubObjectProvider.get();
-        //String objectName = "awoo-stub-" + (id++);
-        //FoxObjectPath newPath = this.objectPathFactory.getPath(objectName);
-        FoxObjectIndex objectIndex = mainIndex.getDefaultObjectIndex();
-        if (objectIndex instanceof MemoryIndex) {
-            MemoryIndex memoryIndex = (MemoryIndex) objectIndex;
-            //memoryIndex.addObject(object, newPath);
-        } else {
-            source.sendMessage(this.tf.of("wtf!?"));
-        }
 
-        Collection<StandardPathComponent> allPaths = objectIndex.getAllObjectPaths();
+        CommandContext context = this.commandContextManager.getCommandContext(source);
+
+        Collection<StandardPathComponent> allPaths = context.getNamespace(null).getAllObjectPaths();
         String heading = "The following objects exist:";
         StringBuilder builder = new StringBuilder();
         allPaths.stream()
                 .sorted(Comparator.comparing(StandardPathComponent::toString))
                 .forEach(path -> builder.append('\n').append(path.toString()));
         source.sendMessage(this.tf.of(textColors.YELLOW, heading, textColors.RESET, builder.toString()));
-
-
-
-        /*source.sendMessage(this.textFactory.getText(
-                textColors.BLACK, "BLACK\n",
-                textColors.DARK_BLUE, "DARK_BLUE\n",
-                textColors.DARK_GREEN, "DARK_GREEN\n",
-                textColors.DARK_AQUA, "DARK_AQUA\n",
-                textColors.DARK_RED, "DARK_RED\n",
-                textColors.DARK_PURPLE, "DARK_PURPLE\n",
-                textColors.GOLD, "GOLD\n",
-                textColors.GRAY, "GRAY\n",
-                textColors.DARK_GRAY, "DARK_GRAY\n",
-                textColors.BLUE, "BLUE\n",
-                textColors.GREEN, "GREEN\n",
-                textColors.AQUA, "AQUA\n",
-                textColors.RED, "RED\n",
-                textColors.LIGHT_PURPLE, "LIGHT_PURPLE\n",
-                textColors.YELLOW, "YELLOW\n",
-                textColors.WHITE, "WHITE\n"
-                ));*/
-
-        //source.sendMessage(this.textFactory.getText("Here's a list: yip, bark, awoo!"));
 
         return this.resultFactory.empty();
     }

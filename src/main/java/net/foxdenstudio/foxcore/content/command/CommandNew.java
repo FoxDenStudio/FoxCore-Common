@@ -1,5 +1,6 @@
 package net.foxdenstudio.foxcore.content.command;
 
+import net.foxdenstudio.foxcore.api.command.context.CommandContext;
 import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommandBase;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
@@ -7,11 +8,14 @@ import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.generator.GeneratorCommand;
 import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
 import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
+import net.foxdenstudio.foxcore.api.object.index.Namespace;
 import net.foxdenstudio.foxcore.api.object.index.WritableNamespace;
+import net.foxdenstudio.foxcore.api.object.reference.FoxObjectReference;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathExt;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 
 import javax.annotation.Nonnull;
@@ -24,10 +28,13 @@ public class CommandNew extends FoxStandardCommandBase {
     private final FoxPathFactory pathFactory;
     private final FoxMainIndex mainIndex;
 
+    private FoxPath generatorsPath;
+
     @Inject
     private CommandNew(FoxPathFactory pathFactory, FoxMainIndex mainIndex) {
         this.pathFactory = pathFactory;
         this.mainIndex = mainIndex;
+        this.generatorsPath = pathFactory.from("gen");
     }
 
     @Override
@@ -37,31 +44,42 @@ public class CommandNew extends FoxStandardCommandBase {
             source.sendMessage(tf.of("Syntax: <name/path> <generator> <arguments>"));
             return resultFactory.empty();
         }
+        CommandContext context = this.commandContextManager.getCommandContext(source);
+
         String[] args = arguments.split(" +", 3);
         String pathStr = args[0];
         FoxPath objectPath = this.pathFactory.fromChecked(pathStr);
-        FoxObjectIndex objectIndex = mainIndex.getDefaultObjectIndex();
+        FoxPath completePath = context.getCurrentPath().resolve(objectPath);
+        Namespace namespace = context.getNamespaceDirect(completePath);
 
-        FoxPathExt objectPathExt = (FoxPathExt) objectPath;
-        Optional<StandardPathComponent> objectPathObjectComponent = objectPathExt.getObjectComponent();
+        WritableNamespace destination;
+        if(namespace instanceof WritableNamespace){
+            destination = ((WritableNamespace) namespace);
+        } else {
+            throw new FoxCommandException("Namespace \"" + namespace.getIndexPath() + "\" is read-only!");
+        }
+
+        FoxPathExt objectPathExt = (FoxPathExt) completePath;
+        Optional<ObjectPathSection> objectPathObjectComponent = objectPathExt.getObjectSection();
         if (!objectPathObjectComponent.isPresent()) throw new FoxCommandException("No object path specified!");
 
-        Optional<?> opt = objectIndex.getObject(objectPathObjectComponent.get());
+        Optional<?> opt = destination.getObject(objectPathObjectComponent.get());
         if (opt.isPresent()) throw new FoxCommandException("An object already exists at this path!");
 
         if (args.length < 2) throw new FoxCommandException("Must specify a generator!");
 
-        String generatorPathStr = args[1];
-        String fullGeneratorPathStr = "gen/" + generatorPathStr;
-        FoxPath generatorPath = this.pathFactory.from(fullGeneratorPathStr);
+        String generatorPathStr = args[1];;
+        FoxPath generatorPath = this.generatorsPath.resolve(this.pathFactory.from(generatorPathStr));
 
         FoxPathExt generatorPathExt = (FoxPathExt) generatorPath;
-        Optional<StandardPathComponent> generatorPathObjectComponent = generatorPathExt.getObjectComponent();
+        Namespace generatorNamespace = context.getNamespaceDirect(generatorPath);
 
-        if (!generatorPathObjectComponent.isPresent())
+        Optional<ObjectPathSection> generatorObjectSection = generatorPathExt.getObjectSection();
+
+        if (!generatorObjectSection.isPresent())
             throw new FoxCommandException("Not a valid generator path specification!");
 
-        Optional<? extends FoxObject> genOpt = objectIndex.getObject(generatorPathObjectComponent.get());
+        Optional<FoxObject> genOpt = namespace.getObject(generatorObjectSection.get());
         if (!genOpt.isPresent())
             throw new FoxCommandException("No generator exists with name \"" + generatorPathStr + "\"!");
 
@@ -84,7 +102,7 @@ public class CommandNew extends FoxStandardCommandBase {
         if (newObject.getIndexReference().isPresent())
             throw new FoxCommandException("Generator returned existing object for an unknown reason!");
 
-        ((WritableNamespace) objectIndex).addObject(newObject, objectPathObjectComponent.get());
+        destination.addObject(newObject, objectPathObjectComponent.get());
         source.sendMessage(this.tf.of("Successfully created object!"));
 
         return resultFactory.success();

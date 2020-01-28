@@ -1,24 +1,22 @@
 package net.foxdenstudio.foxcore.content.command;
 
 import net.foxdenstudio.foxcore.api.archetype.FoxArchetype;
+import net.foxdenstudio.foxcore.api.command.context.CommandContext;
 import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommandBase;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.FoxDetailableObject;
 import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
-import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
+import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
-import net.foxdenstudio.foxcore.api.path.FoxPathExt;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
-import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.text.Text;
 import net.foxdenstudio.foxcore.platform.text.format.TextColors;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
-import java.util.Optional;
 
 public class CommandDetail extends FoxStandardCommandBase {
 
@@ -44,20 +42,13 @@ public class CommandDetail extends FoxStandardCommandBase {
         String[] args = arguments.split(" +", 2);
         String objectPathStr = args[0];
         FoxPath objectPath = this.pathFactory.fromChecked(objectPathStr);
-        FoxPathExt objectPathExt = ((FoxPathExt) objectPath);
-        Optional<StandardPathComponent> objectPathObjectCompoment = objectPathExt.getObjectComponent();
-        if (!objectPathObjectCompoment.isPresent())
-            throw new FoxCommandException("No object path specified!");
+        CommandContext context = this.commandContextManager.getCommandContext(source);
 
-        FoxObjectIndex objectIndex = mainIndex.getDefaultObjectIndex();
+        IndexReference reference = context.getObjectFromIndex(objectPath);
+        FoxObject object = reference.getObject().orElse(null);
+        if (object == null) throw new FoxCommandException("Object missing for reference!");
 
-        Optional<FoxObject> opt = objectIndex.getObject(objectPathObjectCompoment.get());
-        if (!opt.isPresent()) {
-            throw new FoxCommandException("No object exists at this path!");
-        }
-        FoxObject object = opt.get();
         FoxArchetype archetype = object.getArchetype();
-
 
         Text.Builder builder = tf.builder();
         builder.append(tf.of(

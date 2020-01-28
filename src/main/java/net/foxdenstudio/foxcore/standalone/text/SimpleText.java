@@ -1,6 +1,7 @@
 package net.foxdenstudio.foxcore.standalone.text;
 
 import net.foxdenstudio.foxcore.platform.text.Text;
+import net.foxdenstudio.foxcore.platform.text.TextRepresentable;
 import net.foxdenstudio.foxcore.platform.text.format.TextColor;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
@@ -16,7 +17,7 @@ public class SimpleText implements Text {
     private transient String plain = null;
     private transient AttributedString attributed = null;
 
-    public static SimpleText of(Object... objects){
+    public static SimpleText of(Object... objects) {
         return new SimpleText(Arrays.asList(objects));
     }
 
@@ -24,21 +25,36 @@ public class SimpleText implements Text {
         this.sectionList = new ArrayList<>();
         SimpleSection cur = new SimpleSection();
         boolean added = false;
+        StringBuilder stringBuilder = new StringBuilder();
         for (Object obj : objects) {
-            if (obj instanceof Text) {
-                this.sectionList.add(new TextSection(((Text) obj)));
+            if (obj instanceof TextRepresentable) {
+                Text text = ((TextRepresentable) obj).toText();
+                if (added) {
+                    cur.text = stringBuilder.toString();
+                    cur = new SimpleSection();
+                    stringBuilder = new StringBuilder();
+                }
+                this.sectionList.add(new TextSection(text));
                 added = false;
             } else if (obj instanceof TextColor) {
-                cur = new SimpleSection();
+                if (added) {
+                    cur.text = stringBuilder.toString();
+                    cur = new SimpleSection();
+                    stringBuilder = new StringBuilder();
+                }
                 cur.color = (TextColor) obj;
                 added = false;
             } else {
-                cur.text += obj.toString();
+                //cur.text += obj.toString();
+                stringBuilder.append(obj.toString());
                 if (!added) {
                     sectionList.add(cur);
                     added = true;
                 }
             }
+        }
+        if (added) {
+            cur.text = stringBuilder.toString();
         }
     }
 

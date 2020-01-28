@@ -29,7 +29,6 @@ public abstract class ArchetypeBase implements FoxArchetype, DelegateAttributeHo
     private transient Set<FoxArchetype> allArchetypes = null;
 
     protected ArchetypeBase(@Nonnull String type, @Nonnull String name, @Nonnull Collection<FoxArchetype> parents, @Nonnull FoxAttribute<?>... attributes) {
-
         this.type = type;
         this.name = name;
         this.attributeContainer = new AttributeContainer(parents, true, attributes);

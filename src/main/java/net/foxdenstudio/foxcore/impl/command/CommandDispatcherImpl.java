@@ -25,6 +25,7 @@ public class CommandDispatcherImpl extends FoxStandardCommandBase implements Fox
     Logger logger;
 
     private final Map<String, CommandMappingImpl> commandMap = new HashMap<>();
+    private final Map<String, CommandMappingImpl> effectiveCommandMap = new HashMap<>();
 
     @Inject
     protected CommandDispatcherImpl() {
@@ -37,7 +38,19 @@ public class CommandDispatcherImpl extends FoxStandardCommandBase implements Fox
         } else {
             CommandMappingImpl mapping = new CommandMappingImpl(command, primaryAlias, ImmutableSet.copyOf(secondaryAliases));
             commandMap.put(primaryAlias.toLowerCase(), mapping);
+            computeMap();
             return Optional.of(mapping);
+        }
+    }
+
+    private void computeMap(){
+        effectiveCommandMap.clear();
+        effectiveCommandMap.putAll(commandMap);
+        for(Map.Entry<String, CommandMappingImpl> entry: commandMap.entrySet()){
+            CommandMappingImpl mapping = entry.getValue();
+            for(String alias : mapping.secondary){
+                effectiveCommandMap.putIfAbsent(alias, mapping);
+            }
         }
     }
 
@@ -52,7 +65,7 @@ public class CommandDispatcherImpl extends FoxStandardCommandBase implements Fox
             return resultFactory.empty();
         }
 
-        FoxCommandMapping mapping = commandMap.get(command.toLowerCase());
+        FoxCommandMapping mapping = effectiveCommandMap.get(command.toLowerCase());
         if (mapping == null) {
             source.sendMessage(tf.of("No such command: " + command));
             return resultFactory.failure();

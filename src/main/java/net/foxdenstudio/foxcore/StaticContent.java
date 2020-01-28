@@ -18,6 +18,10 @@ public class StaticContent {
     CommandNew commandNew;
     @Inject
     CommandDetail commandDetail;
+    @Inject
+    CommandPWD commandPWD;
+    @Inject
+    CommandCD commandCD;
 
     @Inject
     QubeRegion.RectGenerator generatorRegionRect;

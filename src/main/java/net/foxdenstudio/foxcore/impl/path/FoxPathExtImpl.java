@@ -3,47 +3,62 @@ package net.foxdenstudio.foxcore.impl.path;
 import com.google.common.collect.ImmutableList;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathExt;
-import net.foxdenstudio.foxcore.api.path.component.FoxPathComponent;
-import net.foxdenstudio.foxcore.api.path.component.IndexPathComponent;
-import net.foxdenstudio.foxcore.api.path.component.LinkPathComponent;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.api.path.resolve.ResolveConfig;
+import net.foxdenstudio.foxcore.api.path.section.FoxPathSection;
+import net.foxdenstudio.foxcore.api.path.section.IndexPathSection;
+import net.foxdenstudio.foxcore.api.path.section.LinkPathSection;
+import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
+import net.foxdenstudio.foxcore.platform.fox.text.TextFactory;
+import net.foxdenstudio.foxcore.platform.text.Text;
+import net.foxdenstudio.foxcore.platform.text.TextRepresentable;
+import net.foxdenstudio.foxcore.platform.text.format.TextColors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt {
+public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, TextRepresentable {
+
+    private final TextFactory textFactory;
+    private final TextColors textColors;
+    private final Provider<Builder> builderProvider;
 
     @Nullable
-    private IndexPathComponent indexPathComponent = null;
+    private IndexPathSection indexPathSection = null;
     @Nullable
-    private StandardPathComponent objectPathComponent = null;
+    private ObjectPathSection objectPathSection = null;
     @Nullable
-    private LinkPathComponent linkPathComponent = null;
+    private LinkPathSection linkPathSection = null;
     @Nonnull
-    private List<FoxPathComponent> extras;
+    private List<FoxPathSection> extras;
 
     @Nonnull
     private Mode mode;
     private int parentOffset;
 
-
-    public FoxPathExtImpl(@Nonnull List<FoxPathComponent> components, @Nonnull Mode mode, int parentOffset) {
+    public FoxPathExtImpl(TextFactory textFactory, TextColors textColors, Provider<Builder> builderProvider,
+                          @Nonnull List<FoxPathSection> components, @Nonnull Mode mode, int parentOffset) {
         super(components);
+        this.textFactory = textFactory;
+        this.textColors = textColors;
+        this.builderProvider = builderProvider;
         this.mode = mode;
         this.parentOffset = parentOffset;
-        ImmutableList.Builder<FoxPathComponent> builder = ImmutableList.builder();
-        for (FoxPathComponent component : components) {
+        ImmutableList.Builder<FoxPathSection> builder = ImmutableList.builder();
+        for (FoxPathSection component : components) {
             if (component != null) {
-                if (this.indexPathComponent == null && component instanceof IndexPathComponent) {
-                    this.indexPathComponent = (IndexPathComponent) component;
-                } else if (this.objectPathComponent == null && component instanceof StandardPathComponent) {
-                    this.objectPathComponent = ((StandardPathComponent) component);
-                } else if (this.linkPathComponent == null && component instanceof LinkPathComponent) {
-                    this.linkPathComponent = ((LinkPathComponent) component);
+                if (this.indexPathSection == null && component instanceof IndexPathSection) {
+                    this.indexPathSection = (IndexPathSection) component;
+                } else if (this.objectPathSection == null && component instanceof ObjectPathSection) {
+                    this.objectPathSection = ((ObjectPathSection) component);
+                } else if (this.linkPathSection == null && component instanceof LinkPathSection) {
+                    this.linkPathSection = ((LinkPathSection) component);
                 } else {
                     builder.add(component);
                 }
@@ -52,26 +67,22 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt {
         this.extras = builder.build();
     }
 
+    @Nonnull
     @Override
-    public FoxPathExtImpl resolve(FoxPath path) {
-        return resolve(path, new ResolveConfig());
-    }
-
-    @Override
-    public FoxPathExtImpl resolve(FoxPath path, ResolveConfig config) {
-        if (path.isEmpty()) return this;
+    public FoxPathExtImpl resolve(@Nullable FoxPath path, ResolveConfig config) {
+        if (path == null || path.isEmpty()) return this;
         Mode mode = Mode.DEFAULT;
         int otherOffset = 0;
-        IndexPathComponent otherIndex = null;
-        StandardPathComponent otherObject = null;
-        LinkPathComponent otherLink = null;
+        IndexPathSection otherIndex = null;
+        ObjectPathSection otherObject = null;
+        LinkPathSection otherLink = null;
         if (path instanceof FoxPathExt) {
             FoxPathExt pathExt = ((FoxPathExt) path);
             mode = pathExt.getMode();
             otherOffset = pathExt.getParentOffset();
-            otherIndex = pathExt.getIndexComponent().orElse(null);
-            otherObject = pathExt.getObjectComponent().orElse(null);
-            otherLink = pathExt.getLinkComponent().orElse(null);
+            otherIndex = pathExt.getIndexSection().orElse(null);
+            otherObject = pathExt.getObjectSection().orElse(null);
+            otherLink = pathExt.getLinkSection().orElse(null);
         } else {
             // TODO add handling for non-EXT paths
             // while not strictly necessary, it makes me feel better about the future.
@@ -83,9 +94,9 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt {
 
         LinkResolve linkResolve = config.get(FoxPathExt.LINK_RESOLVE);
 
-        IndexPathComponent newIndex = this.indexPathComponent;
-        StandardPathComponent newObject = this.objectPathComponent;
-        LinkPathComponent newLink = this.linkPathComponent;
+        IndexPathSection newIndex = this.indexPathSection;
+        ObjectPathSection newObject = this.objectPathSection;
+        LinkPathSection newLink = this.linkPathSection;
         int newOffset = this.parentOffset;
         Mode newMode = this.mode;
 
@@ -93,7 +104,7 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt {
 
         if (otherIndex != null) newIndex = otherIndex;
         if (otherObject != null) {
-            if (linkResolve != LinkResolve.APPEND || this.linkPathComponent == null) {
+            if (linkResolve != LinkResolve.APPEND || this.linkPathSection == null) {
                 if (newObject == null || mode == Mode.ABSOLUTE) {
                     newObject = otherObject;
                     if (mode == Mode.ABSOLUTE) {
@@ -111,7 +122,7 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt {
                         }
                     }
                     parts.addAll(otherObject.getElements());
-                    newObject = StandardPathComponent.from(parts);
+                    newObject = ObjectPathSection.from(parts);
                 }
             }
             switch (linkResolve) {
@@ -126,19 +137,19 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt {
                     List<StandardPathComponent> parts = new ArrayList<>();
                     if (newLink != null) parts.addAll(newLink.getLinkComponents());
                     if (otherLink != null) parts.addAll(otherLink.getLinkComponents());
-                    newLink = LinkPathComponent.of(parts);
+                    newLink = LinkPathSection.of(parts);
                     break;
             }
         } else {
             newOffset += otherOffset;
         }
 
-        FoxPathExtImpl.Builder newPathBuilder = new Builder();
+        FoxPathExtImpl.Builder newPathBuilder = builderProvider.get();
 
         newPathBuilder
-                .indexComponent(newIndex)
-                .objectComponent(newObject)
-                .linkComponent(newLink)
+                .indexSection(newIndex)
+                .objectSection(newObject)
+                .linkSection(newLink)
                 .parentOffset(newOffset)
                 .mode(newMode);
 
@@ -146,26 +157,22 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt {
         return newPathBuilder.build();
     }
 
-    public FoxPathExtImpl(@Nonnull List<FoxPathComponent> components) {
-        this(components, Mode.DEFAULT, 0);
+    @Override
+    public Optional<IndexPathSection> getIndexSection() {
+        return Optional.ofNullable(this.indexPathSection);
     }
 
     @Override
-    public Optional<IndexPathComponent> getIndexComponent() {
-        return Optional.ofNullable(this.indexPathComponent);
+    public Optional<ObjectPathSection> getObjectSection() {
+        return Optional.ofNullable(this.objectPathSection);
     }
 
     @Override
-    public Optional<StandardPathComponent> getObjectComponent() {
-        return Optional.ofNullable(this.objectPathComponent);
+    public Optional<LinkPathSection> getLinkSection() {
+        return Optional.ofNullable(this.linkPathSection);
     }
 
-    @Override
-    public Optional<LinkPathComponent> getLinkComponent() {
-        return Optional.ofNullable(this.linkPathComponent);
-    }
-
-    public List<FoxPathComponent> getExtras() {
+    public List<FoxPathSection> getExtras() {
         return this.extras;
     }
 
@@ -179,40 +186,130 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt {
         return this.parentOffset;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Iterator<FoxPathSection> it = this.components.iterator(); it.hasNext(); ) {
+            FoxPathSection component = it.next();
+            if (component instanceof ObjectPathSection) {
+                if (this.mode == Mode.ABSOLUTE) builder.append("/");
+                else if (this.mode == Mode.RELATIVE && this.parentOffset == 0) builder.append("./");
+                for (int i = 0; i < parentOffset; i++) {
+                    builder.append("../");
+                }
+            }
+            builder.append(component);
+            if (it.hasNext())
+                builder.append(':');
+        }
+        return builder.toString();
+    }
+
+    @Override
+    public Text toText() {
+        Text.Builder builder = textFactory.builder();
+        for (Iterator<FoxPathSection> it = this.components.iterator(); it.hasNext(); ) {
+            FoxPathSection section = it.next();
+            if (section instanceof IndexPathSection) {
+                IndexPathSection indexSection = ((IndexPathSection) section);
+                builder.append(textFactory.of(textColors.LIGHT_PURPLE, '@', textColors.GREEN, indexSection.getIndex()));
+                StandardPathComponent namespacePath = indexSection.getNamespacePath();
+                if (namespacePath != null)
+                    for (String namespaceElement : namespacePath.getElements()) {
+                        builder.append(textFactory.of(textColors.YELLOW, '/', textColors.RESET, namespaceElement));
+                    }
+            } else if (section instanceof ObjectPathSection) {
+                ObjectPathSection objectPathSection = ((ObjectPathSection) section);
+                StringBuilder sb = new StringBuilder();
+                if (this.mode == Mode.ABSOLUTE) sb.append("/");
+                else if (this.mode == Mode.RELATIVE && this.parentOffset == 0) sb.append("./");
+                for (int i = 0; i < parentOffset; i++) {
+                    sb.append("../");
+                }
+                builder.append(textFactory.of(textColors.GRAY, sb.toString()));
+                for (Iterator<String> it2 = objectPathSection.getElements().iterator(); it2.hasNext(); ) {
+                    builder.append(textFactory.of(textColors.RESET, it2.next()));
+                    if (it2.hasNext()) builder.append(textFactory.of(textColors.YELLOW, '/'));
+                }
+            } else if (section instanceof LinkPathSection) {
+                LinkPathSection linkSection = ((LinkPathSection) section);
+                for (Iterator<StandardPathComponent> it2 = linkSection.getLinkComponents().iterator(); it2.hasNext(); ) {
+                    StandardPathComponent link = it2.next();
+                    for (Iterator<String> it3 = link.getElements().iterator(); it3.hasNext(); ) {
+                        builder.append(textFactory.of(textColors.RESET, it3.next()));
+                        if (it3.hasNext()) builder.append(textFactory.of(textColors.YELLOW, '/'));
+                    }
+                    if (it2.hasNext()) builder.append(textFactory.of(textColors.AQUA, ":"));
+                }
+            } else {
+                builder.append(textFactory.of(textColors.RESET, section));
+            }
+            if (it.hasNext())
+                builder.append(textFactory.of(textColors.LIGHT_PURPLE, ':'));
+        }
+        return builder.build();
+    }
+
     public static class Builder implements FoxPathExt.Builder {
 
-        @Nullable
-        IndexPathComponent indexComponent;
-        @Nullable
-        StandardPathComponent objectComponent;
-        @Nullable
-        LinkPathComponent linkComponent;
-        @Nonnull
-        Mode mode = Mode.DEFAULT;
-        int parentOffset = 0;
+        private final TextFactory textFactory;
+        private final TextColors textColors;
+        private final Provider<Builder> builderProvider;
 
-        public Builder() {
+        @Nullable
+        private IndexPathSection indexSection;
+        @Nullable
+        private ObjectPathSection objectSection;
+        @Nullable
+        private LinkPathSection linkSection;
+
+        private List<FoxPathSection> extraSections = new ArrayList<>();
+
+        @Nonnull
+        private Mode mode = Mode.DEFAULT;
+        private int parentOffset = 0;
+
+        @Inject
+        private Builder(TextFactory textFactory, TextColors textColors, Provider<Builder> builderProvider) {
+            this.textFactory = textFactory;
+            this.textColors = textColors;
+            this.builderProvider = builderProvider;
         }
 
         @Override
         @Nonnull
-        public FoxPathExt.Builder indexComponent(@Nullable IndexPathComponent component) {
-            this.indexComponent = component;
+        public FoxPathExt.Builder indexSection(@Nullable IndexPathSection section) {
+            this.indexSection = section;
             return this;
         }
 
         @Override
         @Nonnull
-        public FoxPathExt.Builder objectComponent(@Nullable StandardPathComponent component) {
-            this.objectComponent = component;
+        public FoxPathExt.Builder objectSection(@Nullable ObjectPathSection section) {
+            this.objectSection = section;
             return this;
         }
 
         @Override
         @Nonnull
-        public FoxPathExt.Builder linkComponent(@Nullable LinkPathComponent component) {
-            this.linkComponent = component;
+        public FoxPathExt.Builder linkSection(@Nullable LinkPathSection section) {
+            this.linkSection = section;
             return this;
+        }
+
+        @Nonnull
+        @Override
+        public FoxPathExt.Builder addSection(@Nullable FoxPathSection section) {
+            if (section instanceof IndexPathSection) {
+                return indexSection((IndexPathSection) section);
+            } else if (section instanceof ObjectPathSection) {
+                return objectSection(((ObjectPathSection) section));
+            } else if (section instanceof LinkPathSection) {
+                return linkSection(((LinkPathSection) section));
+            } else {
+                this.extraSections.add(section);
+                return this;
+            }
         }
 
         @Override
@@ -232,11 +329,12 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt {
         @Override
         @Nonnull
         public FoxPathExtImpl build() {
-            ImmutableList.Builder<FoxPathComponent> builder = ImmutableList.builder();
-            if (indexComponent != null) builder.add(indexComponent);
-            if (objectComponent != null) builder.add(objectComponent);
-            if (linkComponent != null) builder.add(linkComponent);
-            return new FoxPathExtImpl(builder.build(), mode, parentOffset);
+            ImmutableList.Builder<FoxPathSection> builder = ImmutableList.builder();
+            if (indexSection != null) builder.add(indexSection);
+            if (objectSection != null) builder.add(objectSection);
+            if (linkSection != null) builder.add(linkSection);
+            builder.addAll(this.extraSections);
+            return new FoxPathExtImpl(textFactory, textColors, builderProvider, builder.build(), mode, parentOffset);
         }
     }
 }

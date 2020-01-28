@@ -8,6 +8,7 @@ import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
 import net.foxdenstudio.foxcore.api.object.index.WritableNamespace;
 import net.foxdenstudio.foxcore.api.object.representation.SimpleRepresentation;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -53,7 +54,7 @@ public class FoxRegistryImpl implements FoxRegistry {
             }
             this.archetypeMap.put(name, arch);
             SimpleRepresentation<FoxArchetype> rep = srFactory.newRepresentation(arch);
-            StandardPathComponent path = StandardPathComponent.of("arch", name);
+            ObjectPathSection path = ObjectPathSection.of("arch", name);
             this.target.addObject(rep, path);
             arch.setRepresentation(rep);
         }

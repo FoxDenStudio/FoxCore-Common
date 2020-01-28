@@ -5,7 +5,7 @@ import net.foxdenstudio.foxcore.platform.text.Text;
 import net.foxdenstudio.foxcore.standalone.text.SimpleText;
 import org.slf4j.Logger;
 
-public class PlainConsoleTextPrinter implements ConsoleTextPrinter {
+public class SimpleConsoleTextPrinter implements ConsoleTextPrinter {
 
     @FoxLogger("chat")
     Logger logger;

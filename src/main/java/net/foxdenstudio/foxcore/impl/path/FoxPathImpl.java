@@ -2,7 +2,7 @@ package net.foxdenstudio.foxcore.impl.path;
 
 import com.google.common.collect.ImmutableList;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
-import net.foxdenstudio.foxcore.api.path.component.FoxPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.FoxPathSection;
 import net.foxdenstudio.foxcore.api.path.resolve.ResolveConfig;
 
 import javax.annotation.Nonnull;
@@ -13,20 +13,21 @@ import java.util.Objects;
 public class FoxPathImpl implements FoxPath {
 
     @Nonnull
-    protected List<FoxPathComponent> components;
+    protected List<FoxPathSection> components;
 
-    public FoxPathImpl (List<FoxPathComponent> components){
+    public FoxPathImpl (List<FoxPathSection> components){
         this.components = components.stream().filter(Objects::nonNull).collect(ImmutableList.toImmutableList());
-    }
-
-    @Override
-    public FoxPath resolve(FoxPath path, ResolveConfig config) {
-        return path;
     }
 
     @Nonnull
     @Override
-    public List<FoxPathComponent> getComponents() {
+    public FoxPath resolve(FoxPath path, ResolveConfig config) {
+        return path == null ? this : path;
+    }
+
+    @Nonnull
+    @Override
+    public List<FoxPathSection> getSections() {
         return this.components;
     }
 
@@ -48,10 +49,11 @@ public class FoxPathImpl implements FoxPath {
         return Objects.hash(components);
     }
 
+    @Override
     public String toString(){
         StringBuilder builder = new StringBuilder();
-        for(Iterator<FoxPathComponent> it = this.components.iterator(); it.hasNext();){
-            FoxPathComponent component = it.next();
+        for(Iterator<FoxPathSection> it = this.components.iterator(); it.hasNext();){
+            FoxPathSection component = it.next();
             builder.append(component);
             if(it.hasNext())
                 builder.append(':');

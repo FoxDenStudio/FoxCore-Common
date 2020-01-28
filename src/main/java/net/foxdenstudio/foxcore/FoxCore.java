@@ -8,6 +8,7 @@ import net.foxdenstudio.foxcore.api.command.standard.FoxCommandDispatcher;
 import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
 import net.foxdenstudio.foxcore.api.object.index.WritableIndex;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 import net.foxdenstudio.foxcore.platform.command.PlatformCommandManager;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
 import org.slf4j.Logger;
@@ -63,6 +64,8 @@ public class FoxCore {
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandList, "list");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandNew, "new");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandDetail, "detail", "det");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandPWD, "pwd");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandCD, "cd");
     }
 
     public void registerCommands() {
@@ -71,9 +74,9 @@ public class FoxCore {
 
     public void setupStaticContent() {
         WritableIndex writable = mainIndex.getDefaultObjectIndex();
-        writable.addObject(content.generatorRegionRect, StandardPathComponent.of("gen", "region", "rect"));
-        writable.addObject(content.generatorRegionBox, StandardPathComponent.of("gen", "region", "box"));
-        writable.addObject(content.generatorRegionFlard, StandardPathComponent.of("gen", "region", "flard"));
+        writable.addObject(content.generatorRegionRect, ObjectPathSection.of("gen", "region", "rect"));
+        writable.addObject(content.generatorRegionBox, ObjectPathSection.of("gen", "region", "box"));
+        writable.addObject(content.generatorRegionFlard, ObjectPathSection.of("gen", "region", "flard"));
         try {
             this.registry.registerArchetype(content.qubeRegionType);
             this.registry.registerArchetype(content.representationArchetype);

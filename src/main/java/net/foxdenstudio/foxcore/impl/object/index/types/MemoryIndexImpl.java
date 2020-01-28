@@ -8,8 +8,9 @@ import net.foxdenstudio.foxcore.api.object.index.types.MemoryIndex;
 import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
-import net.foxdenstudio.foxcore.api.path.component.IndexPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.IndexPathSection;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -20,14 +21,14 @@ import java.util.Optional;
 public class MemoryIndexImpl implements MemoryIndex {
 
     private final FoxPathFactory pathFactory;
-    private final IndexPathComponent indexPath;
+    private final IndexPathSection indexPath;
 
     private final Map<StandardPathComponent, IndexReference> indexMap;
 
     @Inject
     private MemoryIndexImpl(FoxPathFactory pathFactory) {
         this.pathFactory = pathFactory;
-        this.indexPath = new IndexPathComponent(this.getIndexName(), null);
+        this.indexPath = new IndexPathSection(this.getIndexName(), null);
         this.indexMap = new HashMap<>();
     }
 
@@ -53,8 +54,8 @@ public class MemoryIndexImpl implements MemoryIndex {
     }
 
     @Override
-    public Optional<FoxObject> getObject(StandardPathComponent path) {
-        return Optional.ofNullable(this.indexMap.get(path)).flatMap(IndexReference::getObject);
+    public Optional<IndexReference> getObjectReference(StandardPathComponent path) {
+        return Optional.ofNullable(this.indexMap.get(path));
     }
 
     @Override
@@ -62,13 +63,18 @@ public class MemoryIndexImpl implements MemoryIndex {
         return ImmutableSet.copyOf(this.indexMap.keySet());
     }
 
+    @Override
+    public IndexPathSection getIndexPath() {
+        return this.indexPath;
+    }
+
     @SuppressWarnings({"unchecked"})
     @Override
-    public Optional<IndexReference> addObject(FoxObject foxObject, StandardPathComponent path) {
+    public Optional<IndexReference> addObject(FoxObject foxObject, ObjectPathSection path) {
         if (!this.indexMap.containsKey(path)) {
             IndexReferenceImpl ref = new IndexReferenceImpl(foxObject, path);
             foxObject.setIndexReference(ref);
-            this.indexMap.put(path, ref);
+            this.indexMap.put(path.getPathComponent(), ref);
             return Optional.of(ref);
         }
         return Optional.empty();
@@ -77,10 +83,10 @@ public class MemoryIndexImpl implements MemoryIndex {
     private class IndexReferenceImpl implements IndexReference {
 
         FoxObject object;
-        StandardPathComponent path;
+        ObjectPathSection path;
         boolean valid;
 
-        IndexReferenceImpl(FoxObject object, StandardPathComponent path) {
+        IndexReferenceImpl(FoxObject object, ObjectPathSection path) {
             this.object = object;
             this.path = path;
             this.valid = true;
@@ -109,7 +115,7 @@ public class MemoryIndexImpl implements MemoryIndex {
         @Override
         public boolean removeObjectFromIndex() {
             if (valid) {
-                MemoryIndexImpl.this.indexMap.remove(this.path);
+                MemoryIndexImpl.this.indexMap.remove(this.path.getPathComponent());
                 this.object = null;
                 this.path = null;
                 this.valid = false;

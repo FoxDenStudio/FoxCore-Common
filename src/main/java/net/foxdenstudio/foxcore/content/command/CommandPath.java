@@ -5,11 +5,13 @@ import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommandBase;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.path.FoxPathExt;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
-import net.foxdenstudio.foxcore.api.path.component.IndexPathComponent;
-import net.foxdenstudio.foxcore.api.path.component.LinkPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.IndexPathSection;
+import net.foxdenstudio.foxcore.api.path.section.LinkPathSection;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.text.Text;
+import net.foxdenstudio.foxcore.platform.text.TextRepresentable;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -27,17 +29,16 @@ public class CommandPath extends FoxStandardCommandBase {
     @Override
     public FoxCommandResult process(@Nonnull CommandSource source, @Nonnull String arguments) throws FoxCommandException {
         FoxPathExt pathExt = (FoxPathExt) this.pathFactory.fromChecked(arguments);
-        Optional<IndexPathComponent> indexPath = pathExt.getIndexComponent();
-        Optional<String> indexType = indexPath.map(IndexPathComponent::getIndex);
-        Optional<StandardPathComponent> namespacePath = indexPath.map(IndexPathComponent::getNamespacePath);
-        Optional<StandardPathComponent> objectPath = pathExt.getObjectComponent();
-        Optional<LinkPathComponent> linkPaths = pathExt.getLinkComponent();
+        Optional<IndexPathSection> indexPath = pathExt.getIndexSection();
+        Optional<String> indexType = indexPath.map(IndexPathSection::getIndex);
+        Optional<StandardPathComponent> namespacePath = indexPath.map(IndexPathSection::getNamespacePath);
+        Optional<ObjectPathSection> objectPath = pathExt.getObjectSection();
+        Optional<LinkPathSection> linkPaths = pathExt.getLinkSection();
 
         StringBuilder builder = new StringBuilder();
-        builder.append("full:         ").append(pathExt).append('\n');
         builder.append("index:        ").append(indexPath.orElse(null)).append('\n');
         builder.append("  type:       ").append(indexType.orElse(null)).append('\n');
-        builder.append("  namespace: ").append(namespacePath.orElse(null)).append("\n");
+        builder.append("  namespace:  ").append(namespacePath.orElse(null)).append("\n");
         builder.append("object:       ").append(objectPath.orElse(null)).append("\n");
         builder.append("links:");
 
@@ -50,8 +51,9 @@ public class CommandPath extends FoxStandardCommandBase {
             }
         }
 
-        Text message = this.tf.of(builder.toString());
+        Text message = this.tf.of("\nfull:         ", pathExt, "\n", builder.toString());
 
+        //source.sendMessage(((TextRepresentable) pathExt).toText());
         source.sendMessage(message);
 
         return this.resultFactory.empty();

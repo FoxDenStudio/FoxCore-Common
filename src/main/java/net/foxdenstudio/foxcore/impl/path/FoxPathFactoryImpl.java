@@ -7,41 +7,58 @@ import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathExt;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
-import net.foxdenstudio.foxcore.api.path.component.FoxPathComponent;
-import net.foxdenstudio.foxcore.api.path.component.IndexPathComponent;
-import net.foxdenstudio.foxcore.api.path.component.LinkPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.FoxPathSection;
+import net.foxdenstudio.foxcore.api.path.section.IndexPathSection;
+import net.foxdenstudio.foxcore.api.path.section.LinkPathSection;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Singleton
 public class FoxPathFactoryImpl implements FoxPathFactory {
 
-    @FoxLogger
-    Logger logger;
+    private final Provider<FoxPathExtImpl.Builder> builderProvider;
 
-    @SuppressWarnings("ConstantConditions")
+    private FoxPath empty = null;
+
+    @FoxLogger
+    private Logger logger;
+
+    @Inject
+    private FoxPathFactoryImpl(Provider<FoxPathExtImpl.Builder> builderProvider) {
+        this.builderProvider = builderProvider;
+    }
+
     @Override
-    public FoxPath from(@Nonnull FoxPathComponent first, FoxPathComponent... next) {
-        boolean added = false;
-        ImmutableList.Builder<FoxPathComponent> builder = ImmutableList.builder();
-        if (first != null) {
-            builder.add(first);
-            added = true;
+    public FoxPath empty() {
+        if(this.empty == null){
+            this.empty = builderProvider.get().build();
         }
+        return this.empty;
+    }
+
+    @Override
+    public FoxPath from(@Nonnull FoxPathSection first, FoxPathSection... next) {
+        Preconditions.checkNotNull(first);
+        FoxPathExtImpl.Builder builder = builderProvider.get();
+        builder.addSection(first);
         if (next != null) {
-            for (FoxPathComponent comp : next) {
+            for (FoxPathSection comp : next) {
                 if (comp != null) {
-                    builder.add(comp);
-                    added = true;
+                    builder.addSection(comp);
                 }
             }
         }
-        Preconditions.checkArgument(added, "Must supply at least one non-null element!");
-        return new FoxPathExtImpl(builder.build());
+
+        return builder.build();
     }
 
     @Override
@@ -77,9 +94,9 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
         }
 
         if ((indexPathStr == null || indexPathStr.isEmpty()) && (objectPathStr == null || objectPathStr.isEmpty()) && linkPathStrs.isEmpty())
-            throw new FoxCommandException("Input must contain at least one element!");
+            return this.empty;
 
-        IndexPathComponent indexPathComponent = null;
+        IndexPathSection indexPathSection = null;
         if (indexPathStr != null && !indexPathStr.isEmpty()) {
             String[] indexParts = indexPathStr.split("/+");
             if (indexParts.length > 0) {
@@ -88,15 +105,15 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
                 String indexStr = null;
                 if (indexIndex < indexParts.length) {
                     indexStr = indexParts[indexIndex];
-                    List<String> namespaceParts = new ArrayList<>(Arrays.asList(indexParts).subList(indexIndex + 1, parts.length));
+                    List<String> namespaceParts = new ArrayList<>(Arrays.asList(indexParts).subList(indexIndex + 1, indexParts.length));
                     StandardPathComponent namespace = null;
                     if (!namespaceParts.isEmpty()) namespace = StandardPathComponent.from(namespaceParts);
-                    indexPathComponent = new IndexPathComponent(indexStr, namespace);
+                    indexPathSection = new IndexPathSection(indexStr, namespace);
                 }
             }
         }
 
-        StandardPathComponent objectPathComponent = null;
+        ObjectPathSection objectPathSection = null;
         FoxPathExt.Mode mode = null;
         int parentOffset = 0;
         if (objectPathStr != null && !objectPathStr.isEmpty()) {
@@ -118,14 +135,14 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
                 }
             }
             if (!objectParts.isEmpty()) {
-                objectPathComponent = StandardPathComponent.from(objectParts);
+                objectPathSection = ObjectPathSection.from(objectParts);
                 mode = FoxPathExt.Mode.DEFAULT;
                 if (objectPathStr.startsWith("/")) mode = FoxPathExt.Mode.ABSOLUTE;
                 else if (objectPathStr.startsWith(".")) mode = FoxPathExt.Mode.RELATIVE;
             }
         }
 
-        LinkPathComponent linkPathComponent = null;
+        LinkPathSection linkPathSection = null;
         if (!linkPathStrs.isEmpty()) {
             if(mode == null) mode = FoxPathExt.Mode.LINK;
             List<StandardPathComponent> links = new ArrayList<>();
@@ -138,19 +155,19 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
                 }
                 if(!linkParts.isEmpty()) links.add(StandardPathComponent.from(linkParts));
             }
-            if(!links.isEmpty()) linkPathComponent = LinkPathComponent.of(links);
+            if(!links.isEmpty()) linkPathSection = LinkPathSection.of(links);
         }
 
-        if(indexPathComponent == null && objectPathComponent == null && linkPathComponent == null)
-            throw new FoxCommandException("Input must contain at least one element!");
+        if(indexPathSection == null && objectPathSection == null && linkPathSection == null)
+            return this.empty();
 
         if(mode == null) mode = FoxPathExt.Mode.DEFAULT;
 
-        FoxPathExtImpl.Builder builder = new FoxPathExtImpl.Builder();
+        FoxPathExtImpl.Builder builder = builderProvider.get();
         builder
-                .indexComponent(indexPathComponent)
-                .objectComponent(objectPathComponent)
-                .linkComponent(linkPathComponent)
+                .indexSection(indexPathSection)
+                .objectSection(objectPathSection)
+                .linkSection(linkPathSection)
                 .mode(mode)
                 .parentOffset(parentOffset);
 

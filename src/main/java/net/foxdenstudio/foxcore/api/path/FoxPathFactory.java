@@ -1,11 +1,13 @@
 package net.foxdenstudio.foxcore.api.path;
 
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
-import net.foxdenstudio.foxcore.api.path.component.FoxPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.FoxPathSection;
 
 public interface FoxPathFactory {
 
-    FoxPath from(FoxPathComponent first, FoxPathComponent... next);
+    FoxPath empty();
+
+    FoxPath from(FoxPathSection first, FoxPathSection... next);
 
     FoxPath from(String input);
 

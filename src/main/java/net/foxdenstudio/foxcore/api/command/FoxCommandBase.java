@@ -1,5 +1,6 @@
 package net.foxdenstudio.foxcore.api.command;
 
+import net.foxdenstudio.foxcore.api.command.context.FoxCommandContextManager;
 import net.foxdenstudio.foxcore.api.command.result.ResultFactory;
 import net.foxdenstudio.foxcore.platform.fox.text.TextFactory;
 
@@ -12,6 +13,9 @@ public abstract class FoxCommandBase implements FoxCommand {
 
     @Inject
     protected ResultFactory resultFactory;
+
+    @Inject
+    protected FoxCommandContextManager commandContextManager;
 
     protected FoxCommandBase() {
     }

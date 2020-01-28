@@ -8,6 +8,7 @@ import net.foxdenstudio.foxcore.api.object.index.WritableIndex;
 import net.foxdenstudio.foxcore.api.object.index.types.MemoryIndex;
 import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
+import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -29,8 +30,8 @@ public class FoxMainIndexImpl implements FoxMainIndex {
     }
 
     @Override
-    public Optional<FoxObjectIndex> getObjectIndex(String type) {
-        return Optional.ofNullable(this.indexMap.get(type));
+    public Optional<FoxObjectIndex> getObjectIndex(String name) {
+        return Optional.ofNullable(this.indexMap.get(name));
     }
 
     @Override
@@ -45,7 +46,7 @@ public class FoxMainIndexImpl implements FoxMainIndex {
     }
 
     @Override
-    public Optional<IndexReference> addObject(FoxObject foxObject, StandardPathComponent path) {
+    public Optional<IndexReference> addObject(FoxObject foxObject, ObjectPathSection path) {
         return this.getDefaultObjectIndex().addObject(foxObject, path);
     }
 

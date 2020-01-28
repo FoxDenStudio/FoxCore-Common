@@ -65,7 +65,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             case 1:
                 return val < bounds[0] ? 0 : 1;
             case 2:
-                return val < bounds[0] ? 0 : (val >= bounds[1] ? 2 : 1);
+                return val < bounds[0] ? 0 : (val < bounds[1] ? 1 : 2);
             default:
                 int lower = 0;
                 int upper = bounds.length;
@@ -88,7 +88,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             case 1:
                 return val < bounds[0] ? 0 : 1;
             case 2:
-                return val < bounds[0] ? 0 : (val >= bounds[1] ? 2 : 1);
+                return val < bounds[0] ? 0 : (val < bounds[1] ? 1 : 2);
             default:
                 int lower = 0;
                 int upper = bounds.length;
@@ -104,9 +104,9 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
         }
     }
 
-    public void addXBound(int x) {
+    public boolean addXBound(int x) {
         for (int xb : this.xBounds) {
-            if (xb == x) return;
+            if (xb == x) return false;
         }
         int[] newBounds = new int[this.xBounds.length + 1];
         int inserted = 0;
@@ -129,8 +129,8 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             int j = i - inserted;
             if (inserted == 0 && i == pos) {
                 newVolumes[i] = new boolean[this.volumes[j].length][];
-                for (int k = 0; k < newVolumes[i].length; k++) {
-                    newVolumes[i][k] = this.volumes[j][k].clone();
+                for (int y = 0; y < newVolumes[i].length; y++) {
+                    newVolumes[i][y] = this.volumes[j][y].clone();
                 }
                 inserted = 1;
             } else {
@@ -138,11 +138,13 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             }
         }
         this.volumes = newVolumes;
+
+        return true;
     }
 
-    public void addYBound(int y) {
+    public boolean addYBound(int y) {
         for (int yb : this.yBounds) {
-            if (yb == y) return;
+            if (yb == y) return false;
         }
         int[] newBounds = new int[this.yBounds.length + 1];
         int inserted = 0;
@@ -173,11 +175,13 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             }
             this.volumes[x] = newVolumes;
         }
+
+        return true;
     }
 
-    public void addZBound(int z) {
+    public boolean addZBound(int z) {
         for (int zb : this.zBounds) {
-            if (zb == z) return;
+            if (zb == z) return false;
         }
         int[] newBounds = new int[this.zBounds.length + 1];
         int inserted = 0;
@@ -208,6 +212,192 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                 this.volumes[x][y] = newVolumes;
             }
         }
+
+        return true;
+    }
+
+    // TODO add methods to move and remove bounds.
+
+    /**
+     * Moves a bound. Volumes are left unchanged. They are effectively "slid over".
+     * If 'from' equals 'to', this function returns whether the bound exists and does nothing.
+     *
+     * @param axis which axis to operate on
+     * @param from the original bound
+     * @param to   the new bound
+     * @return whether the operation was successful
+     */
+    public boolean moveBound(Axis axis, int from, int to) {
+        int[] bounds;
+        switch (axis) {
+            case X:
+                bounds = this.xBounds;
+                break;
+            case Y:
+                bounds = this.yBounds;
+                break;
+            case Z:
+                bounds = this.zBounds;
+                break;
+            default:
+                return false;
+        }
+
+        int index = -1;
+        for (int i = 0; i < bounds.length; i++) {
+            if (bounds[i] == from) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) return false;
+
+        if (from == to) return true;
+
+        for (int bound : bounds) {
+            if (bound == to) return false;
+        }
+
+        int i;
+        if (to > from) {
+            for (i = index; i < bounds.length - 1; i++) {
+                int next = bounds[i + 1];
+                if (next > to) break;
+                bounds[i] = next;
+            }
+            bounds[i] = to;
+        } else {
+            for (i = index; i > 0; i--) {
+                int prev = bounds[i - 1];
+                if (prev < to) break;
+                bounds[i] = prev;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean removeXBound(int x, Op strategy) {
+        int index = -1;
+        for (int i = 0; i < this.xBounds.length; i++) {
+            if (this.xBounds[i] == x) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) return false;
+
+        int[] newBounds = new int[this.xBounds.length - 1];
+        int removed = 0;
+        for (int i = 0; i < newBounds.length; i++) {
+            int j = i + removed;
+            if (removed == 0 && i == index) {
+                removed = 1;
+            }
+            newBounds[i] = this.xBounds[j];
+        }
+        this.xBounds = newBounds;
+
+        int merged = 0;
+        boolean[][][] newVolumes = new boolean[this.volumes.length - 1][][];
+        for (int i = 0; i < newVolumes.length; i++) {
+            int j = i + merged;
+            newVolumes[i] = this.volumes[j];
+            if (merged == 0 && i == index) {
+                j++;
+                for (int y = 0; y < newVolumes[i].length; y++) {
+                    for (int z = 0; z < newVolumes[i][y].length; z++) {
+                        newVolumes[i][y][z] = strategy.op(newVolumes[i][y][z], this.volumes[j][y][z]);
+                    }
+                }
+                merged = 1;
+            }
+        }
+        this.volumes = newVolumes;
+
+        return true;
+    }
+
+    public boolean removeYBound(int y, Op strategy) {
+        int index = -1;
+        for (int i = 0; i < this.yBounds.length; i++) {
+            if (this.yBounds[i] == y) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) return false;
+
+        int[] newBounds = new int[this.yBounds.length - 1];
+        int removed = 0;
+        for (int i = 0; i < newBounds.length; i++) {
+            int j = i + removed;
+            if (removed == 0 && i == index) {
+                removed = 1;
+            }
+            newBounds[i] = this.yBounds[j];
+        }
+        this.yBounds = newBounds;
+
+        for (int x = 0; x < this.volumes.length; x++) {
+            boolean[][] newVolumes = new boolean[this.volumes[x].length - 1][];
+            int merged = 0;
+            for (int i = 0; i < newVolumes.length; i++) {
+                int j = i + merged;
+                newVolumes[i] = this.volumes[x][j];
+                if (merged == 0 && i == index) {
+                    j++;
+                    for (int z = 0; z < newVolumes[i].length; z++) {
+                        newVolumes[i][z] = strategy.op(newVolumes[i][z], this.volumes[x][j][z]);
+                    }
+                    merged = 1;
+                }
+            }
+            this.volumes[x] = newVolumes;
+        }
+
+        return true;
+    }
+
+    public boolean removeZBound(int z, Op strategy) {
+        int index = -1;
+        for (int i = 0; i < this.zBounds.length; i++) {
+            if (this.zBounds[i] == z) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) return false;
+
+        int[] newBounds = new int[this.zBounds.length - 1];
+        int removed = 0;
+        for (int i = 0; i < newBounds.length; i++) {
+            int j = i + removed;
+            if (removed == 0 && i == index) {
+                removed = 1;
+            }
+            newBounds[i] = this.zBounds[j];
+        }
+        this.zBounds = newBounds;
+
+        for (int x = 0; x < this.volumes.length; x++) {
+            for (int y = 0; y < this.volumes[x].length; y++) {
+                boolean[] newVolumes = new boolean[this.volumes[x][y].length - 1];
+                int merged = 0;
+                for (int i = 0; i < newVolumes.length; i++) {
+                    int j = i + merged;
+                    newVolumes[i] = this.volumes[x][y][j];
+                    if (merged == 0 && i == index) {
+                        j++;
+                        newVolumes[i] = strategy.op(newVolumes[i], this.volumes[x][y][j]);
+                        merged = 1;
+                    }
+                }
+                this.volumes[x][y] = newVolumes;
+            }
+        }
+
+        return true;
     }
 
     public void addVolume(int vx, int vy, int vz) {
@@ -222,8 +412,8 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
         for (int x = 0; x < this.volumes.length; x++) {
             for (int y = 0; y < this.volumes[x].length; y++) {
                 for (int z = 0; z < this.volumes[x][y].length; z++) {
-                    boolean a = this.volumes[x][y][z];
-                    boolean b = (input == (vx1 <= x && x <= vx2 && vy1 <= y && y <= vy2 && vz1 <= z && z <= vz2));
+                    boolean a = (input == (vx1 <= x && x <= vx2 && vy1 <= y && y <= vy2 && vz1 <= z && z <= vz2));
+                    boolean b = this.volumes[x][y][z];
                     this.volumes[x][y][z] = op.op(a, b);
                 }
             }
@@ -332,7 +522,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                     builder.append(this.generateVisual(Axis.Z));
                     break;
                 case YZ:
-                    builder.append(tf.of( tc.GREEN, "Y", tc.AQUA, "Z"));
+                    builder.append(tf.of(tc.GREEN, "Y", tc.AQUA, "Z"));
                     builder.append(tf.of("\n"));
                     builder.append(this.generateVisual(Axis.X));
                     break;
@@ -352,7 +542,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                     builder.append(this.generateVisual(Axis.X));
                     break;
                 case Z:
-                    builder.append(tf.of( tc.AQUA, "Z"));
+                    builder.append(tf.of(tc.AQUA, "Z"));
                     builder.append(tf.of("\n"));
                     builder.append(this.generateVisual(Axis.X));
                     break;
@@ -429,7 +619,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             }
         }
 
-        Text[] palette = getPalette(highest);
+        Text[] palette = this.archetype.getPalette(highest);
 
         if (palette == null) return tf.of(tc.GRAY, "Visualization too deep to generate");
 
@@ -487,19 +677,6 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
         return builder.build();
     }
 
-    private Text[] getPalette(int max) {
-        if (max >= archetype.palette.length) return null;
-
-        TextColor[] colors = archetype.palette[max];
-
-        Text[] ret = new Text[max + 1];
-        for (int i = 0; i <= max; i++) {
-            ret[i] = tf.of(colors[i], "O");
-        }
-
-        return ret;
-    }
-
     private Text getName(Axis axis) {
         if (axis == null) return tf.of(tc.YELLOW, "None");
         switch (axis) {
@@ -526,25 +703,25 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
         OR {
             @Override
             public boolean op(boolean a, boolean b) {
-                return a || b;
+                return a | b;
             }
         },
         NOR {
             @Override
             public boolean op(boolean a, boolean b) {
-                return !(a || b);
+                return !(a | b);
             }
         },
         AND {
             @Override
             public boolean op(boolean a, boolean b) {
-                return a && b;
+                return a & b;
             }
         },
         NAND {
             @Override
             public boolean op(boolean a, boolean b) {
-                return !(a && b);
+                return !(a & b);
             }
         },
         XOR {
@@ -557,6 +734,18 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             @Override
             public boolean op(boolean a, boolean b) {
                 return a == b;
+            }
+        },
+        LEFT {
+            @Override
+            public boolean op(boolean a, boolean b) {
+                return a;
+            }
+        },
+        RIGHT {
+            @Override
+            public boolean op(boolean a, boolean b) {
+                return b;
             }
         },
         ;
@@ -576,14 +765,18 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
     public static class Type extends ArchetypeBase implements FoxType {
 
         private final TextColors tc;
+        private final TextFactory tf;
+
         final TextColor[][] palette;
+        final Text[][] textPalette;
 
         @Inject
         private Type(RegionArchetype regionArchetype,
                      ArchetypeDisplayNameAttribute archetypeDisplayNameAttribute,
-                     TextColors tc) {
+                     TextColors tc, TextFactory tf) {
             super("qube", "Qube", regionArchetype, archetypeDisplayNameAttribute);
             this.tc = tc;
+            this.tf = tf;
             this.writeDefaultName(archetypeDisplayNameAttribute);
             this.palette = new TextColor[][]{
                     {tc.DARK_GRAY},
@@ -603,6 +796,24 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                     {tc.BLACK, tc.DARK_GRAY, tc.GRAY, tc.DARK_RED, tc.RED, tc.GOLD, tc.YELLOW, tc.DARK_GREEN, tc.GREEN, tc.DARK_AQUA, tc.AQUA, tc.BLUE, tc.DARK_PURPLE, tc.LIGHT_PURPLE, tc.WHITE},
                     {tc.BLACK, tc.DARK_GRAY, tc.GRAY, tc.DARK_RED, tc.RED, tc.GOLD, tc.YELLOW, tc.DARK_GREEN, tc.GREEN, tc.DARK_AQUA, tc.AQUA, tc.DARK_BLUE, tc.BLUE, tc.DARK_PURPLE, tc.LIGHT_PURPLE, tc.WHITE},
             };
+            this.textPalette = new Text[this.palette.length][];
+        }
+
+        Text[] getPalette(int max) {
+            if (max >= this.palette.length) return null;
+
+            Text[] ret = this.textPalette[max];
+            if (ret == null) {
+                TextColor[] colors = this.palette[max];
+
+                ret = new Text[max + 1];
+                for (int i = 0; i <= max; i++) {
+                    ret[i] = tf.of(colors[i], "O");
+                }
+                this.textPalette[max] = ret;
+            }
+
+            return ret;
         }
     }
 
