@@ -10,7 +10,7 @@ import net.foxdenstudio.foxcore.api.object.FoxObject;
  * as it may be used in reflective mapping procedures and ORMs.
  * The data class must have the @{@link FoxStorageDataClass} annotation
  *
- * by implementing this interface, objects gain various capabilities such as
+ * by implementing this interface, objects immediately gain various capabilities such as
  * easy copying and moving between resource locations, as well as the support of multiple
  * resource location types.
  *
@@ -18,7 +18,7 @@ import net.foxdenstudio.foxcore.api.object.FoxObject;
  *
  * @param <T> the data class
  */
-public interface ISimpleState<T> extends FoxObject {
+public interface ISimpleState<T extends FoxData> extends FoxObject {
 
     /**
      * Gets a copy of the current state as the data class. This state should be complete.
@@ -35,6 +35,6 @@ public interface ISimpleState<T> extends FoxObject {
      *
      * @param data the state the object should be set to.
      */
-    void setData(T data);
+    boolean setData(T data);
 
 }

@@ -7,6 +7,7 @@ import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.FoxDetailableObject;
 import net.foxdenstudio.foxcore.api.object.generator.GeneratorObjectBase;
 import net.foxdenstudio.foxcore.api.region.FoxRegionBase;
+import net.foxdenstudio.foxcore.api.storage.FoxStorageDataClass;
 import net.foxdenstudio.foxcore.content.archetype.GeneratorArchetype;
 import net.foxdenstudio.foxcore.content.archetype.RegionArchetype;
 import net.foxdenstudio.foxcore.content.attribute.ArchetypeDisplayNameAttribute;
@@ -816,6 +817,16 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             return ret;
         }
     }
+
+    @FoxStorageDataClass(version = 1)
+    public static class Data {
+        private int[] xBounds = {};
+        private int[] yBounds = {};
+        private int[] zBounds = {};
+
+        private boolean[][][] volumes = {{{false}}};
+    }
+
 
     @Singleton
     @FoxGenerator

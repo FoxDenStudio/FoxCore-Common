@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,10 +24,13 @@ public class FoxMainIndexImpl implements FoxMainIndex {
     private final MemoryIndex memoryIndex;
     private final Map<String, FoxObjectIndex> indexMap;
 
+    private transient Map<String, FoxObjectIndex> indexMapCopy = null;
+
     @Inject
     private FoxMainIndexImpl(MemoryIndex memoryIndex) {
         this.memoryIndex = memoryIndex;
-        this.indexMap = ImmutableMap.of("mem", memoryIndex);
+        this.indexMap = new HashMap<>();
+        this.indexMap.put("mem", this.memoryIndex);
     }
 
     @Override
@@ -36,12 +40,19 @@ public class FoxMainIndexImpl implements FoxMainIndex {
 
     @Override
     public Map<String, FoxObjectIndex> getIndices() {
-        return this.indexMap;
+        if (this.indexMapCopy == null) this.indexMapCopy = ImmutableMap.copyOf(this.indexMap);
+        return this.indexMapCopy;
     }
 
     @Nonnull
     @Override
     public WritableIndex getDefaultObjectIndex() {
+        return this.memoryIndex;
+    }
+
+    @Nonnull
+    @Override
+    public MemoryIndex getMemoryIndex() {
         return this.memoryIndex;
     }
 

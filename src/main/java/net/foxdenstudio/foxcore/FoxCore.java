@@ -80,6 +80,7 @@ public class FoxCore {
         try {
             this.registry.registerArchetype(content.qubeRegionType);
             this.registry.registerArchetype(content.representationArchetype);
+            this.registry.registerArchetype(content.generatorArchetype);
         } catch (Exception e) {
             logger.error("Exception configuring registry!", e);
         }
