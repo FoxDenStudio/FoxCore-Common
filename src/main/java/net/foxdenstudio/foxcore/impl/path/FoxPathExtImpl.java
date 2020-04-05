@@ -18,6 +18,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -101,13 +102,14 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, TextRepre
         Mode newMode = this.mode;
 
         if (mode == Mode.ABSOLUTE) newMode = Mode.ABSOLUTE;
+        else if (mode == Mode.HOME) newMode = Mode.HOME;
 
         if (otherIndex != null) newIndex = otherIndex;
         if (otherObject != null) {
             if (linkResolve != LinkResolve.APPEND || this.linkPathSection == null) {
-                if (newObject == null || mode == Mode.ABSOLUTE) {
+                if (newObject == null || mode == Mode.ABSOLUTE || mode == Mode.HOME) {
                     newObject = otherObject;
-                    if (mode == Mode.ABSOLUTE) {
+                    if (mode == Mode.ABSOLUTE || mode == Mode.HOME) {
                         newOffset = otherOffset;
                     } else {
                         newOffset += otherOffset;
@@ -155,6 +157,11 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, TextRepre
 
 
         return newPathBuilder.build();
+    }
+
+    @Override
+    public FoxPathExt asMode(Mode mode) {
+        return new FoxPathExtImpl(textFactory, textColors, builderProvider, components, mode, parentOffset);
     }
 
     @Override

@@ -11,4 +11,12 @@ public interface WritableNamespace extends Namespace {
 
     Optional<IndexReference> addObject(FoxObject foxObject, ObjectPathSection path);
 
+    default boolean isPathValid(ObjectPathSection section, boolean write) {
+        return isPathValid(section.getPathComponent(), write);
+    }
+
+    default boolean isPathValid(StandardPathComponent component, boolean write) {
+        return true;
+    }
+
 }

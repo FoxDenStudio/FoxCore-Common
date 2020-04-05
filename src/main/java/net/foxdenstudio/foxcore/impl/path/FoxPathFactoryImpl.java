@@ -28,6 +28,7 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
     private final Provider<FoxPathExtImpl.Builder> builderProvider;
 
     private FoxPath empty = null;
+    private FoxPath root = null;
 
     @FoxLogger
     private Logger logger;
@@ -39,10 +40,17 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
 
     @Override
     public FoxPath empty() {
-        if(this.empty == null){
+        if (this.empty == null) {
             this.empty = builderProvider.get().build();
         }
         return this.empty;
+    }
+
+    public FoxPath root() {
+        if (this.root == null) {
+            this.root = builderProvider.get().mode(FoxPathExt.Mode.ABSOLUTE).build();
+        }
+        return this.root;
     }
 
     @Override
@@ -81,15 +89,16 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
         String objectPathStr = null;
         List<String> linkPathStrs = new ArrayList<>();
         int objectIndex = 0;
+        parts[0] = parts[0].trim();
         if (parts[0].startsWith("@")) {
             objectIndex = 1;
             indexPathStr = parts[0].substring(1);
         }
         if (parts.length > objectIndex) {
-            objectPathStr = parts[objectIndex];
+            objectPathStr = parts[objectIndex].trim();
         }
         for (int i = objectIndex + 1; i < parts.length; i++) {
-            String part = parts[i];
+            String part = parts[i].trim();
             if (!part.isEmpty()) linkPathStrs.add(part);
         }
 
@@ -118,12 +127,11 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
         int parentOffset = 0;
         if (objectPathStr != null && !objectPathStr.isEmpty()) {
 
-
             String[] objectStrParts = objectPathStr.split("/+");
             List<String> objectParts = new ArrayList<>();
 
             for (String part : objectStrParts) {
-                if (part.isEmpty() || part.equals(".")) continue;
+                if (part.isEmpty() || part.equals(".") || part.equals("~")) continue;
                 else if (part.equals("..")) {
                     if (objectParts.isEmpty()) {
                         parentOffset++;
@@ -134,34 +142,45 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
                     objectParts.add(part);
                 }
             }
+            if (objectPathStr.startsWith("/")) mode = FoxPathExt.Mode.ABSOLUTE;
+            else if (objectPathStr.equals("~") || objectPathStr.startsWith("~/")) mode = FoxPathExt.Mode.HOME;
             if (!objectParts.isEmpty()) {
                 objectPathSection = ObjectPathSection.from(objectParts);
-                mode = FoxPathExt.Mode.DEFAULT;
-                if (objectPathStr.startsWith("/")) mode = FoxPathExt.Mode.ABSOLUTE;
-                else if (objectPathStr.startsWith(".")) mode = FoxPathExt.Mode.RELATIVE;
+                if (mode == null) {
+                    mode = FoxPathExt.Mode.DEFAULT;
+                    if (objectPathStr.equals(".") || objectPathStr.equals("..")
+                            || objectPathStr.startsWith("./") || objectPathStr.startsWith("../"))
+                        mode = FoxPathExt.Mode.RELATIVE;
+                }
             }
+
         }
 
         LinkPathSection linkPathSection = null;
         if (!linkPathStrs.isEmpty()) {
-            if(mode == null) mode = FoxPathExt.Mode.LINK;
+            if (mode == null) mode = FoxPathExt.Mode.LINK;
             List<StandardPathComponent> links = new ArrayList<>();
-            for (String linkPathStr : linkPathStrs){
+            for (String linkPathStr : linkPathStrs) {
                 String[] linkStrParts = linkPathStr.split("/+");
                 List<String> linkParts = new ArrayList<>();
-                for (String linkStrPart : linkStrParts){
-                    if(linkStrPart.isEmpty()) continue;
+                for (String linkStrPart : linkStrParts) {
+                    if (linkStrPart.isEmpty()) continue;
                     else linkParts.add(linkStrPart);
                 }
-                if(!linkParts.isEmpty()) links.add(StandardPathComponent.from(linkParts));
+                if (!linkParts.isEmpty()) links.add(StandardPathComponent.from(linkParts));
             }
-            if(!links.isEmpty()) linkPathSection = LinkPathSection.of(links);
+            if (!links.isEmpty()) linkPathSection = LinkPathSection.of(links);
         }
 
-        if(indexPathSection == null && objectPathSection == null && linkPathSection == null)
-            return this.empty();
+        if (indexPathSection == null && objectPathSection == null && linkPathSection == null) {
+            if (mode == FoxPathExt.Mode.ABSOLUTE) {
+                return this.root();
+            } else if (mode != FoxPathExt.Mode.HOME) {
+                return this.empty();
+            }
+        }
 
-        if(mode == null) mode = FoxPathExt.Mode.DEFAULT;
+        if (mode == null) mode = FoxPathExt.Mode.DEFAULT;
 
         FoxPathExtImpl.Builder builder = builderProvider.get();
         builder

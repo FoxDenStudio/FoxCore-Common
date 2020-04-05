@@ -60,10 +60,13 @@ public class CommandNew extends FoxStandardCommandBase {
         }
 
         FoxPathExt objectPathExt = (FoxPathExt) completePath;
-        Optional<ObjectPathSection> objectPathObjectComponent = objectPathExt.getObjectSection();
-        if (!objectPathObjectComponent.isPresent()) throw new FoxCommandException("No object path specified!");
+        Optional<ObjectPathSection> objectPathObjectSectionOpt = objectPathExt.getObjectSection();
+        if (!objectPathObjectSectionOpt.isPresent()) throw new FoxCommandException("No object path specified!");
+        ObjectPathSection objectPathObjectSection = objectPathObjectSectionOpt.get();
+        if (!destination.isPathValid(objectPathObjectSection, true))
+            throw new FoxCommandException("The object path \"" + objectPathObjectSection + "\" is not valid in this namespace!");
 
-        Optional<?> opt = destination.getObject(objectPathObjectComponent.get());
+        Optional<?> opt = destination.getObject(objectPathObjectSection);
         if (opt.isPresent()) throw new FoxCommandException("An object already exists at this path!");
 
         if (args.length < 2) throw new FoxCommandException("Must specify a generator!");
@@ -102,7 +105,7 @@ public class CommandNew extends FoxStandardCommandBase {
         if (newObject.getIndexReference().isPresent())
             throw new FoxCommandException("Generator returned existing object for an unknown reason!");
 
-        destination.addObject(newObject, objectPathObjectComponent.get());
+        destination.addObject(newObject, objectPathObjectSectionOpt.get());
         source.sendMessage(this.tf.of("Successfully created object!"));
 
         return resultFactory.success();

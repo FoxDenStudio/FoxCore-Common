@@ -52,8 +52,10 @@ public interface FoxPathExt extends FoxPath {
     @Override
     FoxPath resolve(@Nullable FoxPath path, ResolveConfig config);
 
+    FoxPathExt asMode(Mode mode);
+
     enum Mode {
-        RELATIVE, ABSOLUTE, LINK, DEFAULT
+        RELATIVE, ABSOLUTE, HOME, LINK, DEFAULT
     }
 
     enum LinkResolve {

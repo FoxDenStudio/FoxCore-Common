@@ -50,8 +50,8 @@ public final class StandardPathComponent implements FoxPathComponent {
         return elements.length;
     }
 
-    public List<String> getElements(){
-        if(elementsList == null){
+    public List<String> getElements() {
+        if (elementsList == null) {
             elementsList = ImmutableList.copyOf(elements);
         }
         return elementsList;

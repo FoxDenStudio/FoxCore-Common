@@ -45,7 +45,12 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     public FoxPath changePath(FoxPath foxPath) throws FoxCommandException {
-        FoxPath newPath = this.currentPath.resolve(foxPath);
+        FoxPathExt foxPathExt = ((FoxPathExt) foxPath);
+        if (foxPathExt.getMode() == FoxPathExt.Mode.HOME) {
+            resetPath();
+            foxPathExt = foxPathExt.asMode(FoxPathExt.Mode.RELATIVE);
+        }
+        FoxPath newPath = this.currentPath.resolve(foxPathExt);
         getNamespaceDirect(newPath);
         this.currentPath = newPath;
         return this.currentPath;

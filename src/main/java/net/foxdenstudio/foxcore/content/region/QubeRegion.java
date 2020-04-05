@@ -7,7 +7,9 @@ import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.FoxDetailableObject;
 import net.foxdenstudio.foxcore.api.object.generator.GeneratorObjectBase;
 import net.foxdenstudio.foxcore.api.region.FoxRegionBase;
+import net.foxdenstudio.foxcore.api.storage.FoxObjectData;
 import net.foxdenstudio.foxcore.api.storage.FoxStorageDataClass;
+import net.foxdenstudio.foxcore.api.storage.ISimpleState;
 import net.foxdenstudio.foxcore.content.archetype.GeneratorArchetype;
 import net.foxdenstudio.foxcore.content.archetype.RegionArchetype;
 import net.foxdenstudio.foxcore.content.attribute.ArchetypeDisplayNameAttribute;
@@ -24,7 +26,7 @@ import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.Random;
 
-public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDetailableObject {
+public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDetailableObject, ISimpleState<QubeRegion.Data> {
 
     private final TextFactory tf;
     private final TextColors tc;
@@ -692,6 +694,47 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
         }
     }
 
+    @Override
+    public Data getData() {
+        Data data = new Data();
+        data.xBounds = this.xBounds.clone();
+        data.yBounds = this.yBounds.clone();
+        data.zBounds = this.zBounds.clone();
+        data.volumes = new boolean[this.volumes.length][][];
+        for (int i = 0; i < this.volumes.length; i++) {
+            boolean[][] array = new boolean[this.volumes[i].length][];
+            for (int j = 0; j < this.volumes[i].length; j++) {
+                boolean[] array2 = new boolean[this.volumes[i][j].length];
+                System.arraycopy(this.volumes[i][j], 0, array2, 0, this.volumes[i][j].length);
+                array[j] = array2;
+            }
+            data.volumes[i] = array;
+        }
+        return data;
+    }
+
+    @Override
+    public boolean setData(Data data) {
+        if(!data.validate()) data.fix();
+
+        this.xBounds = data.xBounds.clone();
+        this.yBounds = data.yBounds.clone();
+        this.zBounds = data.zBounds.clone();
+
+        boolean[][][] newVolumes = new boolean[data.volumes.length][][];
+        for (int i = 0; i < data.volumes.length; i++) {
+            boolean[][] array = new boolean[data.volumes[i].length][];
+            for (int j = 0; j < data.volumes[i].length; j++) {
+                boolean[] array2 = new boolean[data.volumes[i][j].length];
+                System.arraycopy(data.volumes[i][j], 0, array2, 0, data.volumes[i][j].length);
+                array[j] = array2;
+            }
+           newVolumes[i] = array;
+        }
+        this.volumes = newVolumes;
+        return true;
+    }
+
     private enum Axis {
         X, Y, Z;
     }
@@ -819,14 +862,50 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
     }
 
     @FoxStorageDataClass(version = 1)
-    public static class Data {
+    public static class Data implements FoxObjectData {
         private int[] xBounds = {};
         private int[] yBounds = {};
         private int[] zBounds = {};
 
         private boolean[][][] volumes = {{{false}}};
-    }
 
+        public boolean validate(){
+            final int x = xBounds.length + 1;
+            final int y = yBounds.length + 1;
+            final int z = zBounds.length + 1;
+
+            if(volumes.length != x) return false;
+            for (boolean[][] array : volumes) {
+                if (array.length != y) return false;
+                for (boolean[] array2 : array) {
+                    if (array2.length != z) return false;
+                }
+            }
+            return true;
+        }
+
+        public void fix(){
+            final int x = xBounds.length + 1;
+            final int y = yBounds.length + 1;
+            final int z = zBounds.length + 1;
+
+            boolean[][][] newVolumes = new boolean[x][][];
+            for (int i = 0; i < x; i++) {
+                boolean[][] array = new boolean[y][];
+                for (int j = 0; j < y; j++) {
+                    boolean[] array2 = new boolean[z];
+                    for (int k = 0; k < z; k++) {
+                        if(this.volumes.length> i && this.volumes[i].length > j && this.volumes[i][j].length > k){
+                            array2[k] = this.volumes[i][j][k];
+                        }
+                    }
+                    array[j] = array2;
+                }
+                newVolumes[i] = array;
+            }
+            this.volumes = newVolumes;
+        }
+    }
 
     @Singleton
     @FoxGenerator

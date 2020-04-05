@@ -18,7 +18,7 @@ import net.foxdenstudio.foxcore.api.object.FoxObject;
  *
  * @param <T> the data class
  */
-public interface ISimpleState<T extends FoxData> extends FoxObject {
+public interface ISimpleState<T extends FoxObjectData> extends FoxObject {
 
     /**
      * Gets a copy of the current state as the data class. This state should be complete.
