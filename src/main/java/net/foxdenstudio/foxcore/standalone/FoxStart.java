@@ -49,6 +49,7 @@ public class FoxStart {
         foxCore.configureCommands();
         foxCore.registerCommands();
         foxCore.setupStaticContent();
+        foxCore.loadIndexObjects();
 
         try {
             Terminal terminal = TerminalBuilder.builder()

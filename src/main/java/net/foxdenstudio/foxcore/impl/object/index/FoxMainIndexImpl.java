@@ -5,6 +5,7 @@ import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
 import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
 import net.foxdenstudio.foxcore.api.object.index.WritableIndex;
+import net.foxdenstudio.foxcore.api.object.index.types.FileIndex;
 import net.foxdenstudio.foxcore.api.object.index.types.MemoryIndex;
 import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
@@ -22,15 +23,18 @@ import java.util.Optional;
 public class FoxMainIndexImpl implements FoxMainIndex {
 
     private final MemoryIndex memoryIndex;
+    private final FileIndex fileIndex;
     private final Map<String, FoxObjectIndex> indexMap;
 
     private transient Map<String, FoxObjectIndex> indexMapCopy = null;
 
     @Inject
-    private FoxMainIndexImpl(MemoryIndex memoryIndex) {
+    private FoxMainIndexImpl(MemoryIndex memoryIndex, FileIndex fileIndex) {
         this.memoryIndex = memoryIndex;
+        this.fileIndex = fileIndex;
         this.indexMap = new HashMap<>();
         this.indexMap.put("mem", this.memoryIndex);
+        this.indexMap.put("file", this.fileIndex);
     }
 
     @Override

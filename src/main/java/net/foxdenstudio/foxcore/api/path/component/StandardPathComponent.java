@@ -2,8 +2,14 @@ package net.foxdenstudio.foxcore.api.path.component;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -90,6 +96,43 @@ public final class StandardPathComponent implements FoxPathComponent {
             builder.append('/').append(elements[i]);
         }
         return builder.toString();
+    }
+
+    public static class Adapter extends TypeAdapter<StandardPathComponent> {
+
+        @Override
+        public void write(JsonWriter out, StandardPathComponent value) throws IOException {
+            if(value == null){
+                out.nullValue();
+                return;
+            }
+            out.beginArray();
+            for (String element : value.elements) {
+                out.value(element);
+            }
+            out.endArray();
+        }
+
+        @Override
+        public StandardPathComponent read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+            List<String> elements = new ArrayList<>();
+            in.beginArray();
+            while (in.hasNext()) {
+                if (in.peek() == JsonToken.STRING) {
+                    elements.add(in.nextString());
+                } else {
+                    in.skipValue();
+                }
+            }
+            in.endArray();
+            if (elements.isEmpty())
+                return null;
+            return from(elements);
+        }
     }
 
 }

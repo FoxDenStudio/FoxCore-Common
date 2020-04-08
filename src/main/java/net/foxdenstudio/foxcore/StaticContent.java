@@ -23,6 +23,8 @@ public class StaticContent {
     CommandPWD commandPWD;
     @Inject
     CommandCD commandCD;
+    @Inject
+    CommandSave commandSave;
 
     @Inject
     QubeRegion.RectGenerator generatorRegionRect;

@@ -28,6 +28,10 @@ public final class ObjectPathSection implements FoxPathSection {
         return new ObjectPathSection(StandardPathComponent.from(elements));
     }
 
+    public static ObjectPathSection from(@Nonnull StandardPathComponent path){
+        return new ObjectPathSection(path);
+    }
+
     public int numParts() {
         return path.numParts();
     }

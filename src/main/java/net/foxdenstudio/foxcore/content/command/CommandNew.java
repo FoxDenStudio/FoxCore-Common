@@ -34,7 +34,7 @@ public class CommandNew extends FoxStandardCommandBase {
     private CommandNew(FoxPathFactory pathFactory, FoxMainIndex mainIndex) {
         this.pathFactory = pathFactory;
         this.mainIndex = mainIndex;
-        this.generatorsPath = pathFactory.from("gen");
+        this.generatorsPath = pathFactory.from("@mem:gen");
     }
 
     @Override
@@ -82,7 +82,7 @@ public class CommandNew extends FoxStandardCommandBase {
         if (!generatorObjectSection.isPresent())
             throw new FoxCommandException("Not a valid generator path specification!");
 
-        Optional<FoxObject> genOpt = namespace.getObject(generatorObjectSection.get());
+        Optional<FoxObject> genOpt = generatorNamespace.getObject(generatorObjectSection.get());
         if (!genOpt.isPresent())
             throw new FoxCommandException("No generator exists with name \"" + generatorPathStr + "\"!");
 

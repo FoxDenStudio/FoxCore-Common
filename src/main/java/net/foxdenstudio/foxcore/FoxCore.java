@@ -6,7 +6,9 @@ import net.foxdenstudio.foxcore.api.annotation.command.FoxMainDispatcher;
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
 import net.foxdenstudio.foxcore.api.command.standard.FoxCommandDispatcher;
 import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
+import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
 import net.foxdenstudio.foxcore.api.object.index.WritableIndex;
+import net.foxdenstudio.foxcore.api.object.index.types.StorageIndex;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 import net.foxdenstudio.foxcore.platform.command.PlatformCommandManager;
@@ -66,6 +68,7 @@ public class FoxCore {
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandDetail, "detail", "det");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandPWD, "pwd");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandCD, "cd");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandSave, "save");
     }
 
     public void registerCommands() {
@@ -85,6 +88,13 @@ public class FoxCore {
             logger.error("Exception configuring registry!", e);
         }
     }
+
+    public void loadIndexObjects(){
+        for(FoxObjectIndex index : this.mainIndex.getIndices().values()){
+            if(index instanceof StorageIndex) ((StorageIndex) index).load();
+        }
+    }
+
 
     public PlatformCommandManager getCommandManager() {
         return commandManager.get();
