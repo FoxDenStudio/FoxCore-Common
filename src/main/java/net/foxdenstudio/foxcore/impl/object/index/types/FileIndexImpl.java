@@ -73,7 +73,8 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
     }
 
     @Override
-    public void save() {
+    public void save()
+    {
         Index index = new Index();
         index.objects = new ArrayList<>();
 

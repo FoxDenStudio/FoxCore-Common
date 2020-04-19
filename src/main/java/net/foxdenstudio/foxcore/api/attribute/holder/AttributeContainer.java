@@ -95,6 +95,25 @@ public class AttributeContainer implements AttributeHolder {
 
     @Nonnull
     @Override
+    public Optional<FoxAttrValue<?, ?>> getAttrValueWeak(FoxAttribute<?> attribute) {
+        FoxAttrValue<?,?> value =  this.fixedAttributes.get(attribute);
+        if (value == null) {
+            value = this.extraAttributes.get(attribute);
+        }
+        if (value == null) {
+            for (AttributeHolder parent : this.parents) {
+                Optional<FoxAttrValue<?,?>> optionalValue = parent.getAttrValueWeak(attribute);
+                if (optionalValue.isPresent()) {
+                    value = optionalValue.get();
+                    break;
+                }
+            }
+        }
+        return Optional.ofNullable(value);
+    }
+
+    @Nonnull
+    @Override
     public <V extends FoxAttrValue<?, A>, A extends FoxAttribute<V>> V getOrCreateAttrValue(A attribute) {
         Optional<V> valueOptional = this.getAttrValue(attribute);
         if (valueOptional.isPresent()) {

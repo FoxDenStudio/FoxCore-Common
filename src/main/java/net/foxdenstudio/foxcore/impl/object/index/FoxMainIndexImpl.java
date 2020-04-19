@@ -69,4 +69,12 @@ public class FoxMainIndexImpl implements FoxMainIndex {
     public Collection<StandardPathComponent> getAllObjectPaths() {
         return this.memoryIndex.getAllObjectPaths();
     }
+
+    @Override
+    public boolean contains(FoxObject foxObject) {
+        for (FoxObjectIndex index : this.indexMap.values()) {
+            if (index.contains(foxObject)) return true;
+        }
+        return false;
+    }
 }

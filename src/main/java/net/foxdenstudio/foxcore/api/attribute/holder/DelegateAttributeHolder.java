@@ -36,6 +36,12 @@ public interface DelegateAttributeHolder extends AttributeHolder {
 
     @Nonnull
     @Override
+    default Optional<FoxAttrValue<?, ?>> getAttrValueWeak(FoxAttribute<?> attribute) {
+        return this.getDelegateAttrHolder().getAttrValueWeak(attribute);
+    }
+
+    @Nonnull
+    @Override
     default <V extends FoxAttrValue<?, A>, A extends FoxAttribute<V>> V getOrCreateAttrValue(A attribute) {
         return this.getDelegateAttrHolder().getOrCreateAttrValue(attribute);
     }

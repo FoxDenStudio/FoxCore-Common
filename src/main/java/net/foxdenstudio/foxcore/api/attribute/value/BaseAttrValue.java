@@ -29,4 +29,9 @@ public abstract class BaseAttrValue<T, A extends FoxAttribute<? extends FoxAttrV
     public A getAttribute() {
         return attribute;
     }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }

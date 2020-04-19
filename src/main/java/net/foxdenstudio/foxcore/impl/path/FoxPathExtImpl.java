@@ -9,6 +9,7 @@ import net.foxdenstudio.foxcore.api.path.section.FoxPathSection;
 import net.foxdenstudio.foxcore.api.path.section.IndexPathSection;
 import net.foxdenstudio.foxcore.api.path.section.LinkPathSection;
 import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
+import net.foxdenstudio.foxcore.api.text.FoxTextRepresentable;
 import net.foxdenstudio.foxcore.platform.fox.text.TextFactory;
 import net.foxdenstudio.foxcore.platform.text.Text;
 import net.foxdenstudio.foxcore.platform.text.TextRepresentable;
@@ -24,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, TextRepresentable {
+public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRepresentable {
 
     private final TextFactory textFactory;
     private final TextColors textColors;

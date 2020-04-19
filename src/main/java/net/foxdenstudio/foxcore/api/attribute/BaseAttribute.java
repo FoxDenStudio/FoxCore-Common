@@ -23,4 +23,9 @@ public abstract class BaseAttribute<V extends BaseAttrValue<?, ? extends BaseAtt
     public String getSerializedName() {
         return serializedName;
     }
+
+    @Override
+    public String toString() {
+        return getSerializedName();
+    }
 }

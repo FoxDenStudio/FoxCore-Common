@@ -18,6 +18,8 @@ public class StaticContent {
     @Inject
     CommandNew commandNew;
     @Inject
+    CommandDelete commandDelete;
+    @Inject
     CommandDetail commandDetail;
     @Inject
     CommandPWD commandPWD;

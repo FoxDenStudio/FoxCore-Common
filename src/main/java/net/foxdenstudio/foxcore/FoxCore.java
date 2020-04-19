@@ -24,7 +24,9 @@ public class FoxCore {
 
     private final Provider<PlatformCommandManager> commandManager;
     private final FoxCommandDispatcher mainCommandDispatcher;
-    private final ConsoleSource consoleSource;
+
+    // TODO You don't always have the console source, especially when you're running from the client.
+    private final Provider<ConsoleSource> consoleSource;
 
     private final FoxMainIndex mainIndex;
 
@@ -43,7 +45,7 @@ public class FoxCore {
     public FoxCore(
             Provider<PlatformCommandManager> commandManager,
             @FoxMainDispatcher FoxCommandDispatcher mainCommandDispatcher,
-            ConsoleSource consoleSource, FoxMainIndex mainIndex,
+            Provider<ConsoleSource> consoleSource, FoxMainIndex mainIndex,
             FoxRegistry registry, StaticContent content) {
         this.commandManager = commandManager;
         this.mainCommandDispatcher = mainCommandDispatcher;
@@ -63,8 +65,9 @@ public class FoxCore {
     public void configureCommands() {
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandEcho, "echo");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandPath, "path");
-        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandList, "list");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandList, "list", "ls");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandNew, "new");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandDelete, "delete", "del", "remove", "rm");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandDetail, "detail", "det");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandPWD, "pwd");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandCD, "cd");
@@ -101,7 +104,7 @@ public class FoxCore {
     }
 
     public ConsoleSource getConsoleSource() {
-        return consoleSource;
+        return consoleSource.get();
     }
 
 }

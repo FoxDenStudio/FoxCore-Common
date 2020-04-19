@@ -1,6 +1,8 @@
 package net.foxdenstudio.foxcore.content.command;
 
 import net.foxdenstudio.foxcore.api.archetype.FoxArchetype;
+import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
+import net.foxdenstudio.foxcore.api.attribute.value.FoxAttrValue;
 import net.foxdenstudio.foxcore.api.command.context.CommandContext;
 import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommandBase;
@@ -17,19 +19,15 @@ import net.foxdenstudio.foxcore.platform.text.format.TextColors;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
+import java.util.Optional;
 
 public class CommandDetail extends FoxStandardCommandBase {
 
     private final FoxPathFactory pathFactory;
-    private final FoxMainIndex mainIndex;
-
-    private final TextColors textColors;
 
     @Inject
-    private CommandDetail(FoxPathFactory pathFactory, FoxMainIndex mainIndex, TextColors textColors) {
+    private CommandDetail(FoxPathFactory pathFactory) {
         this.pathFactory = pathFactory;
-        this.mainIndex = mainIndex;
-        this.textColors = textColors;
     }
 
     @Override
@@ -53,14 +51,20 @@ public class CommandDetail extends FoxStandardCommandBase {
         Text.Builder builder = tf.builder();
         builder.append(tf.of(
                 "\n--------------------------------------",
-                textColors.GOLD, "\nInfo about object: ",
-                textColors.AQUA, objectPathStr.toLowerCase(),
-                textColors.GREEN, "\nArchetype: ",
-                textColors.RESET, archetype.getName() + " (" + archetype.getType() + ")"
+                tc.GOLD, "\nInfo about object: ",
+                tc.AQUA, objectPathStr.toLowerCase(),
+                tc.GREEN, "\nArchetype: ",
+                tc.RESET, archetype.getName() + " (" + archetype.getType() + ")",
+                tc.AQUA, "\nAttributes:"
         ));
+        for(FoxAttribute<?> attribute : object.getAttributes()){
+
+            builder.append(tf.of(tc.GREEN, "\n  ", attribute,
+                    tc.RESET, ": ", object.getAttrValueWeak(attribute).orElse(null)));
+        }
         if (object instanceof FoxDetailableObject) {
             String detArgs = args.length > 1 ? args[1] : "";
-            builder.append(tf.of(textColors.GOLD, "\n--- Extra Details ---\n"));
+            builder.append(tf.of(tc.GOLD, "\n--- Extra Details ---\n"));
             builder.append(((FoxDetailableObject) object).details(source, detArgs));
         }
         source.sendMessage(builder.build());

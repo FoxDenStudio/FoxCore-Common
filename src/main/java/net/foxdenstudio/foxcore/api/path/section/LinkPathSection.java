@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -28,8 +29,20 @@ public final class LinkPathSection implements FoxPathSection {
         return new LinkPathSection(builder.build());
     }
 
-    public static LinkPathSection of(List<StandardPathComponent> components) {
-        List<StandardPathComponent> list = components.stream().filter(Objects::nonNull).collect(ImmutableList.toImmutableList());
+    public static LinkPathSection of(@Nonnull LinkPathSection linkPathSection, StandardPathComponent... next){
+        return of(linkPathSection.links, next);
+    }
+
+    public static LinkPathSection of(@Nonnull List<StandardPathComponent> components, StandardPathComponent... next) {
+        ImmutableList.Builder<StandardPathComponent> builder = ImmutableList.builder();
+        builder.addAll(components);
+
+        components.stream().filter(Objects::nonNull).forEach(builder::add);
+        if (next != null) {
+            Arrays.stream(next).filter(Objects::nonNull).forEach(builder::add);
+        }
+
+        List<StandardPathComponent> list = builder.build();
         Preconditions.checkArgument(!list.isEmpty(), "Must supply at least one non-null element!");
         return new LinkPathSection(list);
     }

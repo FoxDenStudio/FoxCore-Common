@@ -1,20 +1,21 @@
 package net.foxdenstudio.foxcore.api.object.index;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import net.foxdenstudio.foxcore.api.object.FoxObject;
-import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
+import net.foxdenstudio.foxcore.api.object.link.slot.LinkSlot;
+import net.foxdenstudio.foxcore.api.object.link.slot.LinkSlotSchema;
+import net.foxdenstudio.foxcore.api.object.reference.*;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.api.path.section.IndexPathSection;
+import net.foxdenstudio.foxcore.api.path.section.LinkPathSection;
 import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class WritableIndexBase implements WritableIndex {
 
@@ -45,10 +46,9 @@ public abstract class WritableIndexBase implements WritableIndex {
 
     protected abstract void registerNamespaces();
 
-
     protected boolean registerNamespace(NamespaceBase namespace, @Nullable StandardPathComponent path) {
         if (path == null) {
-            if(!this.namelessNamespace){
+            if (!this.namelessNamespace) {
                 this.namelessNamespace = true;
                 this.defaultNamespace = namespace;
                 this.defaultIndexMap = namespace.indexMap;
@@ -90,8 +90,8 @@ public abstract class WritableIndexBase implements WritableIndex {
     }
 
     @Override
-    public Optional<IndexReference> getObjectReference(StandardPathComponent path) {
-        return this.defaultNamespace.getObjectReference(path);
+    public Optional<IndexReference> getObjectReference(StandardPathComponent path, @Nullable LinkPathSection links) {
+        return this.defaultNamespace.getObjectReference(path, links);
     }
 
     @Override
@@ -109,20 +109,41 @@ public abstract class WritableIndexBase implements WritableIndex {
         return this.defaultNamespace.addObject(foxObject, path);
     }
 
+    @Override
+    public boolean contains(FoxObject object) {
+        for (NamespaceBase namespace : this.namespaces.values()) {
+            if (namespace.contains(object)) return true;
+        }
+        return false;
+    }
+
     protected IndexReference createReference(FoxObject foxObject, ObjectPathSection path, NamespaceBase namespace) {
         return new IndexReferenceBase(foxObject, path, namespace);
+    }
+
+    protected EmbeddedIndexReference createdEmbeddedReference(FoxObject foxObject, ObjectPathSection path, NamespaceBase namespace, EmbedCapableIndexReference parent, StandardPathComponent embedPath) {
+        return new EmbeddedIndexReferenceBase(foxObject, path, namespace, parent, embedPath);
+    }
+
+    protected EmbeddedLinkReference createdEmbeddedLinkReference(FoxObject foxObject, ObjectPathSection path, NamespaceBase namespace, EmbedCapableIndexReference parent, LinkSlot slot) {
+        return new EmbeddedLinkReferenceBase(foxObject, path, namespace, parent, slot);
     }
 
     private boolean removeObject(NamespaceBase namespace, ObjectPathSection path) {
         return namespace.indexMap.remove(path.getPathComponent()) != null;
     }
 
-    public class IndexReferenceBase implements IndexReference {
+    public class IndexReferenceBase implements WritableEmbedCapableIndexReference {
 
         protected FoxObject object;
         protected ObjectPathSection path;
 
         protected NamespaceBase namespace;
+        protected Map<StandardPathComponent, EmbeddedIndexReference> embeddedObjects = null;
+
+        protected transient Map<StandardPathComponent, EmbeddedIndexReference> embeddedObjectsCopy = null;
+        protected transient FoxPath primaryPathCopy;
+        protected transient boolean primaryPathCopyGenerated = false;
 
         protected boolean valid;
 
@@ -140,6 +161,14 @@ public abstract class WritableIndexBase implements WritableIndex {
 
         @Override
         public Optional<FoxPath> getPrimaryPath() {
+            if (!primaryPathCopyGenerated) {
+                this.primaryPathCopy = generatePrimaryPath().orElse(null);
+                this.primaryPathCopyGenerated = true;
+            }
+            return Optional.ofNullable(this.primaryPathCopy);
+        }
+
+        protected Optional<FoxPath> generatePrimaryPath() {
             return Optional.ofNullable(path).map(path -> pathFactory.from(WritableIndexBase.this.indexPath, path));
         }
 
@@ -154,6 +183,11 @@ public abstract class WritableIndexBase implements WritableIndex {
         }
 
         @Override
+        public boolean isEmbedded() {
+            return false;
+        }
+
+        @Override
         public boolean stillValid() {
             return valid;
         }
@@ -165,15 +199,169 @@ public abstract class WritableIndexBase implements WritableIndex {
                 this.object = null;
                 this.path = null;
                 this.valid = false;
+                this.primaryPathCopyGenerated = false;
+                this.primaryPathCopy = null;
                 return true;
             }
             return false;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Optional<EmbeddedIndexReference> embedObject(FoxObject object, StandardPathComponent embedPath, boolean linked) {
+            if (this.embeddedObjects.containsKey(embedPath) || WritableIndexBase.this.contains(object))
+                return Optional.empty();
+            if (linked) {
+                LinkSlot slot = null;
+                // TODO look up slot
+                this.embeddedObjectsCopy = null;
+                return ((Optional<EmbeddedIndexReference>) (Optional<? extends EmbeddedIndexReference>) embedObject(object, slot));
+            } else {
+                EmbeddedIndexReference reference = WritableIndexBase.this.createdEmbeddedReference(object, this.path, this.namespace, this, embedPath);
+                if (reference == null) return Optional.empty();
+                this.embeddedObjects.put(embedPath, reference);
+                this.embeddedObjectsCopy = null;
+                return Optional.of(reference);
+            }
+        }
+
+        @Override
+        public Optional<EmbeddedLinkReference> embedObject(FoxObject object, LinkSlot linkSlot) {
+            return Optional.empty();
+        }
+
+        @Override
+        public String toString() {
+            return namespace.namespacePath.toString() + ":" + path.toString();
+        }
+
+        @Override
+        public Map<StandardPathComponent, EmbeddedIndexReference> getEmbeddedObjects() {
+            if (this.embeddedObjectsCopy == null) {
+                if (this.embeddedObjects == null) {
+                    this.embeddedObjectsCopy = ImmutableMap.of();
+                } else {
+                    this.embeddedObjectsCopy = ImmutableMap.copyOf(this.embeddedObjects);
+                }
+            }
+            return this.embeddedObjectsCopy;
+        }
+
+        @Override
+        public boolean contains(FoxObject foxObject) {
+            for (EmbeddedIndexReference value : this.embeddedObjects.values()) {
+                Optional<FoxObject> obj = value.getObject();
+                if (obj.isPresent()) {
+                    if (obj.get().equals(foxObject)) return true;
+                }
+                if (value instanceof EmbedCapableIndexReference) {
+                    if (((EmbedCapableIndexReference) value).contains(foxObject)) return true;
+                }
+            }
+            return false;
+        }
+
+    }
+
+    public class EmbeddedIndexReferenceBase extends IndexReferenceBase implements EmbeddedIndexReference {
+
+        protected EmbedCapableIndexReference parent;
+        protected StandardPathComponent embedPath;
+        protected LinkPathSection fullEmbedPath;
+
+        protected EmbeddedIndexReferenceBase(FoxObject object, ObjectPathSection path, NamespaceBase namespace, EmbedCapableIndexReference parent, StandardPathComponent embedPath) {
+            super(object, path, namespace);
+            this.parent = parent;
+            this.embedPath = embedPath;
+            if (parent instanceof EmbeddedIndexReference) {
+                this.fullEmbedPath = LinkPathSection.of(((EmbeddedIndexReference) parent).getFullEmbedPath(), embedPath);
+            } else {
+                this.fullEmbedPath = LinkPathSection.of(embedPath);
+            }
+        }
+
+        @Override
+        public EmbedCapableIndexReference getParent() {
+            return this.parent;
+        }
+
+        @Override
+        public StandardPathComponent getEmbedPath() {
+            return this.embedPath;
+        }
+
+        @Override
+        public LinkPathSection getFullEmbedPath() {
+            return this.fullEmbedPath;
+        }
+
+        @Override
+        public Optional<FoxPath> getPrimaryPath() {
+            return Optional.ofNullable(path).map(path -> pathFactory.from(WritableIndexBase.this.indexPath, path, this.fullEmbedPath));
+        }
+
+        @Override
+        protected Optional<FoxPath> generatePrimaryPath() {
+            return Optional.ofNullable(path).map(path -> pathFactory.from(WritableIndexBase.this.indexPath, path, this.fullEmbedPath));
+        }
+
+        @Override
+        public boolean removeObjectFromIndex() {
+            if (valid) {
+                boolean result = super.removeObjectFromIndex();
+                if (result || !valid) {
+                    this.embedPath = null;
+                    this.fullEmbedPath = null;
+                    this.parent = null;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return namespace.namespacePath.toString() + ":" + path.toString() + "";
+        }
+    }
+
+    public class EmbeddedLinkReferenceBase extends EmbeddedIndexReferenceBase implements EmbeddedLinkReference {
+
+        private LinkSlot slot;
+        private LinkSlotSchema schema;
+
+        protected EmbeddedLinkReferenceBase(FoxObject object, ObjectPathSection path, NamespaceBase namespace, EmbedCapableIndexReference parent, LinkSlot slot) {
+            super(object, path, namespace, parent, slot.slotPath());
+            this.slot = slot;
+            this.schema = slot.getSchema();
+        }
+
+        @Override
+        public Optional<LinkSlot> getLinkSlot() {
+            return Optional.ofNullable(this.slot);
+        }
+
+        @Override
+        public Optional<LinkSlotSchema> getLinkSlotSchema() {
+            LinkSlotSchema ret = null;
+            if (slot != null) ret = this.slot.getSchema();
+            if (ret == null) ret = this.schema;
+            return Optional.ofNullable(ret);
+        }
+
+        @Override
+        public StandardPathComponent slotPath() {
+            StandardPathComponent ret = null;
+            if (slot != null) ret = this.slot.slotPath();
+            if (ret == null) ret = this.embedPath;
+            return ret;
         }
     }
 
     protected class NamespaceBase implements WritableNamespace {
 
         protected final Map<StandardPathComponent, IndexReference> indexMap;
+        protected transient Set<StandardPathComponent> allPathsCopy;
 
         protected IndexPathSection namespacePath = WritableIndexBase.this.indexPath;
 
@@ -198,18 +386,36 @@ public abstract class WritableIndexBase implements WritableIndex {
         }
 
         @Override
-        public Optional<IndexReference> getObjectReference(StandardPathComponent path) {
+        public Optional<IndexReference> getObjectReference(StandardPathComponent path, @Nullable LinkPathSection links) {
             return Optional.ofNullable(this.indexMap.get(path));
         }
 
         @Override
         public Collection<StandardPathComponent> getAllObjectPaths() {
-            return ImmutableSet.copyOf(this.indexMap.keySet());
+            if (this.allPathsCopy == null) {
+                this.allPathsCopy = ImmutableSet.copyOf(this.indexMap.keySet());
+            }
+            return this.allPathsCopy;
         }
 
         @Override
         public IndexPathSection getIndexPath() {
             return namespacePath;
+        }
+
+        @Override
+        public boolean contains(FoxObject foxObject) {
+            for (IndexReference value : this.indexMap.values()) {
+                Optional<FoxObject> obj = value.getObject();
+                if (obj.isPresent()) {
+                    if (obj.get().equals(foxObject)) return true;
+                }
+
+                if (value instanceof EmbedCapableIndexReference) {
+                    if (((EmbedCapableIndexReference) value).contains(foxObject)) return true;
+                }
+            }
+            return false;
         }
     }
 }

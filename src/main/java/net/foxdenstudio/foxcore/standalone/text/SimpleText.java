@@ -46,7 +46,8 @@ public class SimpleText implements Text {
                 added = false;
             } else {
                 //cur.text += obj.toString();
-                stringBuilder.append(obj.toString());
+                if (obj == null) stringBuilder.append("null");
+                else stringBuilder.append(obj.toString());
                 if (!added) {
                     sectionList.add(cur);
                     added = true;

@@ -37,6 +37,9 @@ public interface AttributeHolder {
     <V extends FoxAttrValue<?, A>, A extends FoxAttribute<V>> Optional<V> getAttrValue(A attribute);
 
     @Nonnull
+    Optional<FoxAttrValue<?,?>> getAttrValueWeak(FoxAttribute<?> attribute);
+
+    @Nonnull
     <V extends FoxAttrValue<?, A>, A extends FoxAttribute<V>> V getOrCreateAttrValue(A attribute);
 
     void setAttrValue(FoxAttrValue<?, ?> value);
