@@ -5,7 +5,7 @@ import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
 import net.foxdenstudio.foxcore.api.attribute.holder.AttributeContainer;
 import net.foxdenstudio.foxcore.api.attribute.holder.AttributeHolder;
 import net.foxdenstudio.foxcore.api.attribute.holder.DelegateAttributeHolder;
-import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
+import net.foxdenstudio.foxcore.api.object.reference.types.IndexReference;
 
 import java.util.Optional;
 
@@ -29,7 +29,7 @@ public abstract class FoxObjectBase<A extends FoxArchetype> implements FoxObject
     @SuppressWarnings("unchecked")
     @Override
     public void setIndexReference(IndexReference indexReference) {
-        if (indexReference.stillValid() && indexReference.getObject().isPresent() && indexReference.getObject().get() == this) {
+        if (indexReference.isValid() && indexReference.getObject().isPresent() && indexReference.getObject().get() == this) {
             this.indexReference = (IndexReference) indexReference;
         } else throw new IllegalArgumentException("Index reference must be valid and refer to this object.");
     }

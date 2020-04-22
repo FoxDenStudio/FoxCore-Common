@@ -2,9 +2,8 @@ package net.foxdenstudio.foxcore.api.command.context;
 
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.index.Namespace;
-import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
+import net.foxdenstudio.foxcore.api.object.reference.types.IndexReference;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
-import net.foxdenstudio.foxcore.api.path.FoxPathExt;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

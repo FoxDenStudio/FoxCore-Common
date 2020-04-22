@@ -3,9 +3,9 @@ package net.foxdenstudio.foxcore.api.object.index;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import net.foxdenstudio.foxcore.api.object.FoxObject;
-import net.foxdenstudio.foxcore.api.object.link.slot.LinkSlot;
-import net.foxdenstudio.foxcore.api.object.link.slot.LinkSlotSchema;
-import net.foxdenstudio.foxcore.api.object.reference.*;
+import net.foxdenstudio.foxcore.api.object.link.node.LinkSlot;
+import net.foxdenstudio.foxcore.api.object.link.LinkSchema;
+import net.foxdenstudio.foxcore.api.object.reference.types.*;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
@@ -46,7 +46,11 @@ public abstract class WritableIndexBase implements WritableIndex {
 
     protected abstract void registerNamespaces();
 
-    protected boolean registerNamespace(NamespaceBase namespace, @Nullable StandardPathComponent path) {
+    protected final boolean registerNamespace(NamespaceBase namespace, @Nullable StandardPathComponent path) {
+        return this.registerNamespace(namespace, path, false);
+    }
+
+    protected final boolean registerNamespace(NamespaceBase namespace, @Nullable StandardPathComponent path, boolean setDefault) {
         if (path == null) {
             if (!this.namelessNamespace) {
                 this.namelessNamespace = true;
@@ -56,7 +60,7 @@ public abstract class WritableIndexBase implements WritableIndex {
             }
             return false;
         } else if (!this.namespaces.containsKey(path)) {
-            if (!this.namelessNamespace && this.defaultNamespace == null) this.defaultNamespace = namespace;
+            if (!this.namelessNamespace && (setDefault || this.defaultNamespace == null)) this.defaultNamespace = namespace;
             this.namespaces.put(path, namespace);
             this.indexMapMap.put(path, namespace.indexMap);
             return true;
@@ -188,7 +192,7 @@ public abstract class WritableIndexBase implements WritableIndex {
         }
 
         @Override
-        public boolean stillValid() {
+        public boolean isValid() {
             return valid;
         }
 
@@ -328,10 +332,10 @@ public abstract class WritableIndexBase implements WritableIndex {
     public class EmbeddedLinkReferenceBase extends EmbeddedIndexReferenceBase implements EmbeddedLinkReference {
 
         private LinkSlot slot;
-        private LinkSlotSchema schema;
+        private LinkSchema schema;
 
         protected EmbeddedLinkReferenceBase(FoxObject object, ObjectPathSection path, NamespaceBase namespace, EmbedCapableIndexReference parent, LinkSlot slot) {
-            super(object, path, namespace, parent, slot.slotPath());
+            super(object, path, namespace, parent, slot.nodePath());
             this.slot = slot;
             this.schema = slot.getSchema();
         }
@@ -342,8 +346,8 @@ public abstract class WritableIndexBase implements WritableIndex {
         }
 
         @Override
-        public Optional<LinkSlotSchema> getLinkSlotSchema() {
-            LinkSlotSchema ret = null;
+        public Optional<LinkSchema> getLinkSchema() {
+            LinkSchema ret = null;
             if (slot != null) ret = this.slot.getSchema();
             if (ret == null) ret = this.schema;
             return Optional.ofNullable(ret);
@@ -352,7 +356,7 @@ public abstract class WritableIndexBase implements WritableIndex {
         @Override
         public StandardPathComponent slotPath() {
             StandardPathComponent ret = null;
-            if (slot != null) ret = this.slot.slotPath();
+            if (slot != null) ret = this.slot.nodePath();
             if (ret == null) ret = this.embedPath;
             return ret;
         }
@@ -371,13 +375,18 @@ public abstract class WritableIndexBase implements WritableIndex {
 
         @Override
         public Optional<IndexReference> addObject(FoxObject foxObject, ObjectPathSection path) {
-            if (!this.indexMap.containsKey(path.getPathComponent())) {
-                IndexReference ref = createReference(foxObject, path, this);
-                foxObject.setIndexReference(ref);
-                this.indexMap.put(path.getPathComponent(), ref);
-                return Optional.of(ref);
+            IndexReference existing = this.indexMap.get(path.getPathComponent());
+            if(existing != null){
+                if(existing.isValid()){
+                    return Optional.empty();
+                } else {
+                    this.indexMap.remove(path.getPathComponent());
+                }
             }
-            return Optional.empty();
+            IndexReference ref = createReference(foxObject, path, this);
+            foxObject.setIndexReference(ref);
+            this.indexMap.put(path.getPathComponent(), ref);
+            return Optional.of(ref);
         }
 
         @Override

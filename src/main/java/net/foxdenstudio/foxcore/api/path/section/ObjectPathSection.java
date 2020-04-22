@@ -33,16 +33,16 @@ public final class ObjectPathSection implements FoxPathSection {
     }
 
     public int numParts() {
-        return path.numParts();
+        return path.size();
     }
 
     public List<String> getElements() {
-        return path.getElements();
+        return path.elements();
     }
 
     @Nonnull
     public String getPart(int index) {
-        return path.getPart(index);
+        return path.get(index);
     }
 
     @Nonnull

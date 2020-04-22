@@ -1,4 +1,4 @@
-package net.foxdenstudio.foxcore.api.object.reference;
+package net.foxdenstudio.foxcore.api.object.reference.types;
 
 public interface EmbeddedLinkReference extends LinkReference, EmbeddedIndexReference {
 

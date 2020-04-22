@@ -7,7 +7,7 @@ import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
 import net.foxdenstudio.foxcore.api.object.index.WritableIndex;
 import net.foxdenstudio.foxcore.api.object.index.types.FileIndex;
 import net.foxdenstudio.foxcore.api.object.index.types.MemoryIndex;
-import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
+import net.foxdenstudio.foxcore.api.object.reference.types.IndexReference;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 

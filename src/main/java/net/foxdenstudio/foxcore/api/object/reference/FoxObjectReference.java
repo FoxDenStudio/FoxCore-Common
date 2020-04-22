@@ -8,5 +8,5 @@ public interface FoxObjectReference {
 
     Optional<FoxObject> getObject();
 
-    boolean stillValid();
+    boolean isValid();
 }

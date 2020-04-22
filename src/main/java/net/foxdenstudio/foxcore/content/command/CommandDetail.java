@@ -2,24 +2,20 @@ package net.foxdenstudio.foxcore.content.command;
 
 import net.foxdenstudio.foxcore.api.archetype.FoxArchetype;
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
-import net.foxdenstudio.foxcore.api.attribute.value.FoxAttrValue;
 import net.foxdenstudio.foxcore.api.command.context.CommandContext;
 import net.foxdenstudio.foxcore.api.command.result.FoxCommandResult;
 import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommandBase;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.FoxDetailableObject;
 import net.foxdenstudio.foxcore.api.object.FoxObject;
-import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
-import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
+import net.foxdenstudio.foxcore.api.object.reference.types.IndexReference;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.text.Text;
-import net.foxdenstudio.foxcore.platform.text.format.TextColors;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
-import java.util.Optional;
 
 public class CommandDetail extends FoxStandardCommandBase {
 

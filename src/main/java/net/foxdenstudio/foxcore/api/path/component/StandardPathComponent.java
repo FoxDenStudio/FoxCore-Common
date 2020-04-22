@@ -11,9 +11,10 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
-public final class StandardPathComponent implements FoxPathComponent {
+public final class StandardPathComponent implements FoxPathComponent, Iterable<String> {
 
     private final String[] elements;
     private transient List<String> elementsList;
@@ -52,11 +53,11 @@ public final class StandardPathComponent implements FoxPathComponent {
         this.elements = elements;
     }
 
-    public int numParts() {
+    public int size() {
         return elements.length;
     }
 
-    public List<String> getElements() {
+    public List<String> elements() {
         if (elementsList == null) {
             elementsList = ImmutableList.copyOf(elements);
         }
@@ -64,7 +65,7 @@ public final class StandardPathComponent implements FoxPathComponent {
     }
 
     @Nonnull
-    public String getPart(int index) {
+    public String get(int index) {
         Preconditions.checkElementIndex(index, elements.length);
         return elements[index];
     }
@@ -74,6 +75,18 @@ public final class StandardPathComponent implements FoxPathComponent {
         String[] newElements = Arrays.copyOf(this.elements, this.elements.length + component.elements.length);
         System.arraycopy(component.elements, 0, newElements, this.elements.length, component.elements.length);
         return new StandardPathComponent(newElements);
+    }
+
+    public StandardPathComponent subPath(int start){
+        return subPath(start, this.elements.length);
+    }
+
+    public StandardPathComponent subPath(int from, int to){
+        Preconditions.checkArgument(from >= 0 && from < this.elements.length,
+                "start index out of bounds: [ 0 - " + (this.elements.length - 1) + " ] : " + from);
+        Preconditions.checkArgument(to >= 0 && to <= this.elements.length,
+                "end index out of bounds: [ 0 - " + this.elements.length + " ] : " + to);
+        return new StandardPathComponent(Arrays.copyOfRange(this.elements, from, to));
     }
 
     @Override
@@ -96,6 +109,11 @@ public final class StandardPathComponent implements FoxPathComponent {
             builder.append('/').append(elements[i]);
         }
         return builder.toString();
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return this.elements().iterator();
     }
 
     public static class Adapter extends TypeAdapter<StandardPathComponent> {

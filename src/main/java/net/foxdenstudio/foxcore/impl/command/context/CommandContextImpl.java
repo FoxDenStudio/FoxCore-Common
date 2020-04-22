@@ -2,12 +2,11 @@ package net.foxdenstudio.foxcore.impl.command.context;
 
 import com.google.inject.Inject;
 import net.foxdenstudio.foxcore.api.command.context.CommandContext;
-import net.foxdenstudio.foxcore.api.exception.FoxException;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
 import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
 import net.foxdenstudio.foxcore.api.object.index.Namespace;
-import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
+import net.foxdenstudio.foxcore.api.object.reference.types.IndexReference;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathExt;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
@@ -16,7 +15,6 @@ import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 public class CommandContextImpl implements CommandContext {
 

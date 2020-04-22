@@ -12,14 +12,12 @@ import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 import net.foxdenstudio.foxcore.api.text.FoxTextRepresentable;
 import net.foxdenstudio.foxcore.platform.fox.text.TextFactory;
 import net.foxdenstudio.foxcore.platform.text.Text;
-import net.foxdenstudio.foxcore.platform.text.TextRepresentable;
 import net.foxdenstudio.foxcore.platform.text.format.TextColors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -223,7 +221,7 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRe
                 builder.append(textFactory.of(textColors.LIGHT_PURPLE, '@', textColors.GREEN, indexSection.getIndex()));
                 StandardPathComponent namespacePath = indexSection.getNamespacePath();
                 if (namespacePath != null)
-                    for (String namespaceElement : namespacePath.getElements()) {
+                    for (String namespaceElement : namespacePath.elements()) {
                         builder.append(textFactory.of(textColors.YELLOW, '/', textColors.RESET, namespaceElement));
                     }
             } else if (section instanceof ObjectPathSection) {
@@ -243,7 +241,7 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRe
                 LinkPathSection linkSection = ((LinkPathSection) section);
                 for (Iterator<StandardPathComponent> it2 = linkSection.getLinkComponents().iterator(); it2.hasNext(); ) {
                     StandardPathComponent link = it2.next();
-                    for (Iterator<String> it3 = link.getElements().iterator(); it3.hasNext(); ) {
+                    for (Iterator<String> it3 = link.elements().iterator(); it3.hasNext(); ) {
                         builder.append(textFactory.of(textColors.RESET, it3.next()));
                         if (it3.hasNext()) builder.append(textFactory.of(textColors.YELLOW, '/'));
                     }

@@ -1,4 +1,4 @@
-package net.foxdenstudio.foxcore.api.object.reference;
+package net.foxdenstudio.foxcore.api.object.reference.types;
 
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 
@@ -7,7 +7,7 @@ import java.util.Optional;
 /**
  * Lazy references are references that maybe be evaluable at a later time.
  */
-public interface LazyReference extends IndirectReference {
+public interface LazyReference extends ProxyReference {
 
     /**
      * Returns the path that was recorded for the purpose of locating this object.

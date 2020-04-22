@@ -1,16 +1,17 @@
-package net.foxdenstudio.foxcore.api.object.reference;
+package net.foxdenstudio.foxcore.api.object.reference.types;
 
-import net.foxdenstudio.foxcore.api.object.link.slot.LinkSlot;
-import net.foxdenstudio.foxcore.api.object.link.slot.LinkSlotSchema;
+import net.foxdenstudio.foxcore.api.object.link.node.LinkSlot;
+import net.foxdenstudio.foxcore.api.object.link.LinkSchema;
+import net.foxdenstudio.foxcore.api.object.reference.FoxObjectReference;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
 import java.util.Optional;
 
-public interface LinkReference {
+public interface LinkReference extends FoxObjectReference {
 
     Optional<LinkSlot> getLinkSlot();
 
-    Optional<LinkSlotSchema> getLinkSlotSchema();
+    Optional<LinkSchema> getLinkSchema();
 
     StandardPathComponent slotPath();
 

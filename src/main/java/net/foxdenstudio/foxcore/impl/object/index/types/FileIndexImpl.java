@@ -13,7 +13,7 @@ import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
 import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.index.WritableIndexBase;
 import net.foxdenstudio.foxcore.api.object.index.types.FileIndex;
-import net.foxdenstudio.foxcore.api.object.reference.IndexReference;
+import net.foxdenstudio.foxcore.api.object.reference.types.IndexReference;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
@@ -73,22 +73,22 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
     }
 
     @Override
-    public void save()
-    {
+    public void save() {
         Index index = new Index();
         index.objects = new ArrayList<>();
 
         for (Map.Entry<StandardPathComponent, IndexReference> entry : this.defaultIndexMap.entrySet()) {
             Entry indexEntry = new Entry();
+            indexEntry.bundle = new Bundle();
             indexEntry.path = entry.getKey();
             IndexReference reference = entry.getValue();
-            if (reference.stillValid()) {
+            if (reference.isValid()) {
                 Optional<FoxObject> foxObjectOptional = reference.getObject();
                 if (foxObjectOptional.isPresent()) {
                     FoxObject foxObject = foxObjectOptional.get();
                     if (foxObject instanceof ISimpleState) {
                         Class<? extends FoxObject> clazz = foxObject.getClass();
-                        indexEntry.className = clazz.getName();
+                        indexEntry.bundle.className = clazz.getName();
                         for (Type type : clazz.getGenericInterfaces()) {
                             if (type instanceof ParameterizedType) {
                                 ParameterizedType parameterizedType = ((ParameterizedType) type);
@@ -99,19 +99,19 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
                                     }
                                     if (dataType instanceof Class) {
                                         Class<?> dataClass = ((Class<?>) dataType);
-                                        indexEntry.dataClassName = dataClass.getName();
+                                        indexEntry.bundle.dataClassName = dataClass.getName();
                                         FoxStorageDataClass annotation = dataClass.getAnnotation(FoxStorageDataClass.class);
                                         if (annotation != null) {
-                                            indexEntry.dataVersion = annotation.version();
+                                            indexEntry.bundle.dataVersion = annotation.version();
                                             try {
-                                                indexEntry.data = ((ISimpleState<?>) foxObject).getData();
+                                                indexEntry.bundle.data = ((ISimpleState<?>) foxObject).getData();
                                                 logger.debug("Converted object at \"" + indexEntry.path + "\" to data entry.");
                                                 index.objects.add(indexEntry);
                                             } catch (Exception e) {
                                                 logger.warn("Error getting data for object at \"" + indexEntry.path + "\"! Skipping!", e);
                                             }
                                         } else {
-                                            logger.warn("For object at \"" + indexEntry.path + "\": its data class type of \"" + indexEntry.dataClassName
+                                            logger.warn("For object at \"" + indexEntry.path + "\": its data class type of \"" + indexEntry.bundle.dataClassName
                                                     + "\" is missing the @FoxStorageDataClass annotation. Skipping.");
                                         }
                                     } else {
@@ -119,7 +119,7 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
                                     }
                                 }
                             } else if (type.equals(ISimpleState.class)) {
-                                logger.warn("Object at \"" + indexEntry.path + "\" of type \"" + indexEntry.className + "\" implemented ISimpleState incorrectly as a raw type. Skipping.");
+                                logger.warn("Object at \"" + indexEntry.path + "\" of type \"" + indexEntry.bundle.className + "\" implemented ISimpleState incorrectly as a raw type. Skipping.");
                             }
                         }
                     } else {
@@ -159,10 +159,10 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
             Index index = this.gson.fromJson(reader, Index.class);
             for (Entry entry : index.objects) {
                 try {
-                    Class<?> clazz = Class.forName(entry.className);
+                    Class<?> clazz = Class.forName(entry.bundle.className);
                     if (FoxObject.class.isAssignableFrom(clazz) && ISimpleState.class.isAssignableFrom(clazz)) {
                         FoxObject foxObject = this.injector.getInstance((Class<? extends FoxObject>) clazz);
-                        boolean success = ((ISimpleState<FoxObjectData>) foxObject).setData(entry.data);
+                        boolean success = ((ISimpleState<FoxObjectData>) foxObject).setData(entry.bundle.data);
                         if (success) {
                             this.addObject(foxObject, ObjectPathSection.from(entry.path));
                         }
@@ -178,7 +178,6 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
     }
 
     protected class FileIndexNamespace extends NamespaceBase {
-
     }
 
     private static class Index {
@@ -188,13 +187,25 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
 
     private static class Entry {
         StandardPathComponent path;
+        Embed embed;
+        Bundle bundle;
+    }
+
+    private static class Embed {
+        List<StandardPathComponent> path;
+        boolean linked;
+    }
+
+    private static class Bundle {
         String className;
         String dataClassName;
         int dataVersion;
         FoxObjectData data;
-
     }
 
+    /**
+     * TypeAdapterFactory for creating a type adapter to handle serialization and deserialization of an index entry.
+     */
     @Singleton
     private static class AdapterFactory implements TypeAdapterFactory {
 
@@ -204,31 +215,32 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
         @SuppressWarnings("unchecked")
         @Override
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-            if (type.getRawType().equals(Entry.class)) {
+            if (type.getRawType().equals(Bundle.class)) {
                 return (TypeAdapter<T>) new Adapter(gson);
             } else return null;
         }
 
-        public class Adapter extends TypeAdapter<Entry> {
+        public class Adapter extends TypeAdapter<Bundle> {
 
             private final TypeAdapter<StandardPathComponent> standardPathComponentTypeAdapter;
+            private final TypeAdapter<List<StandardPathComponent>> standardPathComponentListTypeAdapter;
             private final Gson gson;
 
             public Adapter(Gson gson) {
                 this.standardPathComponentTypeAdapter = gson.getAdapter(StandardPathComponent.class);
+                this.standardPathComponentListTypeAdapter = gson.getAdapter(new TypeToken<List<StandardPathComponent>>() {
+                });
                 this.gson = gson;
             }
 
             @SuppressWarnings("unchecked")
             @Override
-            public void write(JsonWriter out, Entry value) throws IOException {
+            public void write(JsonWriter out, Bundle value) throws IOException {
                 if (value == null) {
                     out.nullValue();
                     return;
                 }
                 out.beginObject();
-                out.name("path");
-                this.standardPathComponentTypeAdapter.write(out, value.path);
                 out.name("class");
                 out.value(value.className);
                 out.name("dataClass");
@@ -243,13 +255,13 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Entry read(JsonReader in) throws IOException {
+            public Bundle read(JsonReader in) throws IOException {
                 if (in.peek() == JsonToken.NULL) {
                     in.nextNull();
                     return null;
                 }
                 boolean failed = false;
-                Entry entry = new Entry();
+                Bundle bundle = new Bundle();
                 in.beginObject();
                 while (in.hasNext()) {
                     String name = in.nextName();
@@ -258,32 +270,37 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
                         continue;
                     }
                     switch (name) {
-                        case "path":
-                            entry.path = this.standardPathComponentTypeAdapter.read(in);
-                            break;
                         case "class":
-                            entry.className = in.nextString();
+                            bundle.className = in.nextString();
                             break;
                         case "dataClass":
-                            entry.dataClassName = in.nextString();
+                            bundle.dataClassName = in.nextString();
                             break;
                         case "dataVersion":
-                            entry.dataVersion = in.nextInt();
+                            bundle.dataVersion = in.nextInt();
                             break;
                         case "data":
-                            if (entry.dataClassName == null) {
+                            if (bundle.dataClassName == null) {
                                 failed = true;
                                 logger.warn("Data object read before data class name. This adapter does not yet support out-of-order deserialization. Skipping.");
                                 in.skipValue();
                             } else {
                                 try {
-                                    Class<?> clazz = Class.forName(entry.dataClassName);
+                                    Class<?> clazz = Class.forName(bundle.dataClassName);
                                     if (FoxObjectData.class.isAssignableFrom(clazz)) {
                                         TypeAdapter<? extends FoxObjectData> adapter = gson.getAdapter((Class<? extends FoxObjectData>) clazz);
-                                        entry.data = adapter.read(in);
+                                        bundle.data = adapter.read(in);
                                     }
                                 } catch (ClassNotFoundException e) {
-                                    logger.warn("Could not find data class for entry at \"" + entry.path + "\"", e);
+                                    StringBuilder sb = new StringBuilder("Could not find data class \"")
+                                            .append(bundle.dataClassName)
+                                            .append("\" for bundle");
+                                    if (bundle.className != null && !bundle.className.isEmpty()) {
+                                        sb.append(" of type \"")
+                                                .append(bundle.className)
+                                                .append("\"");
+                                    }
+                                    logger.warn(sb.toString(), e);
                                 }
                             }
                             break;
@@ -295,7 +312,7 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
                 in.endObject();
                 if (failed) return null;
 
-                return entry;
+                return bundle;
             }
         }
     }
