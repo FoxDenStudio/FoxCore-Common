@@ -5,6 +5,7 @@ import net.foxdenstudio.foxcore.api.object.link.LinkSchema;
 import net.foxdenstudio.foxcore.api.object.reference.types.LinkReference;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
@@ -28,9 +29,11 @@ public class LinkSlotBase extends LinkNodeBase implements LinkSlot {
     }
 
     @Override
-    public Optional<LinkReference> linkObject(FoxObject object, @Nullable StandardPathComponent path) {
+    public Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
         if (path != null) return super.linkObject(object, path);
+        if (this.linked == null) {
 
+        }
         return Optional.empty();
     }
 

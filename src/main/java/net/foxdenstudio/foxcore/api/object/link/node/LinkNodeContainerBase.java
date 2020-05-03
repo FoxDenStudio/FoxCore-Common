@@ -76,7 +76,7 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
     }
 
     @Override
-    public Optional<LinkReference> linkObject(FoxObject object, @Nullable StandardPathComponent path) {
+    public Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
         if (path != null) {
             Optional<LinkNode> linkNodeOptional = this.findNode(path, true);
             if (linkNodeOptional.isPresent()) {

@@ -5,6 +5,7 @@ import net.foxdenstudio.foxcore.api.object.link.LinkContainer;
 import net.foxdenstudio.foxcore.api.object.reference.types.LinkReference;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class FoxBasicLinkNodeContainer extends LinkNodeContainerBase implements 
     }
 
     @Override
-    public Optional<LinkReference> linkObject(FoxObject object, @Nullable StandardPathComponent path) {
+    public Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
         return Optional.empty();
     }
 

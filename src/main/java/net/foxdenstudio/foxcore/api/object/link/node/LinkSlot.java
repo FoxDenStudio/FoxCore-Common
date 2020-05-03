@@ -15,7 +15,7 @@ public interface LinkSlot extends LinkNode {
      * Whether this slot is transient. Transient slots are empty, dynamic slots that exist to be used,
      * but aren't returned in collection based queries. They usually held only weakly.
      *
-     * @return
+     * @return whether this slot is transient.
      */
     @Override
     default boolean isTransient() {

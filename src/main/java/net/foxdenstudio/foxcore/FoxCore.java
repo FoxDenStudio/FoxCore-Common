@@ -92,9 +92,9 @@ public class FoxCore {
         }
     }
 
-    public void loadIndexObjects(){
-        for(FoxObjectIndex index : this.mainIndex.getIndices().values()){
-            if(index instanceof StorageIndex) ((StorageIndex) index).load();
+    public void loadIndexObjects() {
+        for (FoxObjectIndex index : this.mainIndex.getIndices().values()) {
+            if (index instanceof StorageIndex) ((StorageIndex) index).load();
         }
     }
 

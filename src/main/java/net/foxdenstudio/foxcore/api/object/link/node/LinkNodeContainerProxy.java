@@ -4,6 +4,7 @@ import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.reference.types.LinkReference;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
@@ -26,7 +27,7 @@ public interface LinkNodeContainerProxy extends LinkNodeContainer {
     }
 
     @Override
-    default Optional<LinkReference> linkObject(FoxObject object, @Nullable StandardPathComponent path) {
+    default Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
         return this.getDelegateSlotContainer().linkObject(object, path);
     }
 

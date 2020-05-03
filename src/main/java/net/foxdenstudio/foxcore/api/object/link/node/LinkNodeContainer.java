@@ -4,6 +4,7 @@ import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.reference.types.LinkReference;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +29,7 @@ public interface LinkNodeContainer {
         return this.linkObject(object, null);
     }
 
-    Optional<LinkReference> linkObject(FoxObject object, @Nullable StandardPathComponent path);
+    Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path);
 
     FoxObject getContainerObject();
 
