@@ -4,6 +4,8 @@ import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.link.LinkSchema;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 public abstract class LinkNodeBase extends LinkNodeContainerBase implements LinkNode {
@@ -89,7 +91,7 @@ public abstract class LinkNodeBase extends LinkNodeContainerBase implements Link
     }
 
     @Override
-    public Optional<LinkNode> removeNode(StandardPathComponent path) {
+    public Optional<LinkNode> removeNode(@Nonnull StandardPathComponent path) {
         if (!freeStructure) return Optional.empty();
         return super.removeNode(path);
     }

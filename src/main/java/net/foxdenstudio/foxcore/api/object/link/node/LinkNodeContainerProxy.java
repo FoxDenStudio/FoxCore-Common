@@ -22,7 +22,7 @@ public interface LinkNodeContainerProxy extends LinkNodeContainer {
     }
 
     @Override
-    default Optional<LinkReference> linkObject(FoxObject object) {
+    default Optional<LinkReference> linkObject(@Nonnull FoxObject object) {
         return this.getDelegateSlotContainer().linkObject(object);
     }
 
@@ -42,12 +42,12 @@ public interface LinkNodeContainerProxy extends LinkNodeContainer {
     }
 
     @Override
-    default Optional<LinkNode> getNode(StandardPathComponent path, boolean create) {
+    default Optional<LinkNode> getNode(@Nonnull StandardPathComponent path, boolean create) {
         return this.getDelegateSlotContainer().getNode(path, create);
     }
 
     @Override
-    default Optional<LinkNode> findNode(StandardPathComponent path, boolean create) {
+    default Optional<LinkNode> findNode(@Nonnull StandardPathComponent path, boolean create) {
         return this.getDelegateSlotContainer().findNode(path, create);
     }
 
@@ -57,7 +57,7 @@ public interface LinkNodeContainerProxy extends LinkNodeContainer {
     }
 
     @Override
-    default Optional<LinkNode> removeNode(StandardPathComponent path) {
+    default Optional<LinkNode> removeNode(@Nonnull StandardPathComponent path) {
         return this.getDelegateSlotContainer().removeNode(path);
     }
 

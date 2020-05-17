@@ -35,23 +35,23 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
     }
 
     @Override
-    public Optional<LinkNode> getNode(StandardPathComponent path, boolean create) {
+    public Optional<LinkNode> getNode(@Nonnull StandardPathComponent path, boolean create) {
         return Optional.ofNullable(this.linkNodesCopy.get(path));
     }
 
     @Override
-    public Optional<LinkNode> findNode(StandardPathComponent path, boolean create) {
-        Optional<LinkNode> firstNode = this.findFirstNode(path);
+    public Optional<LinkNode> findNode(@Nonnull StandardPathComponent path, boolean create) {
+        Optional<LinkNode> firstNode = this.findFirst(path);
         if (firstNode.isPresent()) {
             LinkNode node = firstNode.get();
-            StandardPathComponent slotPath = node.nodePath();
-            if (slotPath.equals(path)) return Optional.of(node);
-            return node.findNode(path.subPath(slotPath.size()));
+            StandardPathComponent slotLocalPath = node.localNodePath();
+            if (slotLocalPath.equals(path)) return Optional.of(node);
+            return node.findNode(path.subPath(slotLocalPath.size()));
         }
         return Optional.empty();
     }
 
-    protected Optional<LinkNode> findFirstNode(StandardPathComponent path) {
+    public Optional<LinkNode> findFirst(@Nonnull StandardPathComponent path, boolean create) {
         for (int i = path.size(); i >= 0; i--) {
             LinkNode node = this.linkNodesCopy.get(path.subPath(0, i));
             if (node != null) return Optional.of(node);
@@ -68,7 +68,7 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
     }
 
     @Override
-    public Optional<LinkNode> removeNode(StandardPathComponent path) {
+    public Optional<LinkNode> removeNode(@Nonnull StandardPathComponent path) {
         if (!this.linkNodes.containsKey(path)) return Optional.empty();
         LinkNode node = this.linkNodes.remove(path);
         this.linkNodesCopy = ImmutableMap.copyOf(this.linkNodes);
@@ -78,12 +78,24 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
     @Override
     public Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
         if (path != null) {
-            Optional<LinkNode> linkNodeOptional = this.findNode(path, true);
+            Optional<LinkNode> linkNodeOptional = this.findFirst(path, true);
             if (linkNodeOptional.isPresent()) {
                 LinkNode node = linkNodeOptional.get();
-                return node.linkObject(object);
+                return node.linkObject(object, path.subPath(node.localNodePath().size()));
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public boolean acceptsObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
+        if (path != null) {
+            Optional<LinkNode> linkNodeOptional = this.findNode(path, true);
+            if (linkNodeOptional.isPresent()) {
+                LinkNode node = linkNodeOptional.get();
+                return node.acceptsObject(object);
+            }
+        }
+        return false;
     }
 }

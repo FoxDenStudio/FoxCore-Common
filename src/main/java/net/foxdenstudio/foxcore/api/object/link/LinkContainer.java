@@ -31,10 +31,10 @@ public interface LinkContainer extends LinkNodeContainer {
     Map<StandardPathComponent, LinkNode> getKnownNodes();
 
     @Override
-    Optional<LinkNode> getNode(StandardPathComponent path, boolean create);
+    Optional<LinkNode> getNode(@Nonnull StandardPathComponent path, boolean create);
 
     @Override
-    Optional<LinkNode> findNode(StandardPathComponent path, boolean create);
+    Optional<LinkNode> findNode(@Nonnull StandardPathComponent path, boolean create);
 
     default boolean addNode(LinkNode slot, StandardPathComponent path) {
         return this.addNode(slot, path, false);
@@ -47,5 +47,5 @@ public interface LinkContainer extends LinkNodeContainer {
     boolean addNode(LinkNode slot, StandardPathComponent path, boolean setAsDefault, boolean overrideExistingDefault);
 
     @Override
-    Optional<LinkNode> removeNode(StandardPathComponent path);
+    Optional<LinkNode> removeNode(@Nonnull StandardPathComponent path);
 }

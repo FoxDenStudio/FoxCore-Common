@@ -16,6 +16,12 @@ import java.util.List;
 
 public final class StandardPathComponent implements FoxPathComponent, Iterable<String> {
 
+    /*TODO
+    * So I really messed up. Even for an immutable type, it makes sense to have an empty representation
+    * Such an example is string, which does have the empty string object.
+    * I should not allow nulls to mean something in between API calls,
+    * */
+
     private final String[] elements;
     private transient List<String> elementsList;
 
@@ -77,15 +83,16 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
         return new StandardPathComponent(newElements);
     }
 
-    public StandardPathComponent subPath(int start){
+    public StandardPathComponent subPath(int start) {
         return subPath(start, this.elements.length);
     }
 
-    public StandardPathComponent subPath(int from, int to){
-        Preconditions.checkArgument(from >= 0 && from < this.elements.length,
-                "start index out of bounds: [ 0 - " + (this.elements.length - 1) + " ] : " + from);
+    public StandardPathComponent subPath(int from, int to) {
+        Preconditions.checkArgument(from >= 0 && from <= this.elements.length,
+                "start index out of bounds: [ 0 - " + (this.elements.length) + " ] : " + from);
         Preconditions.checkArgument(to >= 0 && to <= this.elements.length,
                 "end index out of bounds: [ 0 - " + this.elements.length + " ] : " + to);
+        if (from == this.elements.length) return null;
         return new StandardPathComponent(Arrays.copyOfRange(this.elements, from, to));
     }
 
@@ -120,7 +127,7 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
 
         @Override
         public void write(JsonWriter out, StandardPathComponent value) throws IOException {
-            if(value == null){
+            if (value == null) {
                 out.nullValue();
                 return;
             }

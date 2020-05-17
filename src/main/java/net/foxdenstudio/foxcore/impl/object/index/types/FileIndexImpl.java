@@ -46,7 +46,7 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
     private Path indexPath;
     private Gson gson;
 
-    @FoxLogger
+    @FoxLogger("index.file.impl")
     Logger logger;
 
 
@@ -154,9 +154,15 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
             logger.warn("Cannot load objects if the index map isn't empty!");
             return;
         }
-
+        if(!Files.isRegularFile(indexPath)){
+            logger.info("No existing index found.");
+            return;
+        }
+        logger.info("Found index file. Opening...");
         try (JsonReader reader = new JsonReader(Files.newBufferedReader(indexPath));) {
+            logger.info("Reading index data...");
             Index index = this.gson.fromJson(reader, Index.class);
+            logger.info("Constructing and loading fox objects...");
             for (Entry entry : index.objects) {
                 try {
                     Class<?> clazz = Class.forName(entry.bundle.className);

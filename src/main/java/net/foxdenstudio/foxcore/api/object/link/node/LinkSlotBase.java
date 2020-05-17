@@ -2,6 +2,7 @@ package net.foxdenstudio.foxcore.api.object.link.node;
 
 import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.link.LinkSchema;
+import net.foxdenstudio.foxcore.api.object.reference.types.IndexReference;
 import net.foxdenstudio.foxcore.api.object.reference.types.LinkReference;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
@@ -29,8 +30,15 @@ public class LinkSlotBase extends LinkNodeBase implements LinkSlot {
     }
 
     @Override
+    public boolean acceptsObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
+        Optional<IndexReference> refOpt = object.getIndexReference();
+        return refOpt.isPresent() && refOpt.get().isValid();
+    }
+
+    @Override
     public Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
         if (path != null) return super.linkObject(object, path);
+        if (!this.acceptsObject(object)) return Optional.empty();
         if (this.linked == null) {
 
         }
