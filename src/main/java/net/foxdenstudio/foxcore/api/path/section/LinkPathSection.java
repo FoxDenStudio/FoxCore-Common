@@ -2,13 +2,16 @@ package net.foxdenstudio.foxcore.api.path.section;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.io.IOException;
+import java.util.*;
 
 public final class LinkPathSection implements FoxPathSection {
 
@@ -29,7 +32,7 @@ public final class LinkPathSection implements FoxPathSection {
         return new LinkPathSection(builder.build());
     }
 
-    public static LinkPathSection of(@Nonnull LinkPathSection linkPathSection, StandardPathComponent... next){
+    public static LinkPathSection of(@Nonnull LinkPathSection linkPathSection, StandardPathComponent... next) {
         return of(linkPathSection.links, next);
     }
 
@@ -67,6 +70,47 @@ public final class LinkPathSection implements FoxPathSection {
             }
         }
         return builder.toString();
+    }
+
+    public static class Adapter extends TypeAdapter<LinkPathSection> {
+
+        private final Gson gson;
+        private final TypeAdapter<StandardPathComponent> spcAdapter;
+
+        public Adapter(Gson gson) {
+            this.gson = gson;
+            this.spcAdapter = gson.getAdapter(StandardPathComponent.class);
+        }
+
+        @Override
+        public void write(JsonWriter out, LinkPathSection value) throws IOException {
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
+            out.beginArray();
+            for (StandardPathComponent link : value.links) {
+                this.spcAdapter.write(out, link);
+            }
+            out.endArray();
+        }
+
+        @Override
+        public LinkPathSection read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+            List<StandardPathComponent> links = new ArrayList<>();
+            in.beginArray();
+            while (in.hasNext()) {
+                links.add(this.spcAdapter.read(in));
+            }
+            in.endArray();
+            if (links.isEmpty())
+                return null;
+            return LinkPathSection.of(links);
+        }
     }
 
 }

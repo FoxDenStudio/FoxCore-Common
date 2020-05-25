@@ -2,11 +2,12 @@ package net.foxdenstudio.foxcore.api.object.index;
 
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 public interface FoxObjectIndex extends Namespace {
 
-    Optional<Namespace> getNamespace(StandardPathComponent indexPath);
+    Optional<Namespace> getNamespace(@Nonnull StandardPathComponent indexPath);
 
     Namespace getDefaultNamespace();
 

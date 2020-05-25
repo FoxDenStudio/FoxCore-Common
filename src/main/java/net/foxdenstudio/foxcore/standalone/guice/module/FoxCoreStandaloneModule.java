@@ -1,6 +1,7 @@
 package net.foxdenstudio.foxcore.standalone.guice.module;
 
 import com.google.inject.AbstractModule;
+import net.foxdenstudio.foxcore.api.world.FoxWorldManager;
 import net.foxdenstudio.foxcore.guice.module.FoxCoreModule;
 import net.foxdenstudio.foxcore.platform.command.PlatformCommandManager;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
@@ -10,6 +11,7 @@ import net.foxdenstudio.foxcore.standalone.command.source.SimpleConsoleTextPrint
 import net.foxdenstudio.foxcore.standalone.command.source.SimpleConsoleSource;
 import net.foxdenstudio.foxcore.standalone.fox.text.SimpleTextFactory;
 import net.foxdenstudio.foxcore.platform.fox.text.TextFactory;
+import net.foxdenstudio.foxcore.standalone.world.StandaloneWorldManager;
 
 public class FoxCoreStandaloneModule extends AbstractModule {
 
@@ -21,6 +23,7 @@ public class FoxCoreStandaloneModule extends AbstractModule {
         bind(ConsoleSource.class).to(SimpleConsoleSource.class);
         bind(ConsoleTextPrinter.class).to(SimpleConsoleTextPrinter.class);
         bind(TextFactory.class).to(SimpleTextFactory.class);
+        bind(FoxWorldManager.class).to(StandaloneWorldManager.class);
         //bind(ResultFactory.class).to(ResultFactoryImpl.class);
 
     }

@@ -1,7 +1,10 @@
 package net.foxdenstudio.foxcore.impl.path;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
 import net.foxdenstudio.foxcore.api.annotation.guice.FoxLogger;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
@@ -30,6 +33,8 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
     private FoxPath empty = null;
     private FoxPath root = null;
 
+    private FoxPathAdapterFactory adapterFactory = null;
+
     @FoxLogger
     private Logger logger;
 
@@ -56,7 +61,7 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
     @Override
     public FoxPath from(@Nonnull FoxPathSection first, FoxPathSection... next) {
         Preconditions.checkNotNull(first);
-        FoxPathExtImpl.Builder builder = builderProvider.get();
+        FoxPathExtImpl.Builder builder = this.builderProvider.get();
         builder.addSection(first);
         if (next != null) {
             for (FoxPathSection comp : next) {
@@ -66,6 +71,17 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
             }
         }
 
+        return builder.build();
+    }
+
+    @Override
+    public FoxPath from(@Nonnull List<FoxPathSection> sections) {
+        Preconditions.checkNotNull(sections, "List of sections can't be null");
+        Preconditions.checkArgument(!sections.isEmpty(), "List of sections can't be empty");
+        FoxPathExtImpl.Builder builder = this.builderProvider.get();
+        for (FoxPathSection section : sections) {
+            builder.addSection(section);
+        }
         return builder.build();
     }
 
@@ -191,5 +207,35 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
                 .parentOffset(parentOffset);
 
         return builder.build();
+    }
+
+    @Override
+    public TypeAdapterFactory getTypeAdapterFactory() {
+        if (this.adapterFactory == null) this.adapterFactory = new FoxPathAdapterFactory(this.builderProvider);
+        return this.adapterFactory;
+    }
+
+    public static class FoxPathAdapterFactory implements TypeAdapterFactory {
+
+        private final Provider<FoxPathExtImpl.Builder> pathBuilderProvider;
+
+        public FoxPathAdapterFactory(Provider<FoxPathExtImpl.Builder> pathBuilderProvider) {
+            this.pathBuilderProvider = pathBuilderProvider;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            if (FoxPath.class.isAssignableFrom(type.getRawType())) {
+                return (TypeAdapter<T>) new FoxPathExtImpl.Adapter(this.pathBuilderProvider, gson);
+            } else if (IndexPathSection.class.equals(type.getRawType())) {
+                return (TypeAdapter<T>) new IndexPathSection.Adapter(gson);
+            } else if (ObjectPathSection.class.equals(type.getRawType())) {
+                return (TypeAdapter<T>) new ObjectPathSection.Adapter(gson);
+            } else if (LinkPathSection.class.equals(type.getRawType())) {
+                return (TypeAdapter<T>) new LinkPathSection.Adapter(gson);
+            }
+            return null;
+        }
     }
 }

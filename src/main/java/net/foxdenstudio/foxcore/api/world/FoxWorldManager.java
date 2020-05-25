@@ -14,4 +14,8 @@ public interface FoxWorldManager {
     Map<String, World> getOnlineWorlds();
 
     Map<String, FoxWorld> getWorlds();
+
+    void load();
+
+    void save();
 }

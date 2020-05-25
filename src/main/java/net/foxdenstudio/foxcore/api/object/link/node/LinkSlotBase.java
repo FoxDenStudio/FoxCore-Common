@@ -37,10 +37,11 @@ public class LinkSlotBase extends LinkNodeBase implements LinkSlot {
 
     @Override
     public Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
-        if (path != null) return super.linkObject(object, path);
+        if (path != null && !path.isEmpty()) return super.linkObject(object, path);
         if (!this.acceptsObject(object)) return Optional.empty();
         if (this.linked == null) {
-
+            // TODO construct a link reference
+            // I have only been working with index references and i'm not sure how i'm going to do link references.
         }
         return Optional.empty();
     }

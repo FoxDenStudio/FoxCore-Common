@@ -1,4 +1,6 @@
 package net.foxdenstudio.foxcore.platform.world.extent;
 
-public interface Extent {
+import net.foxdenstudio.foxcore.platform.util.Identifiable;
+
+public interface Extent extends Identifiable {
 }

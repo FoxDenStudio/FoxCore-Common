@@ -19,6 +19,7 @@ import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 import net.foxdenstudio.foxcore.api.storage.FoxObjectData;
 import net.foxdenstudio.foxcore.api.storage.FoxStorageDataClass;
+import net.foxdenstudio.foxcore.api.storage.FoxStorageManager;
 import net.foxdenstudio.foxcore.api.storage.ISimpleState;
 import net.foxdenstudio.foxcore.api.util.NameChecker;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
 
     private final NameChecker nameChecker;
     private final Injector injector;
+    private final FoxStorageManager storageManager;
     private final AdapterFactory factory;
 
     private Path dirPath;
@@ -51,18 +53,17 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
 
 
     @Inject
-    private FileIndexImpl(FoxPathFactory pathFactory, NameChecker nameChecker, Injector injector, AdapterFactory factory) {
+    private FileIndexImpl(FoxPathFactory pathFactory, NameChecker nameChecker, Injector injector, FoxStorageManager storageManager, AdapterFactory factory) {
         super(pathFactory);
         this.nameChecker = nameChecker;
         this.injector = injector;
+        this.storageManager = storageManager;
         this.factory = factory;
 
         dirPath = Paths.get("fox");
         indexPath = dirPath.resolve("index.foxcf");
 
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.setPrettyPrinting();
-        gsonBuilder.registerTypeAdapter(StandardPathComponent.class, new StandardPathComponent.Adapter());
+        GsonBuilder gsonBuilder = this.storageManager.getBaseGsonConfig();
         gsonBuilder.registerTypeAdapterFactory(factory);
         gson = gsonBuilder.create();
     }
@@ -215,7 +216,7 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
     @Singleton
     private static class AdapterFactory implements TypeAdapterFactory {
 
-        @FoxLogger
+        @FoxLogger("index.file.impl.adapter")
         Logger logger;
 
         @SuppressWarnings("unchecked")

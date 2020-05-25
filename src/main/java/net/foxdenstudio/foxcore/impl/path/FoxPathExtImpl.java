@@ -1,6 +1,12 @@
 package net.foxdenstudio.foxcore.impl.path;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathExt;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
@@ -18,6 +24,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,10 +37,13 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRe
     private final Provider<Builder> builderProvider;
 
     @Nullable
+    @SerializedName("index")
     private IndexPathSection indexPathSection = null;
     @Nullable
+    @SerializedName("object")
     private ObjectPathSection objectPathSection = null;
     @Nullable
+    @SerializedName("links")
     private LinkPathSection linkPathSection = null;
     @Nonnull
     private List<FoxPathSection> extras;
@@ -341,6 +351,83 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRe
             if (linkSection != null) builder.add(linkSection);
             builder.addAll(this.extraSections);
             return new FoxPathExtImpl(textFactory, textColors, builderProvider, builder.build(), mode, parentOffset);
+        }
+    }
+
+    public static class Adapter extends TypeAdapter<FoxPathExtImpl> {
+
+        private final Provider<Builder> pathBuilderProvider;
+        private final Gson gson;
+        private final TypeAdapter<IndexPathSection> ipsAdapter;
+        private final TypeAdapter<ObjectPathSection> opsAdapter;
+        private final TypeAdapter<LinkPathSection> lpsAdapter;
+        private final TypeAdapter<FoxPathSection> fpsAdapter;
+
+
+        public Adapter(Provider<Builder> pathBuilder, Gson gson) {
+            this.pathBuilderProvider = pathBuilder;
+            this.gson = gson;
+            this.ipsAdapter = gson.getAdapter(IndexPathSection.class);
+            this.opsAdapter = gson.getAdapter(ObjectPathSection.class);
+            this.lpsAdapter = gson.getAdapter(LinkPathSection.class);
+            this.fpsAdapter = gson.getAdapter(FoxPathSection.class);
+        }
+
+        @Override
+        public void write(JsonWriter out, FoxPathExtImpl value) throws IOException {
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
+            out.beginObject();
+            out.name("index");
+            this.ipsAdapter.write(out, value.indexPathSection);
+            out.name("object");
+            this.opsAdapter.write(out, value.objectPathSection);
+            out.name("links");
+            this.lpsAdapter.write(out, value.linkPathSection);
+            out.name("other");
+            out.beginArray();
+            for (FoxPathSection extra : value.extras) {
+                this.fpsAdapter.write(out, extra);
+            }
+            out.endArray();
+            out.endObject();
+        }
+
+        @Override
+        public FoxPathExtImpl read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+            IndexPathSection indexPathSection = null;
+            ObjectPathSection objectPathSection = null;
+            LinkPathSection linkPathSection = null;
+            in.beginObject();
+            while (in.hasNext()) {
+                String name = in.nextName();
+                switch (name) {
+                    case "index":
+                        indexPathSection = this.ipsAdapter.read(in);
+                        break;
+                    case "object":
+                        objectPathSection = this.opsAdapter.read(in);
+                        break;
+                    case "links":
+                        linkPathSection = this.lpsAdapter.read(in);
+                        break;
+                    default:
+                        in.skipValue();
+                        break;
+                }
+            }
+            in.endObject();
+            Builder builder = this.pathBuilderProvider.get();
+            builder.addSection(indexPathSection);
+            builder.addSection(objectPathSection);
+            builder.addSection(linkPathSection);
+            return builder.build();
         }
     }
 }

@@ -25,14 +25,39 @@ public interface LinkNodeContainer {
      */
     void invalidate();
 
+    /**
+     * Links object with empty path target.
+     * See {@link #linkObject(FoxObject, StandardPathComponent)} for additional documentation.
+     *
+     * @param object the object to link
+     * @return an optional link reference, present if the link is successful, empty if it isn't
+     */
     default Optional<LinkReference> linkObject(@Nonnull FoxObject object) {
-        return this.linkObject(object, null);
+        return this.linkObject(object, StandardPathComponent.empty());
     }
 
+    /**
+     * Links an object, targeting this link node container.
+     * At this level of abstraction, the default behavior is to resolve a non-empty path and defer the operation,
+     * since link node containers (and link nodes) can't hold an actual link.
+     * However a useful mechanic of defining a nullable path is the ability to add default routing and sorting behavior.
+     *
+     * @param object the object to link
+     * @param path an optional path target to resolve against this link node container
+     * @return an optional link reference, present if the link is successful and empty if it is not.
+     */
     Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path);
 
+    /**
+     * Get the main container fox-object that's holding this link node container.
+     * @return the owning fox-object
+     */
     FoxObject getContainerObject();
 
+    /**
+     * Gets a immutable map copy that contains the direct children of this link node.
+     * @return map of direct children
+     */
     Map<StandardPathComponent, LinkNode> getKnownNodes();
 
     default Optional<LinkNode> getNode(@Nonnull StandardPathComponent path) {
@@ -47,6 +72,12 @@ public interface LinkNodeContainer {
      */
     Optional<LinkNode> getNode(@Nonnull StandardPathComponent path, boolean create);
 
+    /**
+     * Finds a node using a path to search. Does not create a node.
+     * See {@link #findNode(StandardPathComponent, boolean)} for additional documentation.
+     * @param path
+     * @return
+     */
     default Optional<LinkNode> findNode(@Nonnull StandardPathComponent path) {
         return this.findNode(path, false);
     }
@@ -61,6 +92,12 @@ public interface LinkNodeContainer {
      */
     Optional<LinkNode> findNode(@Nonnull StandardPathComponent path, boolean create);
 
+    /**
+     * Finds the first node resolvable using this path. This node will be a direct child.
+     * See {@link #findFirst(StandardPathComponent, boolean)}
+     * @param path the path used to search for a child node.
+     * @return an optional link node, present if found, empty otherwise.
+     */
     default Optional<LinkNode> findFirst(@Nonnull StandardPathComponent path) {
         return this.findFirst(path, false);
     }
@@ -79,7 +116,7 @@ public interface LinkNodeContainer {
 
     Optional<LinkNode> findFirst(@Nonnull StandardPathComponent path, boolean create);
 
-    boolean addNode(LinkNode node, @Nullable StandardPathComponent path);
+    boolean addNode(@Nonnull LinkNode node, @Nullable StandardPathComponent path);
 
     Optional<LinkNode> removeNode(@Nonnull StandardPathComponent path);
 
@@ -87,5 +124,19 @@ public interface LinkNodeContainer {
         return this.acceptsObject(object, null);
     }
 
+    /**
+     * Returns whether this container can accept an object link at a target path.
+     * This call functions similarly to {@link #linkObject(FoxObject, StandardPathComponent)} except for the fact that
+     * it doesn't actually perform the linking action, but merely answers like a whitelist.
+     *
+     * Since this is a method used for checking inputs prior to an actual link call,
+     * it is expected that this method may be called many times as part of a filter against a collection of objects.
+     * Because this method also resolves paths, it is recommended that looping code try to resolve to the correct node first,
+     * so that the path argument can be empty.
+     *
+     * @param object the object in question
+     * @param path the path target, ideally empty.
+     * @return whether this container can accept an object at this target.
+     */
     boolean acceptsObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path);
 }

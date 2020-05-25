@@ -9,8 +9,8 @@ import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
 import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
 import net.foxdenstudio.foxcore.api.object.index.WritableIndex;
 import net.foxdenstudio.foxcore.api.object.index.types.StorageIndex;
-import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
+import net.foxdenstudio.foxcore.api.world.FoxWorldManager;
 import net.foxdenstudio.foxcore.platform.command.PlatformCommandManager;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
 import org.slf4j.Logger;
@@ -34,6 +34,8 @@ public class FoxCore {
 
     private final StaticContent content;
 
+    private final FoxWorldManager worldManager;
+
     @FoxLogger("greeting")
     private Logger logger;
 
@@ -46,13 +48,14 @@ public class FoxCore {
             Provider<PlatformCommandManager> commandManager,
             @FoxMainDispatcher FoxCommandDispatcher mainCommandDispatcher,
             Provider<ConsoleSource> consoleSource, FoxMainIndex mainIndex,
-            FoxRegistry registry, StaticContent content) {
+            FoxRegistry registry, StaticContent content, FoxWorldManager worldManager) {
         this.commandManager = commandManager;
         this.mainCommandDispatcher = mainCommandDispatcher;
         this.consoleSource = consoleSource;
         this.mainIndex = mainIndex;
         this.registry = registry;
         this.content = content;
+        this.worldManager = worldManager;
     }
 
     /**
@@ -98,6 +101,10 @@ public class FoxCore {
         }
     }
 
+    public void loadWorldData() {
+        this.worldManager.load();
+    }
+
 
     public PlatformCommandManager getCommandManager() {
         return commandManager.get();
@@ -107,5 +114,7 @@ public class FoxCore {
         return consoleSource.get();
     }
 
-
+    public FoxWorldManager getWorldManager() {
+        return worldManager;
+    }
 }

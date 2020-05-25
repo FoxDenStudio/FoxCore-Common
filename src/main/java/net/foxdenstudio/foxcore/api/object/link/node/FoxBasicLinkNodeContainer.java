@@ -19,7 +19,7 @@ public class FoxBasicLinkNodeContainer extends LinkNodeContainerBase implements 
 
     @Override
     public Optional<LinkNode> getDefaultLinkNode() {
-        return Optional.empty();
+        return Optional.ofNullable(this.defaultLinkNode);
     }
 
     @Override
@@ -33,11 +33,15 @@ public class FoxBasicLinkNodeContainer extends LinkNodeContainerBase implements 
 
     @Override
     public Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
-        return Optional.empty();
+        if (path != null && !path.isEmpty()) return super.linkObject(object, path);
+        if (this.defaultLinkNode != null){
+            return this.defaultLinkNode.linkObject(object);
+
+        } else return Optional.empty();
     }
 
     @Override
-    public boolean addNode(LinkNode node, StandardPathComponent path) {
+    public boolean addNode(@Nonnull LinkNode node, @Nullable StandardPathComponent path) {
         return this.addNode(node, path, false);
     }
 

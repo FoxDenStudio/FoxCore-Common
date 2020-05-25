@@ -36,23 +36,28 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
 
     @Override
     public Optional<LinkNode> getNode(@Nonnull StandardPathComponent path, boolean create) {
+        if (path.isEmpty()) return Optional.empty();
         return Optional.ofNullable(this.linkNodesCopy.get(path));
     }
 
     @Override
     public Optional<LinkNode> findNode(@Nonnull StandardPathComponent path, boolean create) {
-        Optional<LinkNode> firstNode = this.findFirst(path);
+        if (path.isEmpty()) return Optional.empty();
+        Optional<LinkNode> firstNode = this.findFirst(path, create);
         if (firstNode.isPresent()) {
             LinkNode node = firstNode.get();
             StandardPathComponent slotLocalPath = node.localNodePath();
             if (slotLocalPath.equals(path)) return Optional.of(node);
-            return node.findNode(path.subPath(slotLocalPath.size()));
+            return node.findNode(path.subPath(slotLocalPath.length()), create);
         }
         return Optional.empty();
     }
 
     public Optional<LinkNode> findFirst(@Nonnull StandardPathComponent path, boolean create) {
-        for (int i = path.size(); i >= 0; i--) {
+        if (path.isEmpty()) return Optional.empty();
+        // This is the rule of specific priority, where longer paths take priority over shorter ones
+        // TODO figure out whether this should be inverted or otherwise prevent prefix collisions.
+        for (int i = path.length(); i >= 0; i--) {
             LinkNode node = this.linkNodesCopy.get(path.subPath(0, i));
             if (node != null) return Optional.of(node);
         }
@@ -60,7 +65,9 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
     }
 
     @Override
-    public boolean addNode(LinkNode slot, StandardPathComponent path) {
+    public boolean addNode(@Nonnull LinkNode slot, @Nullable StandardPathComponent path) {
+        // TODO add some abstraction to handle default routing when no path is supplied.
+        if(path == null || path.isEmpty()) return false;
         if (this.linkNodes.containsKey(path) || this.linkNodes.containsValue(slot)) return false;
         this.linkNodes.put(path, slot);
         this.linkNodesCopy = ImmutableMap.copyOf(this.linkNodes);
@@ -69,6 +76,7 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
 
     @Override
     public Optional<LinkNode> removeNode(@Nonnull StandardPathComponent path) {
+        if (path.isEmpty()) return Optional.empty();
         if (!this.linkNodes.containsKey(path)) return Optional.empty();
         LinkNode node = this.linkNodes.remove(path);
         this.linkNodesCopy = ImmutableMap.copyOf(this.linkNodes);
@@ -77,11 +85,11 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
 
     @Override
     public Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
-        if (path != null) {
+        if (path != null && !path.isEmpty()) {
             Optional<LinkNode> linkNodeOptional = this.findFirst(path, true);
             if (linkNodeOptional.isPresent()) {
                 LinkNode node = linkNodeOptional.get();
-                return node.linkObject(object, path.subPath(node.localNodePath().size()));
+                return node.linkObject(object, path.subPath(node.localNodePath().length()));
             }
         }
         return Optional.empty();
@@ -89,7 +97,7 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
 
     @Override
     public boolean acceptsObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
-        if (path != null) {
+        if (path != null && !path.isEmpty()) {
             Optional<LinkNode> linkNodeOptional = this.findNode(path, true);
             if (linkNodeOptional.isPresent()) {
                 LinkNode node = linkNodeOptional.get();

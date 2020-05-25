@@ -32,7 +32,7 @@ public interface FoxMainIndex extends WritableNamespace {
     }
 
     @Override
-    default Optional<IndexReference> getObjectReference(StandardPathComponent path, @Nullable LinkPathSection links) {
+    default Optional<IndexReference> getObjectReference(@Nullable StandardPathComponent path, @Nullable LinkPathSection links) {
         return this.getDefaultObjectIndex().getObjectReference(path, links);
     }
 

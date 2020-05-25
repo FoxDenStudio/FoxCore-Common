@@ -24,7 +24,7 @@ public abstract class LinkNodeBase extends LinkNodeContainerBase implements Link
         this.schema = schema;
         this.parent = parent;
         this.nodePath = nodePath;
-        this.localNodePath = nodePath.subPath(nodePath.size() - localPathLength);
+        this.localNodePath = nodePath.subPath(nodePath.length() - localPathLength);
         this.dynamic = dynamic;
         this.embeddable = embeddable;
     }
@@ -47,6 +47,11 @@ public abstract class LinkNodeBase extends LinkNodeContainerBase implements Link
     @Override
     public boolean isDynamic() {
         return this.dynamic;
+    }
+
+    @Override
+    public boolean isTransient() {
+        return this.dynamic && this.linkNodes.isEmpty();
     }
 
     @Override
@@ -85,8 +90,12 @@ public abstract class LinkNodeBase extends LinkNodeContainerBase implements Link
     }
 
     @Override
-    public boolean addNode(LinkNode slot, StandardPathComponent path) {
+    public boolean addNode(@Nonnull LinkNode slot, @Nullable StandardPathComponent path) {
         if (!freeStructure) return false;
+        return super.addNode(slot, path);
+    }
+
+    protected boolean addNodeInternal(@Nonnull LinkNode slot, @Nullable StandardPathComponent path){
         return super.addNode(slot, path);
     }
 

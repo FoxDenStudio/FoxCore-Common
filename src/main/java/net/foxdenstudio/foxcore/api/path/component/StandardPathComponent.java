@@ -8,6 +8,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,36 +18,38 @@ import java.util.List;
 public final class StandardPathComponent implements FoxPathComponent, Iterable<String> {
 
     /*TODO
-    * So I really messed up. Even for an immutable type, it makes sense to have an empty representation
-    * Such an example is string, which does have the empty string object.
-    * I should not allow nulls to mean something in between API calls,
-    * */
+     * So I really messed up. Even for an immutable type, it makes sense to have an empty representation
+     * Such an example is string, which does have the empty string object.
+     * I should not allow nulls to mean something in between API calls,
+     * */
+
+    private static final StandardPathComponent EMPTY = new StandardPathComponent(new String[0]);
 
     private final String[] elements;
-    private transient List<String> elementsList;
 
-    public static StandardPathComponent of(@Nonnull String first, String... next) {
-        String[] elements;
-        Preconditions.checkNotNull(first, "Element cannot be null! Index: 0");
-        Preconditions.checkArgument(!first.isEmpty(), "Element cannot be empty! Index: 0");
-        if (next == null) {
-            elements = new String[]{first};
-        } else {
-            elements = new String[next.length + 1];
-            elements[0] = first;
-            for (int i = 0; i < next.length; i++) {
-                String str = next[i];
-                Preconditions.checkNotNull(str, "Element cannot be null! Index: %s", i + 1);
-                Preconditions.checkArgument(!str.isEmpty(), "Element cannot be empty! Index: %s", i + 1);
-                elements[i + 1] = str;
-            }
+    private transient List<String> elementsList;
+    private transient int hash;
+    private transient boolean hashed;
+
+    public static StandardPathComponent of(@Nullable String... parts) {
+        if (parts == null || parts.length == 0) return EMPTY;
+        for (int i = 0; i < parts.length; i++) {
+            String str = parts[i];
+            Preconditions.checkNotNull(str, "Element cannot be null! Index: %s", i);
+            Preconditions.checkArgument(!str.isEmpty(), "Element cannot be empty! Index: %s", i);
         }
-        return new StandardPathComponent(elements);
+        return new StandardPathComponent(parts);
     }
 
-    public static StandardPathComponent from(@Nonnull List<String> elements) {
-        Preconditions.checkNotNull(elements);
-        Preconditions.checkArgument(elements.size() > 0, "Must have at least one element!");
+    public static StandardPathComponent of(String first, String[] next){
+        String[] elements = new String[next.length + 1];
+        elements[0] = first;
+        System.arraycopy(next, 0, elements, 1, next.length);
+        return of(elements);
+    }
+
+    public static StandardPathComponent from(@Nullable List<String> elements) {
+        if (elements == null || elements.isEmpty()) return EMPTY;
         for (int i = 0; i < elements.size(); i++) {
             String element = elements.get(i);
             Preconditions.checkNotNull(element, "Element cannot be null! Index: %s", i);
@@ -55,12 +58,20 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
         return new StandardPathComponent(elements.toArray(new String[0]));
     }
 
+    public static StandardPathComponent empty() {
+        return EMPTY;
+    }
+
     private StandardPathComponent(String[] elements) {
         this.elements = elements;
     }
 
-    public int size() {
-        return elements.length;
+    public int length() {
+        return this.elements.length;
+    }
+
+    public boolean isEmpty() {
+        return this.elements.length == 0;
     }
 
     public List<String> elements() {
@@ -77,7 +88,7 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
     }
 
     @Nonnull
-    public StandardPathComponent resolve(StandardPathComponent component) {
+    public StandardPathComponent concat(StandardPathComponent component) {
         String[] newElements = Arrays.copyOf(this.elements, this.elements.length + component.elements.length);
         System.arraycopy(component.elements, 0, newElements, this.elements.length, component.elements.length);
         return new StandardPathComponent(newElements);
@@ -92,7 +103,7 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
                 "start index out of bounds: [ 0 - " + (this.elements.length) + " ] : " + from);
         Preconditions.checkArgument(to >= 0 && to <= this.elements.length,
                 "end index out of bounds: [ 0 - " + this.elements.length + " ] : " + to);
-        if (from == this.elements.length) return null;
+        if (from >= to) return EMPTY;
         return new StandardPathComponent(Arrays.copyOfRange(this.elements, from, to));
     }
 
@@ -101,12 +112,24 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StandardPathComponent that = (StandardPathComponent) o;
+        // This is a special case where comparing two different, hashed paths can shortcut iterative comparison.
+        if (this.hashed && that.hashed && this.hash != that.hash) {
+            return false;
+        }
         return Arrays.equals(elements, that.elements);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(elements);
+        if (!this.hashed) {
+            this.hash = Arrays.hashCode(elements);
+            this.hashed = true;
+
+            // duplicated returns are for breakpoint purposes to measure performance.
+            return this.hash;
+        } else {
+            return this.hash;
+        }
     }
 
     @Override
@@ -124,6 +147,8 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
     }
 
     public static class Adapter extends TypeAdapter<StandardPathComponent> {
+
+        public static final Adapter INSTNACE = new Adapter();
 
         @Override
         public void write(JsonWriter out, StandardPathComponent value) throws IOException {
@@ -155,7 +180,7 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
             }
             in.endArray();
             if (elements.isEmpty())
-                return null;
+                return EMPTY;
             return from(elements);
         }
     }

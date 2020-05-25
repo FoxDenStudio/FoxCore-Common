@@ -52,7 +52,7 @@ public interface LinkNodeContainerProxy extends LinkNodeContainer {
     }
 
     @Override
-    default boolean addNode(LinkNode node, StandardPathComponent path) {
+    default boolean addNode(@Nonnull LinkNode node, @Nullable StandardPathComponent path) {
         return this.getDelegateSlotContainer().addNode(node, path);
     }
 

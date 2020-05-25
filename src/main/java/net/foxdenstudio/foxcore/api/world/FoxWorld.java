@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface FoxWorld extends FoxRepresentable, FoxIdentifiable {
 
-    Optional<String> getName();
+    String getName();
 
     Optional<Path> getDirectory();
 

@@ -36,7 +36,7 @@ public interface LinkContainer extends LinkNodeContainer {
     @Override
     Optional<LinkNode> findNode(@Nonnull StandardPathComponent path, boolean create);
 
-    default boolean addNode(LinkNode slot, StandardPathComponent path) {
+    default boolean addNode(@Nonnull LinkNode slot, @Nullable StandardPathComponent path) {
         return this.addNode(slot, path, false);
     }
 

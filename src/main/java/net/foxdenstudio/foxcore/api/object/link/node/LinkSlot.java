@@ -1,11 +1,7 @@
 package net.foxdenstudio.foxcore.api.object.link.node;
 
-import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.reference.types.LinkReference;
-import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Optional;
 
 public interface LinkSlot extends LinkNode {
@@ -26,10 +22,5 @@ public interface LinkSlot extends LinkNode {
     }
 
     Optional<LinkReference> getLinkedObject();
-
-    @Override
-    default Optional<LinkReference> linkObject(@Nonnull FoxObject object) {
-        return this.linkObject(object, null);
-    }
 
 }

@@ -58,6 +58,10 @@ public class CommandDetail extends FoxStandardCommandBase {
             builder.append(tf.of(tc.GREEN, "\n  ", attribute,
                     tc.RESET, ": ", object.getAttrValueWeak(attribute).orElse(null)));
         }
+
+        builder.append(tf.of(tc.GOLD, "\n--- Links ---\n"));
+
+
         if (object instanceof FoxDetailableObject) {
             String detArgs = args.length > 1 ? args[1] : "";
             builder.append(tf.of(tc.GOLD, "\n--- Extra Details ---\n"));
