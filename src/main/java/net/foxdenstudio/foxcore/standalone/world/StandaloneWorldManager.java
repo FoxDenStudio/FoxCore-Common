@@ -6,7 +6,9 @@ import net.foxdenstudio.foxcore.impl.world.FoxWorldImpl;
 import net.foxdenstudio.foxcore.impl.world.FoxWorldManagerImplBase;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class StandaloneWorldManager extends FoxWorldManagerImplBase {
 
     @Inject

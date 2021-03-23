@@ -1,5 +1,6 @@
 package net.foxdenstudio.foxcore;
 
+import com.google.common.collect.ImmutableMap;
 import net.foxdenstudio.foxcore.api.FoxRegistry;
 import net.foxdenstudio.foxcore.api.annotation.FoxCorePluginInstance;
 import net.foxdenstudio.foxcore.api.annotation.command.FoxMainDispatcher;
@@ -9,8 +10,10 @@ import net.foxdenstudio.foxcore.api.object.index.FoxMainIndex;
 import net.foxdenstudio.foxcore.api.object.index.FoxObjectIndex;
 import net.foxdenstudio.foxcore.api.object.index.WritableIndex;
 import net.foxdenstudio.foxcore.api.object.index.types.StorageIndex;
+import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 import net.foxdenstudio.foxcore.api.world.FoxWorldManager;
+import net.foxdenstudio.foxcore.content.region.QubeRegion;
 import net.foxdenstudio.foxcore.platform.command.PlatformCommandManager;
 import net.foxdenstudio.foxcore.platform.command.source.ConsoleSource;
 import org.slf4j.Logger;
@@ -21,6 +24,8 @@ import javax.inject.Singleton;
 
 @Singleton
 public class FoxCore {
+
+    private static final String REGION_PATH = "region";
 
     private final Provider<PlatformCommandManager> commandManager;
     private final FoxCommandDispatcher mainCommandDispatcher;
@@ -66,15 +71,19 @@ public class FoxCore {
     }
 
     public void configureCommands() {
-        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandEcho, "echo");
-        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandPath, "path");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandCD, "cd");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandPWD, "pwd");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandList, "list", "ls");
-        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandNew, "new");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandNew, "new", "create", "make", "mk6");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandDelete, "delete", "del", "remove", "rm");
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandDetail, "detail", "det");
-        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandPWD, "pwd");
-        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandCD, "cd");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandLink, "link");
+
         this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandSave, "save");
+
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandEcho, "echo");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandPath, "path");
+        this.mainCommandDispatcher.registerCommand(this.foxCorePlugin, content.commandStringChar, "strc");
     }
 
     public void registerCommands() {
@@ -82,14 +91,15 @@ public class FoxCore {
     }
 
     public void setupStaticContent() {
-        WritableIndex writable = mainIndex.getDefaultObjectIndex();
-        writable.addObject(content.generatorRegionRect, ObjectPathSection.of("gen", "region", "rect"));
-        writable.addObject(content.generatorRegionBox, ObjectPathSection.of("gen", "region", "box"));
-        writable.addObject(content.generatorRegionFlard, ObjectPathSection.of("gen", "region", "flard"));
         try {
-            this.registry.registerArchetype(content.qubeRegionType);
             this.registry.registerArchetype(content.representationArchetype);
             this.registry.registerArchetype(content.generatorArchetype);
+            this.registry.registerArchetype(content.worldArchetype);
+            this.registry.simpleMajorTypeRegistration(content.qubeRegionType, QubeRegion.class, QubeRegion.Data.class, ImmutableMap.of(
+                    StandardPathComponent.of(REGION_PATH, "rect"), content.generatorRegionRect,
+                    StandardPathComponent.of(REGION_PATH, "box"), content.generatorRegionBox,
+                    StandardPathComponent.of(REGION_PATH, "flard"), content.generatorRegionFlard
+            ));
         } catch (Exception e) {
             logger.error("Exception configuring registry!", e);
         }

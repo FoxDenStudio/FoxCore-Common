@@ -3,9 +3,12 @@ package net.foxdenstudio.foxcore.api.attribute.holder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
+import net.foxdenstudio.foxcore.api.attribute.value.BaseAttrValue;
 import net.foxdenstudio.foxcore.api.attribute.value.FoxAttrValue;
 
 import javax.annotation.Nonnull;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.util.*;
 
 public class AttributeContainer implements AttributeHolder {
@@ -24,15 +27,11 @@ public class AttributeContainer implements AttributeHolder {
     public AttributeContainer(Collection<? extends AttributeHolder> parents, boolean followDelegates, FoxAttribute<?>... attributes) {
         this.fixedAttributes = new HashMap<>();
         this.extraAttributes = new HashMap<>();
-        for (FoxAttribute<?> attr : attributes) {
-            this.fixedAttributes.put(attr, attr.getValueProvider().get());
-        }
-
         ImmutableList.Builder<AttributeHolder> builder = ImmutableList.builder();
-        if(followDelegates){
-            for(AttributeHolder parent : parents){
+        if (followDelegates) {
+            for (AttributeHolder parent : parents) {
                 AttributeHolder actual = parent;
-                while (actual instanceof DelegateAttributeHolder){
+                while (actual instanceof DelegateAttributeHolder) {
                     actual = ((DelegateAttributeHolder) actual).getDelegateAttrHolder();
                 }
                 builder.add(actual);
@@ -41,6 +40,22 @@ public class AttributeContainer implements AttributeHolder {
             builder.addAll(parents);
         }
         this.parents = builder.build();
+
+        for (FoxAttribute<?> attr : attributes) {
+            FoxAttrValue<?, ?> value = null;
+            // Provision schema attribute value from parents
+            if (attr.getInheritanceMode() != FoxAttribute.InheritanceMode.NONE) {
+                for (AttributeHolder parent : this.parents) {
+                    Optional<FoxAttrValue<?, ?>> optVal = parent.getAttrValueWeak(attr);
+                    if (optVal.isPresent()) {
+                        value = optVal.get();
+                        break;
+                    }
+                }
+            }
+            if (value == null) value = attr.getValueProvider().get();
+            this.fixedAttributes.put(attr, value);
+        }
     }
 
     public AttributeContainer(FoxAttribute<?>... attributes) {
@@ -48,7 +63,7 @@ public class AttributeContainer implements AttributeHolder {
     }
 
     public AttributeContainer(AttributeHolder parent, boolean followDelegates, FoxAttribute<?>... attributes) {
-       this(ImmutableList.of(parent), followDelegates, attributes);
+        this(ImmutableList.of(parent), followDelegates, attributes);
     }
 
     @Nonnull
@@ -77,36 +92,32 @@ public class AttributeContainer implements AttributeHolder {
     @SuppressWarnings("unchecked")
     @Override
     public <V extends FoxAttrValue<?, A>, A extends FoxAttribute<V>> Optional<V> getAttrValue(A attribute) {
-        V value = (V) this.fixedAttributes.get(attribute);
-        if (value == null) {
-            value = (V) this.extraAttributes.get(attribute);
-        }
-        if (value == null) {
-            for (AttributeHolder parent : this.parents) {
-                Optional<V> optionalV = parent.getAttrValue(attribute);
-                if (optionalV.isPresent()) {
-                    value = optionalV.get();
-                    break;
-                }
-            }
-        }
-        return Optional.ofNullable(value);
+        // The commented version of the code actually leads to a javac stack overflow in JDK 8 (tested 1.8.0_192)
+        // This appears to be an undecidable type problem, but unwrapping the optional pre-cast seems to stop confusing the compiler.
+
+        // return (Optional<V>) this.getAttrValueWeak(attribute);
+
+        return Optional.ofNullable((V) this.getAttrValueWeak(attribute).orElse(null));
     }
 
     @Nonnull
     @Override
     public Optional<FoxAttrValue<?, ?>> getAttrValueWeak(FoxAttribute<?> attribute) {
-        FoxAttrValue<?,?> value =  this.fixedAttributes.get(attribute);
+        FoxAttrValue<?, ?> value = this.fixedAttributes.get(attribute);
         if (value == null) {
             value = this.extraAttributes.get(attribute);
         }
+        FoxAttribute.InheritanceMode mode = attribute.getInheritanceMode();
         if (value == null) {
             for (AttributeHolder parent : this.parents) {
-                Optional<FoxAttrValue<?,?>> optionalValue = parent.getAttrValueWeak(attribute);
+                Optional<FoxAttrValue<?, ?>> optionalValue = parent.getAttrValueWeak(attribute);
                 if (optionalValue.isPresent()) {
                     value = optionalValue.get();
                     break;
                 }
+            }
+            if (value != null && mode == FoxAttribute.InheritanceMode.PROVISION) {
+                this.extraAttributes.put(attribute, value);
             }
         }
         return Optional.ofNullable(value);

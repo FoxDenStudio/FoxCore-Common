@@ -14,12 +14,12 @@ import net.foxdenstudio.foxcore.platform.text.Text;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-public class CommandDelete extends FoxStandardCommandBase {
+public class CommandMove extends FoxStandardCommandBase {
 
     private final FoxPathFactory pathFactory;
 
     @Inject
-    private CommandDelete(FoxPathFactory pathFactory) {
+    private CommandMove(FoxPathFactory pathFactory) {
         this.pathFactory = pathFactory;
     }
 
@@ -30,7 +30,7 @@ public class CommandDelete extends FoxStandardCommandBase {
             source.sendMessage(tf.of("Syntax: <name/path>"));
             return resultFactory.empty();
         }
-        String[] args = arguments.split(" +", 2);
+        String[] args = arguments.split(" +", 3);
         String objectPathStr = args[0];
         FoxPath objectPath = this.pathFactory.fromChecked(objectPathStr);
         CommandContext context = this.commandContextManager.getCommandContext(source);
@@ -38,13 +38,14 @@ public class CommandDelete extends FoxStandardCommandBase {
         IndexReference reference = context.getObjectFromIndex(objectPath);
         if (!(reference instanceof WritableIndexReference))
             throw new FoxCommandException("Object \"" + reference + "\" is read-only!");
-        boolean success = ((WritableIndexReference) reference).removeObjectFromIndex();
+
+
+
+
         Text.Builder builder = tf.builder();
-        if (success) {
-            builder.append(tf.of("Sucessfully removed object \"", reference.getPrimePath().orElse(null), "\" from index!"));
-        } else {
-            builder.append(tf.of("Object already removed somehow. Success?"));
-        }
+
+
+
         source.sendMessage(builder.build());
         return resultFactory.empty();
     }

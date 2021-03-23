@@ -7,6 +7,7 @@ import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.api.path.section.LinkPathSection;
 import net.foxdenstudio.foxcore.api.path.section.ObjectPathSection;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Optional;

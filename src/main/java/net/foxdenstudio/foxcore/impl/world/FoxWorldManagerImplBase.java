@@ -31,6 +31,7 @@ public abstract class FoxWorldManagerImplBase implements FoxWorldManager {
 
     protected Map<String, FoxWorldImpl> worldMap = new HashMap<>();
     protected transient Map<String, FoxWorldImpl> worldMapCopy = ImmutableMap.copyOf(worldMap);
+    protected transient Map<World, FoxWorldImpl> weakOnlineMap = new WeakHashMap<>();
 
 
     protected boolean loaded;
@@ -39,7 +40,7 @@ public abstract class FoxWorldManagerImplBase implements FoxWorldManager {
     protected Gson gson;
 
     @FoxLogger("manager.world.impl")
-    Logger logger;
+    protected Logger logger;
 
     @Inject
     protected FoxWorldManagerImplBase(FoxStorageManager storageManager, FoxMainIndex mainIndex, FoxWorldImpl.RepObjectFactory foxWorldImplObjectFactory) {
@@ -55,7 +56,7 @@ public abstract class FoxWorldManagerImplBase implements FoxWorldManager {
 
     @Override
     public Optional<World> getOnlineWorld(String name) {
-        return Optional.empty();
+        return this.getWorld(name).flatMap(FoxWorld::getOnlineWorld);
     }
 
     @Override
@@ -81,7 +82,7 @@ public abstract class FoxWorldManagerImplBase implements FoxWorldManager {
             return;
         }
         if (!this.worldMap.isEmpty()) {
-            logger.warn("Can't load world data into existing non-empty map.");
+            logger.error("Can't load world data into existing non-empty map.");
             return;
         }
         if (!Files.isRegularFile(worldIndexPath)) {
@@ -116,6 +117,7 @@ public abstract class FoxWorldManagerImplBase implements FoxWorldManager {
 
     @Override
     public void save() {
+        logger.info("Saving fox-world index...");
         Index index = new Index();
         index.worlds = new ArrayList<>();
 
@@ -127,9 +129,12 @@ public abstract class FoxWorldManagerImplBase implements FoxWorldManager {
             worldEntry.path = world.getDirectory().orElse(null);
 
             //TODO write links.
+
+            index.worlds.add(worldEntry);
         }
 
-        logger.info("Converted " + index.worlds.size() + " FoxWorld objects to data entries. Saving...");
+        logger.info("Converted {} FoxWorld objects to data entries. Saving...", index.worlds.size());
+
         try {
             Files.createDirectories(dirPath);
             if (Files.notExists(worldIndexPath))
@@ -151,7 +156,7 @@ public abstract class FoxWorldManagerImplBase implements FoxWorldManager {
     protected static class Entry {
         String name;
         UUID uuid;
-        Path path;
+        transient Path path;
         Map<StandardPathComponent, FoxPath> links;
     }
 }

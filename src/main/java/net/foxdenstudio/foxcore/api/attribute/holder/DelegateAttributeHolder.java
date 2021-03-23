@@ -2,6 +2,7 @@ package net.foxdenstudio.foxcore.api.attribute.holder;
 
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
 import net.foxdenstudio.foxcore.api.attribute.value.FoxAttrValue;
+import net.foxdenstudio.foxcore.api.object.link.LinkContainer;
 
 import javax.annotation.Nonnull;
 import java.util.List;

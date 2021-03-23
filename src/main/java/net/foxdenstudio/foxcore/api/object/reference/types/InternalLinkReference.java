@@ -1,9 +1,5 @@
 package net.foxdenstudio.foxcore.api.object.reference.types;
 
-public interface InternalLinkReference extends LinkReference, ProxyReference {
+public interface InternalLinkReference extends ProxyLinkReference {
 
-    @Override
-    default boolean isEmbedded() {
-        return false;
-    }
 }

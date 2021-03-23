@@ -1,5 +1,6 @@
 package net.foxdenstudio.foxcore;
 
+import net.foxdenstudio.foxcore.api.world.FoxWorld;
 import net.foxdenstudio.foxcore.content.archetype.GeneratorArchetype;
 import net.foxdenstudio.foxcore.content.archetype.RepresentationArchetype;
 import net.foxdenstudio.foxcore.content.command.*;
@@ -10,9 +11,9 @@ import javax.inject.Inject;
 public class StaticContent {
 
     @Inject
-    CommandEcho commandEcho;
+    CommandCD commandCD;
     @Inject
-    CommandPath commandPath;
+    CommandPWD commandPWD;
     @Inject
     CommandList commandList;
     @Inject
@@ -22,11 +23,17 @@ public class StaticContent {
     @Inject
     CommandDetail commandDetail;
     @Inject
-    CommandPWD commandPWD;
-    @Inject
-    CommandCD commandCD;
+    CommandLink commandLink;
+
     @Inject
     CommandSave commandSave;
+
+    @Inject
+    CommandStringChar commandStringChar;
+    @Inject
+    CommandEcho commandEcho;
+    @Inject
+    CommandPath commandPath;
 
     @Inject
     QubeRegion.RectGenerator generatorRegionRect;
@@ -41,4 +48,6 @@ public class StaticContent {
     RepresentationArchetype representationArchetype;
     @Inject
     GeneratorArchetype generatorArchetype;
+    @Inject
+    FoxWorld.Type worldArchetype;
 }

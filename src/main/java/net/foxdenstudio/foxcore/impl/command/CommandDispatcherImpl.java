@@ -75,12 +75,13 @@ public class CommandDispatcherImpl extends FoxStandardCommandBase implements Fox
         try {
             foxCommand.process(source, args);
         } catch (Exception e) {
-            if (source instanceof ConsoleSource) {
-                logger.debug("Exception processing command: " + arguments, e);
-            } else {
-                logger.debug("Exception processing command: " + arguments, e);
-            }
             source.sendMessage(this.tf.of("Error executing commmand: " + e.getMessage()));
+            if (source instanceof ConsoleSource) {
+                logger.info("Exception processing command: {}", arguments, e);
+            } else {
+                logger.debug("Exception processing command: {}", arguments, e);
+            }
+
         }
         return resultFactory.empty();
     }

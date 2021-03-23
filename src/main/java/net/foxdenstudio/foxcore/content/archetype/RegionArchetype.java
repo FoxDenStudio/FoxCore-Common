@@ -12,8 +12,8 @@ public class RegionArchetype extends ArchetypeBase {
 
     @Inject
     private RegionArchetype(FoxObjectArchetype foxObjectArchetype,
-                           ArchetypeDisplayNameAttribute archetypeDisplayNameAttribute,
-                           EnabledAttribute enabledAttribute) {
+                            ArchetypeDisplayNameAttribute archetypeDisplayNameAttribute,
+                            EnabledAttribute enabledAttribute) {
         super("region", "Region", foxObjectArchetype, archetypeDisplayNameAttribute, enabledAttribute);
         this.writeDefaultName(archetypeDisplayNameAttribute);
     }

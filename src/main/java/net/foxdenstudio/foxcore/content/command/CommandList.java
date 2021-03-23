@@ -41,14 +41,13 @@ public class CommandList extends FoxStandardCommandBase {
 
     @Override
     public FoxCommandResult process(@Nonnull CommandSource source, @Nonnull String arguments) throws FoxCommandException {
-
         CommandContext context = this.commandContextManager.getCommandContext(source);
 
         Collection<StandardPathComponent> allPaths = context.getNamespace(null).getAllObjectPaths();
         String heading = "The following objects exist:";
         StringBuilder builder = new StringBuilder();
         allPaths.stream()
-                .sorted(Comparator.comparing(StandardPathComponent::toString))
+                .sorted()
                 .forEach(path -> builder.append('\n').append(path.toString()));
         source.sendMessage(this.tf.of(textColors.YELLOW, heading, textColors.RESET, builder.toString()));
 

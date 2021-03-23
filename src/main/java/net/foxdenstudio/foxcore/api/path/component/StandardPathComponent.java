@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public final class StandardPathComponent implements FoxPathComponent, Iterable<String> {
+public final class StandardPathComponent implements FoxPathComponent, Iterable<String>, Comparable<StandardPathComponent> {
 
     /*TODO
      * So I really messed up. Even for an immutable type, it makes sense to have an empty representation
@@ -41,7 +41,7 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
         return new StandardPathComponent(parts);
     }
 
-    public static StandardPathComponent of(String first, String[] next){
+    public static StandardPathComponent of(String first, String[] next) {
         String[] elements = new String[next.length + 1];
         elements[0] = first;
         System.arraycopy(next, 0, elements, 1, next.length);
@@ -134,6 +134,7 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
 
     @Override
     public String toString() {
+        if(this.elements.length == 0) return "{EMPTY}";
         StringBuilder builder = new StringBuilder(elements[0]);
         for (int i = 1; i < elements.length; i++) {
             builder.append('/').append(elements[i]);
@@ -144,6 +145,17 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
     @Override
     public Iterator<String> iterator() {
         return this.elements().iterator();
+    }
+
+    @Override
+    public int compareTo(StandardPathComponent o) {
+        if (this.elements.length > o.elements.length) return 1;
+        if (this.elements.length < o.elements.length) return -1;
+        for (int i = 0; i < this.elements.length; i++) {
+            int res = this.elements[i].compareTo(o.elements[i]);
+            if (res != 0) return res;
+        }
+        return 0;
     }
 
     public static class Adapter extends TypeAdapter<StandardPathComponent> {

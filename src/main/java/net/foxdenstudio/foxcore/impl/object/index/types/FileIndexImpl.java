@@ -106,34 +106,35 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
                                             indexEntry.bundle.dataVersion = annotation.version();
                                             try {
                                                 indexEntry.bundle.data = ((ISimpleState<?>) foxObject).getData();
-                                                logger.debug("Converted object at \"" + indexEntry.path + "\" to data entry.");
+                                                logger.debug("Converted object at \"{}\" to data entry.", indexEntry.path);
                                                 index.objects.add(indexEntry);
                                             } catch (Exception e) {
-                                                logger.warn("Error getting data for object at \"" + indexEntry.path + "\"! Skipping!", e);
+                                                logger.warn("Error getting data for object at \"{}\"! Skipping!", indexEntry.path, e);
                                             }
                                         } else {
-                                            logger.warn("For object at \"" + indexEntry.path + "\": its data class type of \"" + indexEntry.bundle.dataClassName
-                                                    + "\" is missing the @FoxStorageDataClass annotation. Skipping.");
+                                            logger.warn("For object at \"{}\": its data class type of \"{}\" is missing the @FoxStorageDataClass annotation. Skipping.",
+                                                    indexEntry.path, indexEntry.bundle.dataClassName);
                                         }
                                     } else {
                                         logger.error("Yeah I don't know how this happened. Check code and debug.");
                                     }
                                 }
                             } else if (type.equals(ISimpleState.class)) {
-                                logger.warn("Object at \"" + indexEntry.path + "\" of type \"" + indexEntry.bundle.className + "\" implemented ISimpleState incorrectly as a raw type. Skipping.");
+                                logger.warn("Object at \"{}\" of type \"{}\" implemented ISimpleState incorrectly as a raw type. Skipping.",
+                                        indexEntry.path, indexEntry.bundle.className);
                             }
                         }
                     } else {
-                        logger.info("Object at \"" + indexEntry.path + "\" does not implement ISimpleState. Skipping.");
+                        logger.info("Object at \"{}\" does not implement ISimpleState. Skipping.", indexEntry.path);
                     }
                 } else {
-                    logger.warn("Could not get FoxObject from reference at \"" + indexEntry.path + "\"!");
+                    logger.warn("Could not get FoxObject from reference at \"{}\"!", indexEntry.path);
                 }
             } else {
-                logger.warn("Skipping expired (invalid) reference at \"" + indexEntry.path + "\"!");
+                logger.warn("Skipping expired (invalid) reference at \"{}\"!", indexEntry.path);
             }
         }
-        logger.info("Converted " + index.objects.size() + " FoxObjects to data entries. Saving...");
+        logger.info("Converted {} FoxObjects to data entries. Saving...", index.objects.size());
         try {
             Files.createDirectories(dirPath);
             if (Files.notExists(indexPath))
@@ -155,7 +156,7 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
             logger.warn("Cannot load objects if the index map isn't empty!");
             return;
         }
-        if(!Files.isRegularFile(indexPath)){
+        if (!Files.isRegularFile(indexPath)) {
             logger.info("No existing index found.");
             return;
         }
@@ -175,13 +176,18 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
                         }
                     }
                 } catch (ClassNotFoundException e) {
-                    logger.warn("Could not find class for object at \"" + entry.path + "\". Skipping.");
+                    logger.warn("Could not find class for object at \"{}\". Skipping.", entry.path);
                 }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public String getIndexName() {
+        return "file";
     }
 
     protected class FileIndexNamespace extends NamespaceBase {

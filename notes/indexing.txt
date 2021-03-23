@@ -1,7 +1,4 @@
-I want there to be a distinct index for each type
-    - like region, handler, component
-
-However i also want objects to link to other objects, especially to objects of different types.
+I want objects to link to other objects, especially to objects of different types.
 
 I also want it to be possible to have certain local objects that are not expressly in the main index
     - for example, i want it to be possible for local components to exist in a handler so that

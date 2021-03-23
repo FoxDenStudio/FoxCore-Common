@@ -12,6 +12,6 @@ public class ArchetypeDisplayNameAttribute extends StringAttribute<ArchetypeDisp
 
     @Inject
     private ArchetypeDisplayNameAttribute(Provider<ArchetypeDisplayNameAttrValue> attrValueProvider) {
-        super(attrValueProvider, "archetype-display-name");
+        super(attrValueProvider, "archetype-display-name", InheritanceMode.NONE);
     }
 }

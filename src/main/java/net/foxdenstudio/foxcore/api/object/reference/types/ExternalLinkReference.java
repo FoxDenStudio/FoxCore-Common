@@ -1,9 +1,5 @@
 package net.foxdenstudio.foxcore.api.object.reference.types;
 
-public interface ExternalLinkReference extends LinkReference, LazyReference {
+public interface ExternalLinkReference extends ProxyLinkReference, LazyReference {
 
-    @Override
-    default boolean isEmbedded() {
-        return false;
-    }
 }

@@ -53,7 +53,6 @@ public class CommandPath extends FoxStandardCommandBase {
 
         Text message = this.tf.of("\nfull:         ", pathExt, "\n", builder.toString());
 
-        //source.sendMessage(((TextRepresentable) pathExt).toText());
         source.sendMessage(message);
 
         return this.resultFactory.empty();

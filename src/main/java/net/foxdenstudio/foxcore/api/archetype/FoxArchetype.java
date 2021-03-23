@@ -1,8 +1,8 @@
 package net.foxdenstudio.foxcore.api.archetype;
 
 import com.google.common.collect.ImmutableSet;
-import net.foxdenstudio.foxcore.api.archetype.container.ArchetypeContainer;
 import net.foxdenstudio.foxcore.api.attribute.holder.AttributeHolder;
+import net.foxdenstudio.foxcore.api.object.link.schema.LinkSchema;
 import net.foxdenstudio.foxcore.api.object.representation.FoxRepresentable;
 import net.foxdenstudio.foxcore.api.object.representation.RepresentationObject;
 
@@ -22,6 +22,9 @@ public interface FoxArchetype extends AttributeHolder, FoxRepresentable {
 
     @Nonnull
     List<FoxArchetype> getParentArchetypes();
+
+    @Nonnull
+    Optional<LinkSchema> getLinkSchema();
 
     @Nonnull
     default Set<FoxArchetype> getAllParentArchetypes() {

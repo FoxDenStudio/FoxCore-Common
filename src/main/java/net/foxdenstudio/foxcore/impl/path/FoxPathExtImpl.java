@@ -32,9 +32,9 @@ import java.util.Optional;
 
 public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRepresentable {
 
-    private final TextFactory textFactory;
-    private final TextColors textColors;
-    private final Provider<Builder> builderProvider;
+    private transient final TextFactory textFactory;
+    private transient final TextColors textColors;
+    private transient final Provider<Builder> builderProvider;
 
     @Nullable
     @SerializedName("index")
@@ -279,7 +279,7 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRe
         @Nullable
         private LinkPathSection linkSection;
 
-        private List<FoxPathSection> extraSections = new ArrayList<>();
+        private List<FoxPathSection> extraSections = new ArrayList<>(0);
 
         @Nonnull
         private Mode mode = Mode.DEFAULT;
@@ -392,6 +392,10 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRe
                 this.fpsAdapter.write(out, extra);
             }
             out.endArray();
+            out.name("mode");
+            out.value(value.mode.name());
+            out.name("offset");
+            out.value(value.parentOffset);
             out.endObject();
         }
 
@@ -404,6 +408,8 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRe
             IndexPathSection indexPathSection = null;
             ObjectPathSection objectPathSection = null;
             LinkPathSection linkPathSection = null;
+            Mode mode = Mode.DEFAULT;
+            int offset = 0;
             in.beginObject();
             while (in.hasNext()) {
                 String name = in.nextName();
@@ -417,6 +423,16 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRe
                     case "links":
                         linkPathSection = this.lpsAdapter.read(in);
                         break;
+                    case "mode":
+                        String modeStr = in.nextString();
+                        try {
+                            mode = Mode.valueOf(modeStr);
+                        } catch (IllegalArgumentException ignored) {
+                        }
+                        break;
+                    case "offset":
+                        offset = in.nextInt();
+                        break;
                     default:
                         in.skipValue();
                         break;
@@ -427,6 +443,8 @@ public class FoxPathExtImpl extends FoxPathImpl implements FoxPathExt, FoxTextRe
             builder.addSection(indexPathSection);
             builder.addSection(objectPathSection);
             builder.addSection(linkPathSection);
+            builder.mode(mode);
+            builder.parentOffset(offset);
             return builder.build();
         }
     }

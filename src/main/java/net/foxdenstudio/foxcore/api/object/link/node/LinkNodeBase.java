@@ -1,7 +1,7 @@
 package net.foxdenstudio.foxcore.api.object.link.node;
 
 import net.foxdenstudio.foxcore.api.object.FoxObject;
-import net.foxdenstudio.foxcore.api.object.link.LinkSchema;
+import net.foxdenstudio.foxcore.api.object.link.schema.LinkSchema;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
 import javax.annotation.Nonnull;
@@ -79,7 +79,7 @@ public abstract class LinkNodeBase extends LinkNodeContainerBase implements Link
     }
 
     @Override
-    public boolean freeStructure() {
+    public boolean structured() {
         return this.freeStructure;
     }
 
@@ -90,9 +90,9 @@ public abstract class LinkNodeBase extends LinkNodeContainerBase implements Link
     }
 
     @Override
-    public boolean addNode(@Nonnull LinkNode slot, @Nullable StandardPathComponent path) {
+    public boolean addNode(@Nonnull LinkNode node, @Nullable StandardPathComponent path) {
         if (!freeStructure) return false;
-        return super.addNode(slot, path);
+        return super.addNode(node, path);
     }
 
     protected boolean addNodeInternal(@Nonnull LinkNode slot, @Nullable StandardPathComponent path){

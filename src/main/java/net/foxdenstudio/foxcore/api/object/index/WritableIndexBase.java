@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import net.foxdenstudio.foxcore.api.object.FoxObject;
 import net.foxdenstudio.foxcore.api.object.link.node.LinkSlot;
-import net.foxdenstudio.foxcore.api.object.link.LinkSchema;
+import net.foxdenstudio.foxcore.api.object.link.schema.LinkSchema;
 import net.foxdenstudio.foxcore.api.object.reference.types.*;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
@@ -69,8 +69,8 @@ public abstract class WritableIndexBase implements WritableIndex {
     }
 
     @Override
-    public Optional<Namespace> getNamespace(StandardPathComponent namespacePath) {
-        if (namespacePath == null) return Optional.of(this.defaultNamespace);
+    public Optional<Namespace> getNamespace(@Nonnull StandardPathComponent namespacePath) {
+        if (namespacePath.isEmpty()) return Optional.of(this.defaultNamespace);
         return Optional.ofNullable(this.namespaces.get(namespacePath));
     }
 
@@ -86,11 +86,6 @@ public abstract class WritableIndexBase implements WritableIndex {
         if (namespace == null) return false;
         this.defaultNamespace = namespace;
         return true;
-    }
-
-    @Override
-    public String getIndexName() {
-        return "mem";
     }
 
     @Override
@@ -164,15 +159,15 @@ public abstract class WritableIndexBase implements WritableIndex {
         }
 
         @Override
-        public Optional<FoxPath> getPrimaryPath() {
+        public Optional<FoxPath> getPrimePath() {
             if (!primaryPathCopyGenerated) {
-                this.primaryPathCopy = generatePrimaryPath().orElse(null);
+                this.primaryPathCopy = generatePrimePath().orElse(null);
                 this.primaryPathCopyGenerated = true;
             }
             return Optional.ofNullable(this.primaryPathCopy);
         }
 
-        protected Optional<FoxPath> generatePrimaryPath() {
+        protected Optional<FoxPath> generatePrimePath() {
             return Optional.ofNullable(path).map(path -> pathFactory.from(WritableIndexBase.this.indexPath, path));
         }
 
@@ -300,12 +295,12 @@ public abstract class WritableIndexBase implements WritableIndex {
         }
 
         @Override
-        public Optional<FoxPath> getPrimaryPath() {
+        public Optional<FoxPath> getPrimePath() {
             return Optional.ofNullable(path).map(path -> pathFactory.from(WritableIndexBase.this.indexPath, path, this.fullEmbedPath));
         }
 
         @Override
-        protected Optional<FoxPath> generatePrimaryPath() {
+        protected Optional<FoxPath> generatePrimePath() {
             return Optional.ofNullable(path).map(path -> pathFactory.from(WritableIndexBase.this.indexPath, path, this.fullEmbedPath));
         }
 
@@ -396,6 +391,7 @@ public abstract class WritableIndexBase implements WritableIndex {
 
         @Override
         public Optional<IndexReference> getObjectReference(StandardPathComponent path, @Nullable LinkPathSection links) {
+            // TODO follow embedded objects.
             return Optional.ofNullable(this.indexMap.get(path));
         }
 

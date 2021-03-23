@@ -6,6 +6,7 @@ import net.foxdenstudio.foxcore.api.archetype.type.FoxType;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.FoxDetailableObject;
 import net.foxdenstudio.foxcore.api.object.generator.GeneratorObjectBase;
+import net.foxdenstudio.foxcore.api.object.generator.RegeneratorCommand;
 import net.foxdenstudio.foxcore.api.region.FoxRegionBase;
 import net.foxdenstudio.foxcore.api.storage.FoxObjectData;
 import net.foxdenstudio.foxcore.api.storage.FoxStorageDataClass;
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Random;
 
 public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDetailableObject, ISimpleState<QubeRegion.Data> {
@@ -622,9 +624,10 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             }
         }
 
-        Text[] palette = this.archetype.getPalette(highest);
+        Optional<Text[]> paletteOpt = this.archetype.getPalette(highest, true);
 
-        if (palette == null) return tf.of(tc.GRAY, "Visualization too deep to generate");
+        if (!paletteOpt.isPresent()) return tf.of(tc.GRAY, "Visualization too deep to generate");
+        Text[] palette = paletteOpt.get();
 
         Text.Builder builder = tf.builder();
 
@@ -714,8 +717,10 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
     }
 
     @Override
-    public boolean setData(Data data) {
-        if(!data.validate()) data.fix();
+    public boolean setData(@Nullable Data data) {
+        if (data == null) {
+            data = new Data();
+        } else if (!data.validate()) data.fix();
 
         this.xBounds = data.xBounds.clone();
         this.yBounds = data.yBounds.clone();
@@ -729,7 +734,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                 System.arraycopy(data.volumes[i][j], 0, array2, 0, data.volumes[i][j].length);
                 array[j] = array2;
             }
-           newVolumes[i] = array;
+            newVolumes[i] = array;
         }
         this.volumes = newVolumes;
         return true;
@@ -808,11 +813,15 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
     @Singleton
     public static class Type extends ArchetypeBase implements FoxType {
 
+        private static final String TILE = "\u2588 ";
+        private static final String ALT_TILE = "O";
+
         private final TextColors tc;
         private final TextFactory tf;
 
         final TextColor[][] palette;
         final Text[][] textPalette;
+        final Text[][] altTextPalette;
 
         @Inject
         private Type(RegionArchetype regionArchetype,
@@ -841,23 +850,26 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                     {tc.BLACK, tc.DARK_GRAY, tc.GRAY, tc.DARK_RED, tc.RED, tc.GOLD, tc.YELLOW, tc.DARK_GREEN, tc.GREEN, tc.DARK_AQUA, tc.AQUA, tc.DARK_BLUE, tc.BLUE, tc.DARK_PURPLE, tc.LIGHT_PURPLE, tc.WHITE},
             };
             this.textPalette = new Text[this.palette.length][];
+            this.altTextPalette = new Text[this.palette.length][];
         }
 
-        Text[] getPalette(int max) {
-            if (max >= this.palette.length) return null;
+        Optional<Text[]> getPalette(int max, boolean utf8) {
+            if (max >= this.palette.length) return Optional.empty();
 
-            Text[] ret = this.textPalette[max];
+            String tile = utf8 ? TILE : ALT_TILE;
+            Text[][] textPal = utf8 ? this.textPalette : this.altTextPalette;
+            Text[] ret = textPal[max];
             if (ret == null) {
                 TextColor[] colors = this.palette[max];
 
                 ret = new Text[max + 1];
                 for (int i = 0; i <= max; i++) {
-                    ret[i] = tf.of(colors[i], "O");
+                    ret[i] = tf.of(colors[i], tile);
                 }
-                this.textPalette[max] = ret;
+                textPal[max] = ret;
             }
 
-            return ret;
+            return Optional.of(ret);
         }
     }
 
@@ -869,12 +881,12 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
 
         private boolean[][][] volumes = {{{false}}};
 
-        public boolean validate(){
+        public boolean validate() {
             final int x = xBounds.length + 1;
             final int y = yBounds.length + 1;
             final int z = zBounds.length + 1;
 
-            if(volumes.length != x) return false;
+            if (volumes.length != x) return false;
             for (boolean[][] array : volumes) {
                 if (array.length != y) return false;
                 for (boolean[] array2 : array) {
@@ -884,7 +896,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             return true;
         }
 
-        public void fix(){
+        public void fix() {
             final int x = xBounds.length + 1;
             final int y = yBounds.length + 1;
             final int z = zBounds.length + 1;
@@ -895,7 +907,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
                 for (int j = 0; j < y; j++) {
                     boolean[] array2 = new boolean[z];
                     for (int k = 0; k < z; k++) {
-                        if(this.volumes.length> i && this.volumes[i].length > j && this.volumes[i][j].length > k){
+                        if (this.volumes.length > i && this.volumes[i].length > j && this.volumes[i][j].length > k) {
                             array2[k] = this.volumes[i][j][k];
                         }
                     }
@@ -909,7 +921,7 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
 
     @Singleton
     @FoxGenerator
-    public static class RectGenerator extends GeneratorObjectBase<QubeRegion> {
+    public static class RectGenerator extends GeneratorObjectBase<QubeRegion> implements RegeneratorCommand<QubeRegion> {
 
         private final Provider<QubeRegion> provider;
 
@@ -939,6 +951,11 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
             region.addZBound(coords[3]);
             region.addVolume(1, 0, 1);
             return region;
+        }
+
+        @Override
+        public void populate(QubeRegion qubeRegion, CommandSource source, String arguments) throws FoxCommandException {
+
         }
     }
 

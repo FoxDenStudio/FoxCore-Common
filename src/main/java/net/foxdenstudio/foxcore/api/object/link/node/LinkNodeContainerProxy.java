@@ -13,53 +13,53 @@ public interface LinkNodeContainerProxy extends LinkNodeContainer {
 
     @Override
     default boolean isValid() {
-        return this.getDelegateSlotContainer().isValid();
+        return this.getDelegateNodeContainer().isValid();
     }
 
     @Override
     default void invalidate() {
-        this.getDelegateSlotContainer().invalidate();
+        this.getDelegateNodeContainer().invalidate();
     }
 
     @Override
     default Optional<LinkReference> linkObject(@Nonnull FoxObject object) {
-        return this.getDelegateSlotContainer().linkObject(object);
+        return this.getDelegateNodeContainer().linkObject(object);
     }
 
     @Override
     default Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path) {
-        return this.getDelegateSlotContainer().linkObject(object, path);
+        return this.getDelegateNodeContainer().linkObject(object, path);
     }
 
     @Override
     default FoxObject getContainerObject() {
-        return this.getDelegateSlotContainer().getContainerObject();
+        return this.getDelegateNodeContainer().getContainerObject();
     }
 
     @Override
     default Map<StandardPathComponent, LinkNode> getKnownNodes() {
-        return this.getDelegateSlotContainer().getKnownNodes();
+        return this.getDelegateNodeContainer().getKnownNodes();
     }
 
     @Override
     default Optional<LinkNode> getNode(@Nonnull StandardPathComponent path, boolean create) {
-        return this.getDelegateSlotContainer().getNode(path, create);
+        return this.getDelegateNodeContainer().getNode(path, create);
     }
 
     @Override
     default Optional<LinkNode> findNode(@Nonnull StandardPathComponent path, boolean create) {
-        return this.getDelegateSlotContainer().findNode(path, create);
+        return this.getDelegateNodeContainer().findNode(path, create);
     }
 
     @Override
     default boolean addNode(@Nonnull LinkNode node, @Nullable StandardPathComponent path) {
-        return this.getDelegateSlotContainer().addNode(node, path);
+        return this.getDelegateNodeContainer().addNode(node, path);
     }
 
     @Override
     default Optional<LinkNode> removeNode(@Nonnull StandardPathComponent path) {
-        return this.getDelegateSlotContainer().removeNode(path);
+        return this.getDelegateNodeContainer().removeNode(path);
     }
 
-    LinkNodeContainer getDelegateSlotContainer();
+    LinkNodeContainer getDelegateNodeContainer();
 }

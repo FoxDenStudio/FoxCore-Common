@@ -10,6 +10,8 @@ public interface FoxPathFactory {
 
     FoxPath empty();
 
+    FoxPath root();
+
     FoxPath from(FoxPathSection first, FoxPathSection... next);
 
     FoxPath from(List<FoxPathSection> sections);

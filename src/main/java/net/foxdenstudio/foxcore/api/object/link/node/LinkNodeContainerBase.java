@@ -31,13 +31,14 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
 
     @Override
     public Map<StandardPathComponent, LinkNode> getKnownNodes() {
+        if (this.linkNodesCopy == null) this.linkNodesCopy = ImmutableMap.of();
         return this.linkNodesCopy;
     }
 
     @Override
     public Optional<LinkNode> getNode(@Nonnull StandardPathComponent path, boolean create) {
         if (path.isEmpty()) return Optional.empty();
-        return Optional.ofNullable(this.linkNodesCopy.get(path));
+        return Optional.ofNullable(this.linkNodesCopy).map(nodes -> nodes.get(path));
     }
 
     @Override
@@ -65,11 +66,11 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
     }
 
     @Override
-    public boolean addNode(@Nonnull LinkNode slot, @Nullable StandardPathComponent path) {
+    public boolean addNode(@Nonnull LinkNode node, @Nullable StandardPathComponent path) {
         // TODO add some abstraction to handle default routing when no path is supplied.
-        if(path == null || path.isEmpty()) return false;
-        if (this.linkNodes.containsKey(path) || this.linkNodes.containsValue(slot)) return false;
-        this.linkNodes.put(path, slot);
+        if (path == null || path.isEmpty()) return false;
+        if (this.linkNodes.containsKey(path) || this.linkNodes.containsValue(node)) return false;
+        this.linkNodes.put(path, node);
         this.linkNodesCopy = ImmutableMap.copyOf(this.linkNodes);
         return true;
     }

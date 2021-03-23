@@ -38,7 +38,6 @@ public final class LinkPathSection implements FoxPathSection {
 
     public static LinkPathSection of(@Nonnull List<StandardPathComponent> components, StandardPathComponent... next) {
         ImmutableList.Builder<StandardPathComponent> builder = ImmutableList.builder();
-        builder.addAll(components);
 
         components.stream().filter(Objects::nonNull).forEach(builder::add);
         if (next != null) {

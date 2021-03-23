@@ -51,6 +51,7 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
         return this.empty;
     }
 
+    @Override
     public FoxPath root() {
         if (this.root == null) {
             this.root = builderProvider.get().mode(FoxPathExt.Mode.ABSOLUTE).build();
@@ -175,10 +176,10 @@ public class FoxPathFactoryImpl implements FoxPathFactory {
         LinkPathSection linkPathSection = null;
         if (!linkPathStrs.isEmpty()) {
             if (mode == null) mode = FoxPathExt.Mode.LINK;
-            List<StandardPathComponent> links = new ArrayList<>();
+            List<StandardPathComponent> links = new ArrayList<>(linkPathStrs.size());
             for (String linkPathStr : linkPathStrs) {
                 String[] linkStrParts = linkPathStr.split("/+");
-                List<String> linkParts = new ArrayList<>();
+                List<String> linkParts = new ArrayList<>(linkStrParts.length);
                 for (String linkStrPart : linkStrParts) {
                     if (linkStrPart.isEmpty()) continue;
                     else linkParts.add(linkStrPart);

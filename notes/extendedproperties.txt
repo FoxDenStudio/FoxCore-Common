@@ -1,0 +1,18 @@
+Objects should be able to accept arbitrary extensions to their functionality, with the following goals
+
+- queryability
+    extensions need to be queryable to be useful.
+- lookup performance
+- enumerability
+    you should be able to get a list of extensions
+- representability
+    extensions should have a sensible way to be represented
+
+I think how I've written attributes does not adequately cover all the use cases i have for them, such as
+
+- flags
+- config options
+- commands
+- links???
+
+I suppose i could follow programming paradigms such as "everything is a method", implying that fields are composed of getters and setters.

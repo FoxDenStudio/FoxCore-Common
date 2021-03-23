@@ -1,5 +1,6 @@
 package net.foxdenstudio.foxcore.content.command;
 
+import com.google.common.base.Stopwatch;
 import net.foxdenstudio.foxcore.api.archetype.FoxArchetype;
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
 import net.foxdenstudio.foxcore.api.command.context.CommandContext;
@@ -8,14 +9,22 @@ import net.foxdenstudio.foxcore.api.command.standard.FoxStandardCommandBase;
 import net.foxdenstudio.foxcore.api.exception.command.FoxCommandException;
 import net.foxdenstudio.foxcore.api.object.FoxDetailableObject;
 import net.foxdenstudio.foxcore.api.object.FoxObject;
+import net.foxdenstudio.foxcore.api.object.link.LinkContainer;
+import net.foxdenstudio.foxcore.api.object.link.node.LinkNode;
+import net.foxdenstudio.foxcore.api.object.link.node.LinkSlot;
+import net.foxdenstudio.foxcore.api.object.reference.FoxObjectReference;
 import net.foxdenstudio.foxcore.api.object.reference.types.IndexReference;
 import net.foxdenstudio.foxcore.api.path.FoxPath;
 import net.foxdenstudio.foxcore.api.path.FoxPathFactory;
+import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 import net.foxdenstudio.foxcore.platform.command.source.CommandSource;
 import net.foxdenstudio.foxcore.platform.text.Text;
+import net.foxdenstudio.foxcore.platform.text.TextRepresentable;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class CommandDetail extends FoxStandardCommandBase {
 
@@ -53,13 +62,31 @@ public class CommandDetail extends FoxStandardCommandBase {
                 tc.RESET, archetype.getName() + " (" + archetype.getType() + ")",
                 tc.AQUA, "\nAttributes:"
         ));
-        for(FoxAttribute<?> attribute : object.getAttributes()){
-
-            builder.append(tf.of(tc.GREEN, "\n  ", attribute,
-                    tc.RESET, ": ", object.getAttrValueWeak(attribute).orElse(null)));
+        for (FoxAttribute<?> attribute : object.getAttributes()) {
+            if (attribute instanceof TextRepresentable) {
+                builder.append(tf.of("\n  ", attribute));
+            } else {
+                builder.append(tf.of("\n  ", tc.GREEN, attribute.getDisplayName()));
+            }
+            builder.append(tf.of(": ", object.getAttrValueWeak(attribute).orElse(null)));
         }
 
         builder.append(tf.of(tc.GOLD, "\n--- Links ---\n"));
+
+        LinkContainer lc = object.getLinkContainer();
+        List<Link> list = new LinkedList<>();
+        lc.getKnownNodes().values().forEach(node -> collect(node, list));
+
+        if (list.isEmpty()) {
+            builder.append(tf.of(tc.GRAY, "No links"));
+        } else {
+            for (Link link : list) {
+            builder.append(tf.of(link.slotPath.toString(), tc.YELLOW, " -> ", tc.RESET, link.target.getPrimeReference()
+                    .flatMap(IndexReference::getPrimePath)
+                    .map(FoxPath::toString)
+                    .orElse("<MISSING!>")));
+            }
+        }
 
 
         if (object instanceof FoxDetailableObject) {
@@ -70,6 +97,25 @@ public class CommandDetail extends FoxStandardCommandBase {
         source.sendMessage(builder.build());
 
         return this.resultFactory.success();
+    }
+
+    private void collect(LinkNode node, Collection<Link> collection) {
+        if (node instanceof LinkSlot) {
+            ((LinkSlot) node).getLinkedObject().ifPresent(obj -> collection.add(new Link(node.nodePath(), obj)));
+        }
+        for (LinkNode child : node.getKnownNodes().values()) {
+            collect(child, collection);
+        }
+    }
+
+    private class Link {
+        StandardPathComponent slotPath;
+        FoxObjectReference target;
+
+        public Link(StandardPathComponent slotPath, FoxObjectReference target) {
+            this.slotPath = slotPath;
+            this.target = target;
+        }
     }
 
 }

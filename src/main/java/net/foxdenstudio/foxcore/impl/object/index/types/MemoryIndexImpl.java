@@ -18,4 +18,8 @@ public class MemoryIndexImpl extends WritableIndexBase implements MemoryIndex {
 
     }
 
+    @Override
+    public String getIndexName() {
+        return "mem";
+    }
 }

@@ -33,8 +33,8 @@ public class FoxMainIndexImpl implements FoxMainIndex {
         this.memoryIndex = memoryIndex;
         this.fileIndex = fileIndex;
         this.indexMap = new HashMap<>();
-        this.indexMap.put("mem", this.memoryIndex);
-        this.indexMap.put("file", this.fileIndex);
+        this.indexMap.put(memoryIndex.getIndexName(), memoryIndex);
+        this.indexMap.put(fileIndex.getIndexName(), fileIndex);
     }
 
     @Override

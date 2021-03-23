@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import net.foxdenstudio.foxcore.api.attribute.FoxAttribute;
 import net.foxdenstudio.foxcore.api.attribute.holder.AttributeContainer;
 import net.foxdenstudio.foxcore.api.attribute.holder.DelegateAttributeHolder;
+import net.foxdenstudio.foxcore.api.object.link.schema.LinkSchema;
 import net.foxdenstudio.foxcore.api.object.representation.RepresentationObject;
 import net.foxdenstudio.foxcore.content.attribute.ArchetypeDisplayNameAttribute;
 import net.foxdenstudio.foxcore.content.attribute.value.ArchetypeDisplayNameAttrValue;
@@ -21,6 +22,9 @@ public abstract class ArchetypeBase implements FoxArchetype, DelegateAttributeHo
     protected final List<FoxArchetype> parents;
     protected final String type;
     protected final String name;
+
+    @Nullable
+    protected LinkSchema linkSchema;
 
     @Nullable
     protected RepresentationObject<?> representation = null;
@@ -61,6 +65,12 @@ public abstract class ArchetypeBase implements FoxArchetype, DelegateAttributeHo
     @Override
     public List<FoxArchetype> getParentArchetypes() {
         return this.parents;
+    }
+
+    @Nonnull
+    @Override
+    public Optional<LinkSchema> getLinkSchema() {
+        return Optional.ofNullable(linkSchema);
     }
 
     @Nonnull

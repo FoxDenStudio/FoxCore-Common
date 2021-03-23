@@ -1,7 +1,7 @@
 package net.foxdenstudio.foxcore.api.object.link.node;
 
 import net.foxdenstudio.foxcore.api.object.FoxObject;
-import net.foxdenstudio.foxcore.api.object.link.LinkSchema;
+import net.foxdenstudio.foxcore.api.object.link.schema.LinkSchema;
 import net.foxdenstudio.foxcore.api.object.reference.types.LinkReference;
 import net.foxdenstudio.foxcore.api.path.component.StandardPathComponent;
 
@@ -23,19 +23,21 @@ public class LinkSetNode extends LinkNodeBase {
                 LinkNode first = firstOpt.get();
                 if (!(first instanceof Leaf)) {
                     return first.linkObject(object, path.subPath(first.localNodePath().length()));
-                } else if(((Leaf) first).hasLink()) return Optional.empty();
+                } else if (((Leaf) first).hasLink()) return Optional.empty();
             }
         } else {
+            LinkNode node;
             while (true) {
                 int i = 1;
                 path = StandardPathComponent.of("o" + i);
-                LinkNode node = this.linkNodesCopy.get(path);
+                node = this.linkNodesCopy == null ? null : this.linkNodesCopy.get(path);
                 if (node == null || node instanceof Leaf && !((Leaf) node).hasLink()) {
                     break;
                 }
             }
+            node = this.getNode(path, true).orElse(null);
+            if (node != null) return node.linkObject(object);
         }
-
 
         return Optional.empty();
     }

@@ -51,7 +51,7 @@ public final class IndexPathSection implements FoxPathSection {
 
     public String toString() {
         StringBuilder builder = new StringBuilder(index);
-        if (namespace != null) {
+        if (this.namespace != null && !this.namespace.isEmpty()) {
             builder.append('/').append(namespace);
         }
         return builder.toString();

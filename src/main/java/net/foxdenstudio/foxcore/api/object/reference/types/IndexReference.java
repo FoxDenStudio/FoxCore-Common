@@ -14,7 +14,7 @@ public interface IndexReference extends FoxObjectReference {
     @Override
     Optional<FoxObject> getObject();
 
-    Optional<FoxPath> getPrimaryPath();
+    Optional<FoxPath> getPrimePath();
 
     FoxObjectIndex getIndex();
 

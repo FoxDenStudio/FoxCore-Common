@@ -14,6 +14,6 @@ public class EnabledAttribute extends BooleanAttribute<EnabledAttrValue> {
 
     @Inject
     private EnabledAttribute(Provider<EnabledAttrValue> attrValueProvider){
-        super(attrValueProvider, NAME);
+        super(attrValueProvider, NAME, InheritanceMode.PROVISION);
     }
 }
