@@ -34,7 +34,7 @@ task travisPublish {
 }
 
 publishing {
-    publications {
+    /*publications {
         library(MavenPublication) {
             from components.java
 
@@ -49,7 +49,7 @@ publishing {
                 classifier 'javadoc'
             }
         }
-    }
+    }*/
 }
 
 if (System.env.TRAVIS && !Boolean.valueOf(System.env.TRAVIS_PULL_REQUEST)) {
