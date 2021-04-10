@@ -25,7 +25,7 @@ public interface LinkContainer extends LinkNodeContainer {
     Optional<LinkReference> linkObject(@Nonnull FoxObject object, @Nullable StandardPathComponent path);
 
     @Override
-    FoxObject getContainerObject();
+    Optional<FoxObject> getContainerObject();
 
     @Override
     Map<StandardPathComponent, LinkNode> getKnownNodes();

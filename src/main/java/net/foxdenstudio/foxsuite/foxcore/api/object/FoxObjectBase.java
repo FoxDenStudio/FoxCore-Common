@@ -29,6 +29,7 @@ public abstract class FoxObjectBase<A extends FoxArchetype> implements FoxObject
         this.archetype = archetype;
         this.attributeContainer = new AttributeContainer(archetype, true, attributes);
         this.linkContainer = new FoxBasicLinkNodeContainer(this);
+        archetype.getLinkSchema().ifPresent(linkSchema -> linkSchema.populate(this.linkContainer));
     }
 
     @Override
@@ -36,12 +37,16 @@ public abstract class FoxObjectBase<A extends FoxArchetype> implements FoxObject
         return Optional.ofNullable(indexReference);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void setIndexReference(IndexReference indexReference) {
-        if (indexReference.isValid() && indexReference.getObject().isPresent() && indexReference.getObject().get() == this) {
-            this.indexReference = (IndexReference) indexReference;
-        } else throw new IllegalArgumentException("Index reference must be valid and refer to this object.");
+        if (indexReference.isValid()) {
+            final Optional<FoxObject> object = indexReference.getObject();
+            if (object.isPresent() && object.get() == this) {
+                this.indexReference = indexReference;
+            } else throw new IllegalArgumentException("Index reference must refer to this object.");
+        } else {
+            throw new IllegalArgumentException("Index reference must be valid.");
+        }
     }
 
     @Override

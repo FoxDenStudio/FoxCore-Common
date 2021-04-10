@@ -52,7 +52,7 @@ public interface LinkNodeContainer {
      * Get the main container fox-object that's holding this link node container.
      * @return the owning fox-object
      */
-    FoxObject getContainerObject();
+    Optional<FoxObject> getContainerObject();
 
     /**
      * Gets a immutable map copy that contains the direct children of this link node.

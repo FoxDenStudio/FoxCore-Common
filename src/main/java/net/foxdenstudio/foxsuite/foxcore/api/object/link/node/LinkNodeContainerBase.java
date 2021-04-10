@@ -15,18 +15,19 @@ public abstract class LinkNodeContainerBase implements LinkNodeContainer {
 
     @Nonnull
     protected final Map<StandardPathComponent, LinkNode> linkNodes;
+    @Nullable
     protected final FoxObject containerObject;
 
     protected transient Map<StandardPathComponent, LinkNode> linkNodesCopy;
 
-    public LinkNodeContainerBase(FoxObject containerObject) {
+    public LinkNodeContainerBase(@Nullable FoxObject containerObject) {
         this.linkNodes = new HashMap<>();
         this.containerObject = containerObject;
     }
 
     @Override
-    public FoxObject getContainerObject() {
-        return this.containerObject;
+    public Optional<FoxObject> getContainerObject() {
+        return Optional.ofNullable(this.containerObject);
     }
 
     @Override

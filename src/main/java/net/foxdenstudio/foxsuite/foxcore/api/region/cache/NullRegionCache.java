@@ -46,33 +46,36 @@ public class NullRegionCache implements RegionCache {
     protected Collection<FoxRegion> getRegions(Predicate<FoxRegion> check, World world) {
         FoxWorld foxWorld = worldManager.getWorld(world);
         Optional<FoxWorld.Object> repOpt = (Optional<FoxWorld.Object>) foxWorld.getRepresentation();
-        if (repOpt.isPresent()) {
-            FoxWorld.Object rep = repOpt.get();
-            LinkContainer linkContainer = rep.getLinkContainer();
-            Optional<LinkNode> nodeOpt = linkContainer.getNode(REGION_PATH);
-            if (nodeOpt.isPresent()) {
-                LinkNode node = nodeOpt.get();
-                ImmutableList.Builder<FoxRegion> found = ImmutableList.builder();
-                for (LinkNode value : node.getKnownNodes().values()) {
-                    if (value instanceof LinkSlot) {
-                        Optional<LinkReference> linkOpt = ((LinkSlot) value).getLinkedObject();
-                        if (linkOpt.isPresent()) {
-                            Optional<FoxObject> foxObjectOpt = linkOpt.get().getObject();
-                            if (foxObjectOpt.isPresent()) {
-                                FoxObject foxObject = foxObjectOpt.get();
-                                if (foxObject instanceof FoxRegion) {
-                                    FoxRegion region = (FoxRegion) foxObject;
-                                    if (check.test(region)) {
-                                        found.add(region);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                return found.build();
+        if (!repOpt.isPresent()) {
+            return ImmutableList.of();
+        }
+
+        FoxWorld.Object rep = repOpt.get();
+        LinkContainer linkContainer = rep.getLinkContainer();
+        Optional<LinkNode> nodeOpt = linkContainer.getNode(REGION_PATH);
+        if (!nodeOpt.isPresent()) {
+            return ImmutableList.of();
+        }
+
+        LinkNode node = nodeOpt.get();
+        ImmutableList.Builder<FoxRegion> found = ImmutableList.builder();
+        for (LinkNode value : node.getKnownNodes().values()) {
+            if (!(value instanceof LinkSlot)) continue;
+
+            Optional<LinkReference> linkOpt = ((LinkSlot) value).getLinkedObject();
+            if (!linkOpt.isPresent()) continue;
+
+            Optional<FoxObject> foxObjectOpt = linkOpt.get().getObject();
+            if (!foxObjectOpt.isPresent()) continue;
+
+            FoxObject foxObject = foxObjectOpt.get();
+            if (!(foxObject instanceof FoxRegion)) continue;
+
+            FoxRegion region = (FoxRegion) foxObject;
+            if (check.test(region)) {
+                found.add(region);
             }
         }
-        return ImmutableList.of();
+        return found.build();
     }
 }

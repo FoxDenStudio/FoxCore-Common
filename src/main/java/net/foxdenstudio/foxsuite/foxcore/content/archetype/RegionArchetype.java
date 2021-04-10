@@ -16,6 +16,7 @@ public class RegionArchetype extends ArchetypeBase {
                             EnabledAttribute enabledAttribute) {
         super("region", "Region", foxObjectArchetype, archetypeDisplayNameAttribute, enabledAttribute);
         this.writeDefaultName(archetypeDisplayNameAttribute);
+        this.linkSchema = null;
     }
 
 }

@@ -32,7 +32,7 @@ public interface LinkNodeContainerProxy extends LinkNodeContainer {
     }
 
     @Override
-    default FoxObject getContainerObject() {
+    default Optional<FoxObject> getContainerObject() {
         return this.getDelegateNodeContainer().getContainerObject();
     }
 
