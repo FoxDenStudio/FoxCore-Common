@@ -47,4 +47,10 @@ public interface LinkNode extends LinkNodeContainer {
      * @return whether this slot supports embedded objects.
      */
     boolean supportsEmbedding();
+
+    /**
+     * Performs a deep copy of this node-tree and returns the deep copy node.
+     * @return the new node tree;
+     */
+    LinkNode deepCopy();
 }

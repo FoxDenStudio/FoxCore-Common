@@ -24,24 +24,28 @@ public class CommandDelete extends FoxStandardCommandBase {
     }
 
     @Override
-    public FoxCommandResult process(@Nonnull CommandSource source, @Nonnull String arguments) throws FoxCommandException {
+    public FoxCommandResult process(@Nonnull final CommandSource source, @Nonnull String arguments) throws FoxCommandException {
         arguments = arguments.trim();
         if (arguments.isEmpty()) {
             source.sendMessage(tf.of("Syntax: <name/path>"));
             return resultFactory.empty();
         }
-        String[] args = arguments.split(" +", 2);
-        String objectPathStr = args[0];
-        FoxPath objectPath = this.pathFactory.fromChecked(objectPathStr);
-        CommandContext context = this.commandContextManager.getCommandContext(source);
+        final String[] args = arguments.split(" +", 2);
+        final String objectPathStr = args[0];
+        final FoxPath objectPath = this.pathFactory.fromChecked(objectPathStr);
+        final CommandContext context = this.commandContextManager.getCommandContext(source);
 
-        IndexReference reference = context.getObjectFromIndex(objectPath);
+        final IndexReference reference = context.getObjectFromIndex(objectPath);
         if (!(reference instanceof WritableIndexReference))
             throw new FoxCommandException("Object \"" + reference + "\" is read-only!");
-        boolean success = ((WritableIndexReference) reference).removeObjectFromIndex();
-        Text.Builder builder = tf.builder();
+
+        final FoxPath mainPath =  reference.getPrimePath().orElse(null);
+
+        final boolean success = ((WritableIndexReference) reference).removeObjectFromIndex();
+
+        final Text.Builder builder = tf.builder();
         if (success) {
-            builder.append(tf.of("Sucessfully removed object \"", reference.getPrimePath().orElse(null), "\" from index!"));
+            builder.append(tf.of("Sucessfully removed object \"", mainPath, "\" from index!"));
         } else {
             builder.append(tf.of("Object already removed somehow. Success?"));
         }

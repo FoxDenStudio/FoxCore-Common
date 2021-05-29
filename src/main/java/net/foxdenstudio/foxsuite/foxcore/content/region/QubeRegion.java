@@ -39,6 +39,13 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
 
     private boolean[][][] volumes = {{{false}}};
 
+    // TODO Pack into single array for performance.
+
+    // private transient int xSpacing;
+    // private transient int xzSpacing;
+
+    // private transient boolean[] volumesCopy = {false};
+
     @Inject
     private QubeRegion(Type archetype, TextFactory textFactory, TextColors textColors) {
         super(archetype);
@@ -60,8 +67,14 @@ public class QubeRegion extends FoxRegionBase<QubeRegion.Type> implements FoxDet
         int vx = getSlice(xBounds, x);
         int vy = getSlice(yBounds, y);
         int vz = getSlice(zBounds, z);
+        // return this.volumesCopy[vx + vz * this.xSpacing + vy * this.xzSpacing];
         return this.volumes[vx][vy][vz];
     }
+
+    /*public void compute(){
+        this.xSpacing = this.xBounds.length + 1;
+        this.xzSpacing = this.xSpacing * (this.zBounds.length + 1);
+    }*/
 
     private static int getSlice(int[] bounds, int val) {
         switch (bounds.length) {

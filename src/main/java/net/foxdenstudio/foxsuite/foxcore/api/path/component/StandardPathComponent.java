@@ -29,7 +29,7 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
 
     private transient List<String> elementsList;
     private transient int hash;
-    private transient boolean hashed;
+    private transient boolean zeroHash;
 
     public static StandardPathComponent of(@Nullable String... parts) {
         if (parts == null || parts.length == 0) return EMPTY;
@@ -113,7 +113,9 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
         if (o == null || getClass() != o.getClass()) return false;
         StandardPathComponent that = (StandardPathComponent) o;
         // This is a special case where comparing two different, hashed paths can shortcut iterative comparison.
-        if (this.hashed && that.hashed && this.hash != that.hash) {
+        if ((this.hash != 0 || this.zeroHash)
+                && (that.hash != 0 || that.zeroHash)
+                && this.hash != that.hash) {
             return false;
         }
         return Arrays.equals(elements, that.elements);
@@ -121,15 +123,16 @@ public final class StandardPathComponent implements FoxPathComponent, Iterable<S
 
     @Override
     public int hashCode() {
-        if (!this.hashed) {
-            this.hash = Arrays.hashCode(elements);
-            this.hashed = true;
-
-            // duplicated returns are for breakpoint purposes to measure performance.
-            return this.hash;
-        } else {
-            return this.hash;
+        int h = hash;
+        if (h == 0 && !zeroHash) {
+            h = Arrays.hashCode(elements);
+            if (h == 0) {
+                zeroHash = true;
+            } else {
+                hash = h;
+            }
         }
+        return h;
     }
 
     @Override

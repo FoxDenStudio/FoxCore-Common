@@ -104,4 +104,5 @@ public abstract class LinkNodeBase extends LinkNodeContainerBase implements Link
         if (!freeStructure) return Optional.empty();
         return super.removeNode(path);
     }
+
 }
