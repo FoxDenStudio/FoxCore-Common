@@ -20,7 +20,7 @@ public interface FoxObjectReference {
      * Whether this reference is still "live", in that it currently holds a reference to an object,
      * or will hold a reference to an object in the future.
      *
-     * A reference generally only refers to one object at a time, over. There's nothing stopping a developer from
+     * A reference generally only refers to one object at a time, ever. There's nothing stopping a developer from
      * changing the reference, but this might cause some odd behavior depending on usage.
      *
      * When a reference is no longer valid, this usually means the relationship that the reference represented

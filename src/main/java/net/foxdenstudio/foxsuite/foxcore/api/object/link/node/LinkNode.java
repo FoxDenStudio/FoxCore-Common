@@ -50,7 +50,9 @@ public interface LinkNode extends LinkNodeContainer {
 
     /**
      * Performs a deep copy of this node-tree and returns the deep copy node.
+     *
+     * @param parent the new parent container of this node.
      * @return the new node tree;
      */
-    LinkNode deepCopy();
+    LinkNode deepCopy(LinkNodeContainer parent);
 }

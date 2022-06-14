@@ -71,6 +71,14 @@ public class LinkSlotBase extends LinkNodeBase implements LinkSlot {
                 : Optional.of(lr);
     }
 
+    @Override
+    public LinkNode deepCopy(LinkNodeContainer parent) {
+        LinkSlotBase copy = new LinkSlotBase(this.containerObject, this.schema, parent,
+                this.nodePath, this.localNodePath.length(), this.dynamic, this.embeddable);
+        copy.deepCopyFrom(this);
+        return copy;
+    }
+
     public class BasicLinkRef implements ProxyLinkReference {
 
         FoxObjectReference objectReference;
@@ -109,6 +117,5 @@ public class LinkSlotBase extends LinkNodeBase implements LinkSlot {
             return Optional.ofNullable(this.objectReference);
         }
     }
-
 
 }

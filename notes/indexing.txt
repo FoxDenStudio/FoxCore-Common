@@ -3,9 +3,14 @@ I want objects to link to other objects, especially to objects of different type
 I also want it to be possible to have certain local objects that are not expressly in the main index
     - for example, i want it to be possible for local components to exist in a handler so that
         they are only loaded if the handler is loaded.
+    - however for storage they would be stored by the same storage index, usually much the same way as
+        upper level objects.
 
 I think that all objects should always be loaded by the loader of their type,
     and that loaders should report any local objects to the correct loader to be loaded, in a recursive manner.
+    !- actually, all child objects should be discovered by the index doing the loading anyway,
+        so such a reporting step is not practically required. A file index, even doing recursive search,
+        would still keep track of its own metadata, which will store child information.
 
 As a result, even if objects appear to be stored within each other in a file system loader,
     a database loader would still keep them separate, and instead of a "local index", keyed by object references
@@ -13,4 +18,98 @@ As a result, even if objects appear to be stored within each other in a file sys
 
 
 --------------
+
+Right now the index-embed-link system is very incoherent and a design revision needs to happen to make it sensible.
+
+I think I might have messed up the layout of embedded link references, or really references in general,
+as there is not a sensible system for handling references when moving things between places.
+
+
+Part of the trouble I'm having with this system is how open-ended it is. I want to make open-ended systems,
+but I don't feel like I'm particularly good at it yet and when working on this system I feel like I begin to
+eat my own tail, so to speak.
+
+--------------
+
+Major questions that need to be asked and answered:
+
+
+What system should be responsible for keeping track of links?
+Right now the design is incoherently split between a few systems:
+
+- The link-container system is being actively worked on, but there are some issues with consistency and maleability
+of the data structure, especially with back-references, and a lack of a standard way of interpreting the data and
+duplicating it for object copies.
+
+- Embedded links were built on top of the embedded index references, meaning linking and unlinking are also
+an index operation
+
+- internal and external link references are currently unused, and it's unknown whether it will stay that way or not.
+
+
+Are fox-object reference objects useful at all?
+
+Currently there's a growing list of object reference types, and they effectively serve as specialized object pointers
+for locating objects in context with something. However, implementing them has become a little unwieldy, and it's
+still a little opaque as to how they should be handled and used.
+
+For example, it's unclear whether references act as authoritative references or copy references.
+I believe the original intention was for them to be authoritative, finding use in place of any direct references
+to objects. For example, the index references not only refer to the target object, but its place in an index,
+which is essential to an object's identity and usefulness.
+
+However this seems to bring up another issue: Should references refer to other references?
+
+Fox-objects can float in memory of course, but doing so without attachment to an index makes it so that they don't
+really exist anywhere, and making references to these floating objects can cause confusing behaviour.
+However it isn't really possible to absolutely guarantee that all fox-objects are index bound at all times,
+but using something like an index-reference, which represents an actual place for an object, as the primary
+point of reference might help.
+
+For example, one method might be to imitate a file-system, which allows the creation of named files that are empty,
+which can be later filled by an actual object. How this might work is the creation of an index "slot", which can
+then be bound to an instance to create a full, named object.
+
+
+What is the best way to do writable vs. read-only namespaces and indexes?
+
+One of the problems I would like to be able to solve is to have writable vs. read-only data.
+
+One aspect of this is the ability to have the normal writable spaces, but also have runtime generated indices
+that can be used to find and reference objects (and run commands on them). One use case is to have runtime
+assignment of objects to UUIDs (possibly stable across restarts?) that would be used in commands. The UUIDs wouldn't
+change if objects are moved around, making it ideal for clickable text command completion.
+
+So far the two indices, in-memory and file, are both writable, but for the aforementioned read-only index feature,
+how should it be implemented? For example, I am tempted to implement the UUID index under the @mem/uuid namespace,
+which seems like a clean and simple place to put it, since the in-memory index doesn't need additional namespaces
+for other "locations", as there is really only one memory location. It seems like namespaces of the memory index
+is the most sensible place to put all runtime-generated indices.
+
+However, the memory index is writable, but these namespaces would be read-only, so then the question is
+whether the inclusion of read-only namespaces in a writable index is safe, and whether any changes need to be made
+in order to make the mixing of writable and read-only namespaces smooth and not prone to error.
+
+-----------------
+
+Design overview:
+
+Main Index -> Index -> Namespace -> fox-object
+
+Main Index:
+- The entry point of all indexing
+- Really just a holder registry that holds other indexes and exposes any default pathing
+- Probably handles the registration of indexes as well as associated storage hooks
+
+Index:
+- The heart of storage
+- Responsible for the actual data structure that stores objects, plus an associated storage method
+- There should only be one index for each method of storage, multiple locations should be implemented in namespaces
+
+Namespace:
+- Pages for indexes
+- Namespaces within an index are used primarily for different storage locations using the same storage engine
+- Namespaces can overlap or not, while indexes never overlap.
+
+
 

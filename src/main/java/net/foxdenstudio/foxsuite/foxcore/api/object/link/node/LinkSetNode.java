@@ -47,7 +47,8 @@ public class LinkSetNode extends LinkNodeBase {
         if (path.isEmpty()) return Optional.empty();
         Optional<LinkNode> node = super.getNode(path, create);
         if (!node.isPresent() && create) {
-            Leaf leaf = new Leaf(this.nodePath.concat(path), path.length());
+            Leaf leaf = new Leaf(this.containerObject, this.schema, this,
+                    this.nodePath.concat(path), path.length(), true, this.embeddable);
             this.addNodeInternal(leaf, path);
             node = Optional.of(leaf);
         }
@@ -59,17 +60,30 @@ public class LinkSetNode extends LinkNodeBase {
         if (path.isEmpty()) return Optional.empty();
         Optional<LinkNode> node = super.findFirst(path, create);
         if (!node.isPresent() && create) {
-            Leaf leaf = new Leaf(this.nodePath.concat(path), path.length());
+            Leaf leaf = new Leaf(this.containerObject, this.schema, this,
+                    this.nodePath.concat(path), path.length(), true, this.embeddable);
             this.addNodeInternal(leaf, path);
             node = Optional.of(leaf);
         }
         return node;
     }
 
-    public class Leaf extends LinkSlotBase {
+    @Override
+    public LinkNode deepCopy(LinkNodeContainer parent) {
+        LinkSetNode copy = new LinkSetNode(this.containerObject, this.schema, parent, this.nodePath,
+                this.localNodePath.length(), this.dynamic, this.embeddable);
+        copy.deepCopyFrom(this);
+        return copy;
+    }
 
-        protected Leaf(StandardPathComponent nodePath, int localPathLength) {
+    public static class Leaf extends LinkSlotBase {
+
+        /*protected Leaf(StandardPathComponent nodePath, int localPathLength) {
             super(LinkSetNode.this.containerObject, LinkSetNode.this.schema, LinkSetNode.this, nodePath, localPathLength, true, LinkSetNode.this.embeddable);
+        }*/
+
+        protected Leaf(FoxObject containerObject, LinkSchema schema, LinkNodeContainer parent, StandardPathComponent nodePath, int localPathLength, boolean dynamic, boolean embeddable) {
+            super(containerObject, schema, parent, nodePath, localPathLength, dynamic, embeddable);
         }
     }
 }

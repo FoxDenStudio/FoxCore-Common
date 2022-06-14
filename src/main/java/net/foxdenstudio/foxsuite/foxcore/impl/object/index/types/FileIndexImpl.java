@@ -294,8 +294,8 @@ public class FileIndexImpl extends WritableIndexBase implements FileIndex {
                             break;
                         case "data":
                             if (bundle.dataClassName == null) {
-                                failed = true;
                                 logger.warn("Data object read before data class name. This adapter does not yet support out-of-order deserialization. Skipping.");
+                                failed = true;
                                 in.skipValue();
                             } else {
                                 try {

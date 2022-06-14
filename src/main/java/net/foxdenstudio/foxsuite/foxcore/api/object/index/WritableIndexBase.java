@@ -381,6 +381,7 @@ public abstract class WritableIndexBase implements WritableIndex {
             IndexReference ref = createReference(foxObject, path, this);
             foxObject.setIndexReference(ref);
             this.indexMap.put(path.getPathComponent(), ref);
+            this.allPathsCopy = null;
             return Optional.of(ref);
         }
 
